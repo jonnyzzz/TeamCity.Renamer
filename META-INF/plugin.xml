@@ -23,7 +23,9 @@
   -->
 
   <extensions defaultExtensionNs="com.intellij">
-    <!-- Add your extensions here -->
+    <errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
+
+    <dom.extender domClass="com.jonnyzzz.teamcity.renamer.model.TeamCityElement" extenderClass="com.jonnyzzz.teamcity.renamer.model.TeamCityExtender"/>
   </extensions>
 
   <application-components>
