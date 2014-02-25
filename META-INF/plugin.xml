@@ -1,0 +1,41 @@
+<idea-plugin version="2">
+  <id>com.jonnyzzz.teamcity.renamer</id>
+  <name>TeamCity.Renamer</name>
+  <version>1.0</version>
+  <vendor email="renamer@jonnyzzz.com" url="http://www.jonnyzzz.com">jonnyzzz</vendor>
+
+  <description><![CDATA[
+      Allows to rename or cleanup TeamCity's build configurations
+    ]]></description>
+
+  <change-notes><![CDATA[
+      This is the first EAP release
+    ]]>
+  </change-notes>
+
+  <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
+  <idea-version since-build="133"/>
+
+  <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
+       on how to target different products -->
+  <!-- uncomment to enable plugin in all products
+  <depends>com.intellij.modules.lang</depends>
+  -->
+
+  <extensions defaultExtensionNs="com.intellij">
+    <!-- Add your extensions here -->
+  </extensions>
+
+  <application-components>
+    <!-- Add your application components here -->
+  </application-components>
+
+  <project-components>
+    <!-- Add your project components here -->
+  </project-components>
+
+  <actions>
+    <!-- Add your actions here -->
+  </actions>
+
+</idea-plugin>
