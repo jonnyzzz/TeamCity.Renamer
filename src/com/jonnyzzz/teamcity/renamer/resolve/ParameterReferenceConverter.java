@@ -40,7 +40,11 @@ public class ParameterReferenceConverter extends Converter<String> implements Cu
         final int refEnd = idx + startOffset;
 
         if (refStart < refEnd) {
-          references.add(new ParameterReference(value, xmlValue, new TextRange(refStart - 1, refEnd + 1)));
+          references.add(new ParameterReference(
+                  value,
+                  xmlValue,
+                  new TextRange(refStart - 1, refEnd + 1),
+                  text.substring(refStart - startOffset, refEnd - startOffset)));
         }
 
         //skip last % char
