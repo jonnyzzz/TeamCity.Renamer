@@ -25,7 +25,13 @@
   <extensions defaultExtensionNs="com.intellij">
     <errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
 
+    <dom.fileDescription implementation="com.jonnyzzz.teamcity.renamer.model.BuildTypeDescription"/>
     <dom.extender domClass="com.jonnyzzz.teamcity.renamer.model.TeamCityElement" extenderClass="com.jonnyzzz.teamcity.renamer.model.TeamCityExtender"/>
+
+
+    <localInspection language="XML" shortName="TeamCityResolveInspection" displayName="TeamCity references resolve problems"
+                     enabledByDefault="true" level="ERROR" implementationClass="com.jonnyzzz.teamcity.renamer.inspection.ResolvedInspection"/>
+
   </extensions>
 
   <application-components>
