@@ -43,7 +43,7 @@ public class ParameterReferenceConverter extends Converter<String> implements Cu
           references.add(new ParameterReference(
                   value,
                   xmlValue,
-                  new TextRange(refStart - 1, refEnd + 1),
+                  new TextRange(refStart, refEnd),
                   text.substring(refStart - startOffset, refEnd - startOffset)));
         }
 
