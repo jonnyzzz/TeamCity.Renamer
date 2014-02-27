@@ -1,7 +1,6 @@
-package com.jonnyzzz.teamcity.renamer.model;
+package com.jonnyzzz.teamcity.renamer.model.buildType;
 
 import com.intellij.util.xml.DomFileDescription;
-import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
 
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
