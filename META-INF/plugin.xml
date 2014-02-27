@@ -27,6 +27,7 @@
 
     <dom.fileDescription implementation="com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeDescription"/>
     <dom.fileDescription implementation="com.jonnyzzz.teamcity.renamer.model.template.BuildTypeTemplateDescription"/>
+    <dom.fileDescription implementation="com.jonnyzzz.teamcity.renamer.model.project.ProjectFileDescription"/>
     <dom.extender domClass="com.jonnyzzz.teamcity.renamer.model.TeamCityElement" extenderClass="com.jonnyzzz.teamcity.renamer.model.TeamCityExtender"/>
 
 
