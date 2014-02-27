@@ -1,0 +1,10 @@
+<build-type>
+  <name>Build</name>
+  <description/>
+  <settings>
+    <parameters>
+      <param name="aaa" value="%bcb%askdddkdkdkdkd%ggg%"/>
+      <param name="<ren>ggg" value="test %%  %ggg%"/>
+    </parameters>
+  </settings>
+</build-type>
