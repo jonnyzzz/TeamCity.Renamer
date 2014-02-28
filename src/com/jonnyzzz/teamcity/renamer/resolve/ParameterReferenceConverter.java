@@ -37,6 +37,8 @@ public class ParameterReferenceConverter extends Converter<String> implements Cu
         final int refStart = idx + startOffset;
 
         while (idx < text.length() && text.charAt(idx) != '%') idx++;
+        if (idx >= text.length()) break;
+
         final int refEnd = idx + startOffset;
 
         if (refStart < refEnd) {
