@@ -7,13 +7,11 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceBase;
 import com.intellij.util.xml.GenericDomValue;
+import com.jonnyzzz.teamcity.renamer.model.ParameterElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -45,12 +43,19 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> {
     return null;
   }
 
+  @NotNull
+  private Set<String> findSelfNames() {
+    final ParameterElement self = myAttr.getParentOfType(ParameterElement.class, false);
+    if (self != null) return Collections.singleton(self.getParameterName().getStringValue());
+    return Collections.emptySet();
+  }
+
 
   @NotNull
   @Override
   public Object[] getVariants() {
     final List<LookupElement> result = new ArrayList<LookupElement>(0);
-    final Set<String> names = new HashSet<>();
+    final Set<String> names = new HashSet<>(findSelfNames());
     for (DeclaredProperty variant : DeclaredProperties.fromContext(myAttr)) {
       final String name = variant.getName();
 
