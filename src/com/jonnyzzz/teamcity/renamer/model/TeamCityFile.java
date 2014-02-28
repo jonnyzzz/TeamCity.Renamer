@@ -1,7 +1,7 @@
 package com.jonnyzzz.teamcity.renamer.model;
 
 import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
-import com.jonnyzzz.teamcity.renamer.resolve.DeclaredProperty;
+import com.jonnyzzz.teamcity.renamer.resolve.property.DeclaredProperty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

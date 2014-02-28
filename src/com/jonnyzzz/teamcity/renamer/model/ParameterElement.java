@@ -4,7 +4,7 @@ import com.intellij.util.xml.Attribute;
 import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.GenericAttributeValue;
 import com.intellij.util.xml.NameValue;
-import com.jonnyzzz.teamcity.renamer.resolve.ParameterReferenceConverter;
+import com.jonnyzzz.teamcity.renamer.resolve.property.ParameterReferenceConverter;
 
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)

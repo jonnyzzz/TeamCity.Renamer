@@ -3,7 +3,7 @@ package com.jonnyzzz.teamcity.renamer.model;
 import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import com.intellij.util.xml.SubTagList;
-import com.jonnyzzz.teamcity.renamer.resolve.DeclaredProperty;
+import com.jonnyzzz.teamcity.renamer.resolve.property.DeclaredProperty;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

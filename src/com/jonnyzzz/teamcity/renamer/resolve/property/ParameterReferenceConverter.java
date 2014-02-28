@@ -1,4 +1,4 @@
-package com.jonnyzzz.teamcity.renamer.resolve;
+package com.jonnyzzz.teamcity.renamer.resolve.property;
 
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;

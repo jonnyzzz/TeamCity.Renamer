@@ -10,7 +10,7 @@ import com.intellij.util.xml.DomManager;
 import com.intellij.util.xml.Required;
 import com.intellij.util.xml.SubTag;
 import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
-import com.jonnyzzz.teamcity.renamer.resolve.DeclaredProperty;
+import com.jonnyzzz.teamcity.renamer.resolve.property.DeclaredProperty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

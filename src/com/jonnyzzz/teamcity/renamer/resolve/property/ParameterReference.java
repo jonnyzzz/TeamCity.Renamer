@@ -1,4 +1,4 @@
-package com.jonnyzzz.teamcity.renamer.resolve;
+package com.jonnyzzz.teamcity.renamer.resolve.property;
 
 import com.intellij.codeInsight.lookup.AutoCompletionPolicy;
 import com.intellij.codeInsight.lookup.LookupElement;

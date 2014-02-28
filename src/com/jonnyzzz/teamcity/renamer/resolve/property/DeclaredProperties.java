@@ -1,4 +1,4 @@
-package com.jonnyzzz.teamcity.renamer.resolve;
+package com.jonnyzzz.teamcity.renamer.resolve.property;
 
 import com.google.common.base.Function;
 import com.google.common.collect.AbstractIterator;

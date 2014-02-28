@@ -7,7 +7,7 @@ import com.intellij.psi.xml.XmlFile;
 import com.intellij.util.xml.*;
 import com.jonnyzzz.teamcity.renamer.model.ParametersBlockElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
-import com.jonnyzzz.teamcity.renamer.resolve.DeclaredProperty;
+import com.jonnyzzz.teamcity.renamer.resolve.property.DeclaredProperty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
