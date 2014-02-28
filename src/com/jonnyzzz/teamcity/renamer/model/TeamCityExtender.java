@@ -9,7 +9,8 @@ import org.jetbrains.annotations.NotNull;
  */
 public class TeamCityExtender extends DomExtender<TeamCityElement> {
   @Override
-  public void registerExtensions(@NotNull TeamCityElement teamCityElement, @NotNull DomExtensionsRegistrar domExtensionsRegistrar) {
+  public void registerExtensions(@NotNull TeamCityElement teamCityElement,
+                                 @NotNull DomExtensionsRegistrar domExtensionsRegistrar) {
 
   }
 }
