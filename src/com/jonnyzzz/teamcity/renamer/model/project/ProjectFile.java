@@ -1,15 +1,14 @@
 package com.jonnyzzz.teamcity.renamer.model.project;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.xml.XmlElement;
-import com.intellij.psi.xml.XmlFile;
-import com.intellij.util.xml.*;
+import com.intellij.util.xml.Attribute;
+import com.intellij.util.xml.GenericAttributeValue;
+import com.intellij.util.xml.SubTag;
 import com.jonnyzzz.teamcity.renamer.model.ParametersBlockElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
@@ -51,19 +50,6 @@ public abstract class ProjectFile extends TeamCityFile {
     return containingDirectory.getName();
   }
 
-  @Nullable
-  protected PsiDirectory getContainingDirectory() {
-    final XmlElement xmlElement = getXmlElement();
-    if (xmlElement == null) return null;
-
-    final PsiFile containingFile = xmlElement.getContainingFile();
-    if (containingFile == null) return null;
-
-    final PsiDirectory containingDirectory = containingFile.getContainingDirectory();
-    if (containingDirectory == null) return null;
-    return containingDirectory;
-  }
-
 
   @NotNull
   @Override
@@ -74,19 +60,10 @@ public abstract class ProjectFile extends TeamCityFile {
   @Nullable
   @Override
   public ProjectFile getParentProjectFile() {
-    final GenericAttributeValue<String> parentProjectAttribute = getParentProjectIdElement();
-    if (parentProjectAttribute == null) return null;
-
     final String parentProjectId = getParentProjectId();
     if (parentProjectId == null) return null;
 
-    final XmlElement xmlElement = getXmlElement();
-    if (xmlElement == null) return null;
-
-    final PsiFile containingFile = xmlElement.getContainingFile();
-    if (containingFile == null) return null;
-
-    final PsiDirectory containingDir = containingFile.getParent();
+    final PsiDirectory containingDir = getContainingDirectory();
     if (containingDir == null) return null;
 
     final PsiDirectory projectsDir = containingDir.getParent();
@@ -95,19 +72,8 @@ public abstract class ProjectFile extends TeamCityFile {
     final PsiDirectory parentDir = projectsDir.findSubdirectory(parentProjectId);
     if (parentDir == null) return null;
 
-    final PsiFile projectFile = parentDir.findFile("project-config.xml");
-    if (projectFile == null) return null;
-    if (!(projectFile instanceof XmlFile)) return null;
-
-    final XmlFile xmlFile = (XmlFile) projectFile;
-    final DomElement projectXml = DomManager.getDomManager(xmlElement.getProject()).getDomElement(xmlFile.getRootTag());
-
-    if (projectXml == null) return null;
-    if (!(projectXml instanceof ProjectFile)) return null;
-
-    return (ProjectFile) projectXml;
+    return toTeamCityFile(ProjectFile.class, parentDir.findFile("project-config.xml"));
   }
-
 
   @NotNull
   public Iterable<BuildTypeFile> getBuildTypes() {
@@ -143,17 +109,11 @@ public abstract class ProjectFile extends TeamCityFile {
 
     return FluentIterable
             .from(ImmutableList.copyOf(buildTypesDir.getFiles()))
-            .filter(XmlFile.class)
-            .filter(new Predicate<XmlFile>() {
+            .transform(new Function<PsiFile, T>() {
               @Override
-              public boolean apply(XmlFile xmlFile) {
-                return xmlFile.getName().endsWith(".xml");
+              public T apply(PsiFile xmlFile) {
+                return toTeamCityFile(type, xmlFile);
               }
-            }).transform(new Function<XmlFile, DomElement>() {
-              @Override
-              public DomElement apply(XmlFile xmlFile) {
-                return DomManager.getDomManager(xmlFile.getProject()).getDomElement(xmlFile.getRootTag());
-              }
-            }).filter(type);
+            }).filter(Predicates.notNull());
   }
 }
