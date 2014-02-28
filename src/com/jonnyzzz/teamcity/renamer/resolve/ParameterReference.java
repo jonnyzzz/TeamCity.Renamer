@@ -1,19 +1,19 @@
 package com.jonnyzzz.teamcity.renamer.resolve;
 
+import com.intellij.codeInsight.lookup.AutoCompletionPolicy;
+import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReferenceBase;
-import com.intellij.psi.xml.XmlFile;
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.DomManager;
 import com.intellij.util.xml.GenericDomValue;
-import com.jonnyzzz.teamcity.renamer.model.ParameterElement;
-import com.jonnyzzz.teamcity.renamer.model.ParametersBlockElement;
-import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -29,7 +29,7 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> {
                             @NotNull final PsiElement element,
                             @NotNull final TextRange range,
                             @NotNull final String referredVariableName) {
-    super(element, range, false);
+    super(element, range, true);
     myAttr = attr;
     myReferredVariableName = referredVariableName;
   }
@@ -37,42 +37,31 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> {
   @Nullable
   @Override
   public PsiElement resolve() {
-    final ParametersBlockElement nearParameters = myAttr.getParentOfType(ParametersBlockElement.class, true);
-
-    if (nearParameters != null) {
-      for (ParameterElement element : nearParameters.getParameters()) {
-        if (myReferredVariableName.equals(element.getParameterName().getStringValue())) {
-          return element.getParameterName().getXmlAttributeValue();
-        }
+    for (DeclaredProperty property : DeclaredProperties.fromContext(myAttr)) {
+      if (myReferredVariableName.equals(property.getName())) {
+        return property.getResolvedValue();
       }
     }
-
-    final PsiDirectory parentDir = myElement.getContainingFile().getParent().getParentDirectory();
-    if (parentDir != null) {
-      final PsiFile projectFile = parentDir.findFile("project-config.xml");
-
-      if (projectFile != null && projectFile instanceof XmlFile) {
-        final DomElement projectXml = DomManager.getDomManager(myElement.getProject()).getDomElement(((XmlFile) projectFile).getRootTag());
-        if (projectXml != null && projectXml instanceof ProjectFile) {
-          for (ParameterElement element : ((ProjectFile) projectXml).getParametersBlock().getParameters()) {
-            if (myReferredVariableName.equals(element.getParameterName().getStringValue())) {
-              return element.getParameterName().getXmlAttributeValue();
-            }
-          }
-        }
-      }
-
-    }
-
     return null;
   }
+
 
   @NotNull
   @Override
   public Object[] getVariants() {
-    return new Object[0];
+    final List<LookupElement> result = new ArrayList<LookupElement>(0);
+    final Set<String> names = new HashSet<>();
+    for (DeclaredProperty variant : DeclaredProperties.fromContext(myAttr)) {
+      final String name = variant.getName();
+
+      //skip overrides
+      if (!names.add(name)) continue;
+
+      final LookupElementBuilder builder = LookupElementBuilder.create(name).withCaseSensitivity(false);
+      final LookupElement element = AutoCompletionPolicy.GIVE_CHANCE_TO_OVERWRITE.applyPolicy(builder);
+      result.add(element);
+    }
+
+    return result.toArray();
   }
-
-
-
 }

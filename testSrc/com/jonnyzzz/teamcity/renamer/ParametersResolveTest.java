@@ -4,7 +4,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.testFramework.ResolveTestCase;
-import junit.framework.Assert;
+import org.junit.Assert;
 
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)

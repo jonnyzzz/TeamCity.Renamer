@@ -1,12 +1,14 @@
-package com.jonnyzzz.teamcity.renamer.model.project;
+package com.jonnyzzz.teamcity.renamer.model;
 
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.xml.XmlElement;
 import com.intellij.psi.xml.XmlFile;
-import com.intellij.util.xml.*;
-import com.jonnyzzz.teamcity.renamer.model.ParametersBlockElement;
-import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
+import com.intellij.util.xml.DomElement;
+import com.intellij.util.xml.DomManager;
+import com.intellij.util.xml.Required;
+import com.intellij.util.xml.SubTag;
+import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
 import com.jonnyzzz.teamcity.renamer.resolve.DeclaredProperty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,30 +16,12 @@ import org.jetbrains.annotations.Nullable;
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
-public abstract class ProjectFile extends TeamCityFile {
-
-  @Attribute("parent-id")
-  public abstract GenericAttributeValue<String> getParentProjectId();
-
-  @SubTag("parameters")
-  public abstract ParametersBlockElement getParametersBlock();
-
-
-  @NotNull
-  @Override
-  public Iterable<DeclaredProperty> getDeclaredParameters() {
-    return getParametersBlock().getDeclarations();
-  }
-
+public abstract class TeamCitySettingsBasedFile extends TeamCityFile {
+  /**
+   * @return containing project file. For ProjectFile returns parent project (if any)
+   */
   @Nullable
-  @Override
   public ProjectFile getParentProjectFile() {
-    final GenericAttributeValue<String> parentProjectAttribute = getParentProjectId();
-    if (parentProjectAttribute == null) return null;
-
-    final String parentProjectId = parentProjectAttribute.getStringValue();
-    if (parentProjectId == null || parentProjectId.trim().length() == 0) return null;
-
     final XmlElement xmlElement = getXmlElement();
     if (xmlElement == null) return null;
 
@@ -47,7 +31,7 @@ public abstract class ProjectFile extends TeamCityFile {
     final PsiDirectory containingDir = containingFile.getParent();
     if (containingDir == null) return null;
 
-    final PsiDirectory parentDir = containingDir.findSubdirectory(parentProjectId);
+    final PsiDirectory parentDir = containingDir.getParentDirectory();
     if (parentDir == null) return null;
 
     final PsiFile projectFile = parentDir.findFile("project-config.xml");
@@ -62,4 +46,17 @@ public abstract class ProjectFile extends TeamCityFile {
 
     return (ProjectFile) projectXml;
   }
+
+  @Required
+  @SubTag("settings")
+  public SettingsElement getSettings() {
+    throw new RuntimeException("Must be implemented");
+  }
+
+  @NotNull
+  @Override
+  public Iterable<DeclaredProperty> getDeclaredParameters() {
+    return getSettings().getParametersBlock().getDeclarations();
+  }
+
 }
