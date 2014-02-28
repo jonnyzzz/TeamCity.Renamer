@@ -27,7 +27,7 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> {
                             @NotNull final PsiElement element,
                             @NotNull final TextRange range,
                             @NotNull final String referredVariableName) {
-    super(element, range, true);
+    super(element, range, false);
     myAttr = attr;
     myReferredVariableName = referredVariableName;
   }

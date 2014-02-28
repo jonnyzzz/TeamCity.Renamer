@@ -11,12 +11,12 @@ import com.jonnyzzz.teamcity.renamer.resolve.ParameterReferenceConverter;
  */
 public abstract class ParameterElement extends TeamCityElement {
 
-  @Attribute("name")
   @NameValue
+  @Attribute("name")
   public abstract GenericAttributeValue<String> getParameterName();
 
   @Attribute("value")
-  @Convert(ParameterReferenceConverter.class)
+  @Convert(value = ParameterReferenceConverter.class, soft = false)
   public abstract GenericAttributeValue<String> getParameterValue();
 
 }
