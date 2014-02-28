@@ -10,6 +10,11 @@ import org.jetbrains.annotations.Nullable;
  */
 public abstract class TeamCityFile extends TeamCityElement {
 
+  @Nullable
+  public String getFileId() {
+    throw new RuntimeException("Must be implemented");
+  }
+
   /**
    * @return containing project file. For ProjectFile returns parent project (if any)
    */
@@ -21,5 +26,10 @@ public abstract class TeamCityFile extends TeamCityElement {
   @NotNull
   public Iterable<DeclaredProperty> getDeclaredParameters() {
     throw new RuntimeException("Must be implemented");
+  }
+
+  @Override
+  public String toString() {
+    return "[" + getFileId() + "] " + super.toString();
   }
 }

@@ -1,5 +1,6 @@
 package com.jonnyzzz.teamcity.renamer.model;
 
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.xml.XmlElement;
@@ -17,6 +18,18 @@ import org.jetbrains.annotations.Nullable;
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
 public abstract class TeamCitySettingsBasedFile extends TeamCityFile {
+
+  @Nullable
+  public String getFileId() {
+    final XmlElement xmlElement = getXmlElement();
+    if (xmlElement == null) return null;
+
+    final PsiFile containingFile = xmlElement.getContainingFile();
+    if (containingFile == null) return null;
+
+    return FileUtil.getNameWithoutExtension(containingFile.getName());
+  }
+
   /**
    * @return containing project file. For ProjectFile returns parent project (if any)
    */
