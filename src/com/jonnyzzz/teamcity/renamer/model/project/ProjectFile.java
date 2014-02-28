@@ -1,5 +1,10 @@
 package com.jonnyzzz.teamcity.renamer.model.project;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.xml.XmlElement;
@@ -7,7 +12,10 @@ import com.intellij.psi.xml.XmlFile;
 import com.intellij.util.xml.*;
 import com.jonnyzzz.teamcity.renamer.model.ParametersBlockElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
+import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
+import com.jonnyzzz.teamcity.renamer.model.template.BuildTemplateFile;
 import com.jonnyzzz.teamcity.renamer.resolve.property.DeclaredProperty;
+import com.jonnyzzz.teamcity.renamer.resolve.settings.DeclaredTemplate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,6 +45,14 @@ public abstract class ProjectFile extends TeamCityFile {
 
   @Nullable
   public String getFileId() {
+    final PsiDirectory containingDirectory = getContainingDirectory();
+    if (containingDirectory == null) return null;
+
+    return containingDirectory.getName();
+  }
+
+  @Nullable
+  protected PsiDirectory getContainingDirectory() {
     final XmlElement xmlElement = getXmlElement();
     if (xmlElement == null) return null;
 
@@ -45,8 +61,7 @@ public abstract class ProjectFile extends TeamCityFile {
 
     final PsiDirectory containingDirectory = containingFile.getContainingDirectory();
     if (containingDirectory == null) return null;
-
-    return containingDirectory.getName();
+    return containingDirectory;
   }
 
 
@@ -91,5 +106,54 @@ public abstract class ProjectFile extends TeamCityFile {
     if (!(projectXml instanceof ProjectFile)) return null;
 
     return (ProjectFile) projectXml;
+  }
+
+
+  @NotNull
+  public Iterable<BuildTypeFile> getBuildTypes() {
+    return getBuildOrTemplates(BuildTypeFile.class);
+  }
+
+  @NotNull
+  public Iterable<BuildTemplateFile> getTemplates() {
+    return getBuildOrTemplates(BuildTemplateFile.class);
+  }
+
+  @NotNull
+  public Iterable<DeclaredTemplate> getDeclaredTemplates() {
+    return FluentIterable
+            .from(getTemplates())
+            .transform(new Function<BuildTemplateFile, DeclaredTemplate>() {
+              @Override
+              public DeclaredTemplate apply(BuildTemplateFile buildTemplateFile) {
+                final String fileId = buildTemplateFile.getFileId();
+                if (fileId == null) return null;
+                return new DeclaredTemplate(fileId, buildTemplateFile);
+              }
+            }).filter(Predicates.notNull());
+  }
+
+  @NotNull
+  private <T extends TeamCityFile> Iterable<T> getBuildOrTemplates(@NotNull final Class<T> type) {
+    final PsiDirectory dir = getContainingDirectory();
+    if (dir == null) return ImmutableList.of();
+
+    final PsiDirectory buildTypesDir = dir.findSubdirectory("buildTypes");
+    if (buildTypesDir == null) return ImmutableList.of();
+
+    return FluentIterable
+            .from(ImmutableList.copyOf(buildTypesDir.getFiles()))
+            .filter(XmlFile.class)
+            .filter(new Predicate<XmlFile>() {
+              @Override
+              public boolean apply(XmlFile xmlFile) {
+                return xmlFile.getName().endsWith(".xml");
+              }
+            }).transform(new Function<XmlFile, DomElement>() {
+              @Override
+              public DomElement apply(XmlFile xmlFile) {
+                return DomManager.getDomManager(xmlFile.getProject()).getDomElement(xmlFile.getRootTag());
+              }
+            }).filter(type);
   }
 }

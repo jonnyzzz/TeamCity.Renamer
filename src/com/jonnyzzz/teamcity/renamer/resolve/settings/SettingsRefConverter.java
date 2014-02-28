@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
-public class SettingsRefConverter extends Converter<String> implements CustomReferenceConverter<String>{
+public class SettingsRefConverter extends Converter<String> implements CustomReferenceConverter<String> {
 
   @NotNull
   @Override
@@ -26,8 +26,11 @@ public class SettingsRefConverter extends Converter<String> implements CustomRef
 
     if (attrValue == null) return PsiReference.EMPTY_ARRAY;
 
-    final TextRange range = attrValue.getValueTextRange().shiftRight(1-attrValue.getTextOffset());
-    return new PsiReference[] { new SettingsReference(attrValue, range)};
+    final String name = attrValue.getValue();
+    if (name == null) return PsiReference.EMPTY_ARRAY;
+
+    final TextRange range = attrValue.getValueTextRange().shiftRight(1 - attrValue.getTextOffset());
+    return new PsiReference[]{new SettingsReference(attr, name, attrValue, range)};
   }
 
   @Nullable
