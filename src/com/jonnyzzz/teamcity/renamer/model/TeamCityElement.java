@@ -24,7 +24,7 @@ public abstract class TeamCityElement implements DomElement {
     final PsiFile containingFile = getContainingFile();
     if (containingFile == null) return null;
 
-    final PsiDirectory containingDirectory = containingFile.getContainingDirectory();
+    final PsiDirectory containingDirectory = containingFile.getOriginalFile().getContainingDirectory();
     if (containingDirectory == null) return null;
     return containingDirectory;
   }
