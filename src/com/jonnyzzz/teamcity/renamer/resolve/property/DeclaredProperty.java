@@ -42,10 +42,10 @@ public class DeclaredProperty {
       final GenericAttributeValue<String> nameDeclaration = parameterElement.getParameterName();
       if (nameDeclaration == null) return null;
 
-      final String name = nameDeclaration.getStringValue();
-      final XmlAttributeValue element = nameDeclaration.getXmlAttributeValue();
+      final String name = parameterElement.getParameterNameString();
+      if (name == null) return null;
 
-      if (name == null || name.length() == 0) return null;
+      final XmlAttributeValue element = nameDeclaration.getXmlAttributeValue();
       if (element == null) return null;
 
       return new DeclaredProperty(parameterElement, name, element);

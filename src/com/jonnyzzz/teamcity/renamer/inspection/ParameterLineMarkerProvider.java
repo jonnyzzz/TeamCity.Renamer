@@ -85,13 +85,12 @@ public class ParameterLineMarkerProvider implements LineMarkerProvider {
               AllIcons.General.OverridingMethod,
               Pass.UPDATE_ALL,
               tooltip(target),
-              navigation(target, psiValue),
+              navigation(target),
               GutterIconRenderer.Alignment.LEFT);
-      myParameterName = parameter.getParameterName().getStringValue();
+      myParameterName = parameter.getParameterNameString();
     }
 
-    private static GutterIconNavigationHandler<XmlAttributeValue> navigation(@NotNull final ParameterElement target,
-                                                                             @NotNull final XmlAttributeValue navigation) {
+    private static GutterIconNavigationHandler<XmlAttributeValue> navigation(@NotNull final ParameterElement target) {
       return new GutterIconNavigationHandler<XmlAttributeValue>() {
         @Override
         public void navigate(MouseEvent e, XmlAttributeValue elt) {

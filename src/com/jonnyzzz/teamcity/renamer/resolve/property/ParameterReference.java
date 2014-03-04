@@ -46,7 +46,7 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> {
   @NotNull
   private Set<String> findSelfNames() {
     final ParameterElement self = myAttr.getParentOfType(ParameterElement.class, false);
-    if (self != null) return Collections.singleton(self.getParameterName().getStringValue());
+    if (self != null) return Collections.singleton(self.getParameterNameString());
     return Collections.emptySet();
   }
 

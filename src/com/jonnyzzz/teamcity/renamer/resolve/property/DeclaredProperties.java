@@ -49,7 +49,10 @@ public class DeclaredProperties {
     final Map<String, ParameterElement> nameToGiven = new HashMap<>();
     TeamCityFile containingFile = null;
     for (ParameterElement element : elements) {
-      nameToGiven.put(element.getParameterName().getStringValue(), element);
+      final String name = element.getParameterNameString();
+      if (name == null) continue;
+
+      nameToGiven.put(name, element);
 
       final TeamCityFile aFile = element.getParentOfType(TeamCityFile.class, false);
       if (containingFile == null) {
