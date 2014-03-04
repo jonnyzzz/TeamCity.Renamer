@@ -72,7 +72,7 @@ public abstract class ProjectFile extends TeamCityFile {
     final PsiDirectory parentDir = projectsDir.findSubdirectory(parentProjectId);
     if (parentDir == null) return null;
 
-    return toTeamCityFile(ProjectFile.class, parentDir.findFile("project-config.xml"));
+    return toTeamCityFile(ProjectFile.class, parentDir.findFile(PROJECT_CONFIG_FILE_NAME));
   }
 
   @NotNull

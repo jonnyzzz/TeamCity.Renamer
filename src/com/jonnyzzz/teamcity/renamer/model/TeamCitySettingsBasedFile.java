@@ -34,7 +34,7 @@ public abstract class TeamCitySettingsBasedFile extends TeamCityFile {
     final PsiDirectory parentDir = containingDir.getParentDirectory();
     if (parentDir == null) return null;
 
-    final PsiFile projectFile = parentDir.findFile("project-config.xml");
+    final PsiFile projectFile = parentDir.findFile(PROJECT_CONFIG_FILE_NAME);
     return TeamCityFile.toTeamCityFile(ProjectFile.class, projectFile);
   }
 

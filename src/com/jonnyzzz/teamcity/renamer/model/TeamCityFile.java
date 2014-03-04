@@ -14,6 +14,9 @@ import org.jetbrains.annotations.Nullable;
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
 public abstract class TeamCityFile extends TeamCityElement {
+  public static final String PROJECT_CONFIG_FILE_NAME = "project-config.xml";
+
+
 
   @Nullable
   public String getFileId() {
