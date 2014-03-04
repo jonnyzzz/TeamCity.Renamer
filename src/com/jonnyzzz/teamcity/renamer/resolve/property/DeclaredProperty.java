@@ -11,11 +11,15 @@ import org.jetbrains.annotations.NotNull;
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
 public class DeclaredProperty {
+  @NotNull
+  private final ParameterElement myParameterElement;
   private final String myName;
   private final PsiElement myResolvedValue;
 
-  public DeclaredProperty(@NotNull final String name,
+  public DeclaredProperty(@NotNull final ParameterElement parameterElement,
+                          @NotNull final String name,
                           @NotNull final PsiElement resolvedValue) {
+    myParameterElement = parameterElement;
     myName = name;
     myResolvedValue = resolvedValue;
   }
@@ -44,7 +48,12 @@ public class DeclaredProperty {
       if (name == null || name.length() == 0) return null;
       if (element == null) return null;
 
-      return new DeclaredProperty(name, element);
+      return new DeclaredProperty(parameterElement, name, element);
     }
   };
+
+  @NotNull
+  public ParameterElement getParameterElement() {
+    return myParameterElement;
+  }
 }
