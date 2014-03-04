@@ -27,8 +27,16 @@ public abstract class TeamCityFile extends TeamCityElement {
   public final String getFilePresentableName() {
     return getFileKind()
             + " <b>" +
-            StringUtil.escapeXml(getName().getRawText())
+            StringUtil.escapeXml(getPresentableName())
             + "</b>(" + getFileId() + ")";
+  }
+
+  @NotNull
+  protected final String getPresentableName() {
+    final String thisName = getName().getRawText();
+    final ProjectFile parentFile = getParentProjectFile();
+    if (parentFile == null) return thisName;
+    return parentFile.getPresentableName() + " :: " + thisName;
   }
 
   @NotNull
