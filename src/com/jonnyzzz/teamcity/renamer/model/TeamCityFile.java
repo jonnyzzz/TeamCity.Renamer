@@ -24,11 +24,19 @@ public abstract class TeamCityFile extends TeamCityElement {
   public abstract GenericDomValue<String> getBuildTypeDescription();
 
   @NotNull
-  public final String getFilePresentableName() {
+  public final String getFilePresentableNameHTML() {
     return getFileKind()
             + " <b>" +
             StringUtil.escapeXml(getPresentableName())
             + "</b>(" + getFileId() + ")";
+  }
+
+  @NotNull
+  public final String getFilePresentableNameText() {
+    return getFileKind()
+            + " " +
+            (getPresentableName())
+            + "(" + getFileId() + ")";
   }
 
   @NotNull

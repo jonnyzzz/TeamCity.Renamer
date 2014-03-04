@@ -9,12 +9,16 @@ import com.intellij.codeHighlighting.Pass;
 import com.intellij.codeInsight.daemon.GutterIconNavigationHandler;
 import com.intellij.codeInsight.daemon.LineMarkerInfo;
 import com.intellij.codeInsight.daemon.LineMarkerProvider;
+import com.intellij.codeInsight.navigation.NavigationUtil;
 import com.intellij.icons.AllIcons;
+import com.intellij.ide.util.DefaultPsiElementCellRenderer;
+import com.intellij.ide.util.PsiElementListCellRenderer;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.psi.xml.XmlTag;
+import com.intellij.ui.awt.RelativePoint;
 import com.intellij.util.PsiNavigateUtil;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomManager;
@@ -120,12 +124,51 @@ public class ParameterLineMarkerProvider implements LineMarkerProvider {
     return new GutterIconNavigationHandler<XmlAttributeValue>() {
       @Override
       public void navigate(MouseEvent e, XmlAttributeValue elt) {
+        if (target.isEmpty()) return;
+
         if (target.size() == 1) {
           PsiNavigateUtil.navigate(target.iterator().next().getParameterName().getXmlAttributeValue());
+          return;
         }
+
+        if (e == null) return;
+
+        final XmlAttributeValue[] elements = FluentIterable.from(target)
+                .transform(TO_PSI_ELEMENT)
+                .filter(Predicates.notNull())
+                .toArray(XmlAttributeValue.class);
+
+        final PsiElementListCellRenderer<PsiElement> render = new DefaultPsiElementCellRenderer(){
+          @Override
+          public String getContainerText(PsiElement element, String name) {
+            final ParameterElement param = ParameterElement.fromPsiElement(element);
+            if (param == null) return super.getContainerText(element, name);
+
+            final TeamCityFile file = param.getParentOfType(TeamCityFile.class, false);
+            if (file == null) return super.getContainerText(element, name);
+
+            return file.getFilePresentableNameText();
+          }
+
+          @Override
+          public String getElementText(PsiElement element) {
+            return super.getElementText(element);
+          }
+        };
+        NavigationUtil
+                .getPsiElementPopup(elements, render, "Select parameter to navigate\u2026")
+                .show(new RelativePoint(e));
       }
     };
   }
+
+  private static final Function<ParameterElement, XmlAttributeValue> TO_PSI_ELEMENT = new Function<ParameterElement, XmlAttributeValue>() {
+    @Override
+    public XmlAttributeValue apply(ParameterElement parameterElement) {
+      return parameterElement.getParameterName().getXmlAttributeValue();
+    }
+  };
+
 
   private static com.intellij.util.Function<? super XmlAttributeValue, String> tooltip(@NotNull final String prefix,
                                                                                        @NotNull final Collection<ParameterElement> target) {
@@ -137,7 +180,7 @@ public class ParameterLineMarkerProvider implements LineMarkerProvider {
           public Object apply(ParameterElement parameterElement) {
             final TeamCityFile file = parameterElement.getParentOfType(TeamCityFile.class, false);
             if (file == null) return null;
-            return file.getFilePresentableName();
+            return file.getFilePresentableNameHTML();
           }
         }).filter(Predicates.notNull()));
       }

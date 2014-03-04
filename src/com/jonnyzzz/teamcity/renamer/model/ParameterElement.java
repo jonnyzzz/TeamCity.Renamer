@@ -1,5 +1,9 @@
 package com.jonnyzzz.teamcity.renamer.model;
 
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.psi.xml.XmlAttribute;
+import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.xml.*;
 import com.jonnyzzz.teamcity.renamer.resolve.property.ParameterReferenceConverter;
 import org.jetbrains.annotations.Nullable;
@@ -25,5 +29,31 @@ public abstract class ParameterElement extends TeamCityElement {
     final String name = getParameterName().getStringValue();
     if (name == null || StringUtil.isEmpty(name)) return null;
     return name.trim();
+  }
+
+
+  @Nullable
+  public static ParameterElement fromPsiElement(@Nullable final PsiElement element) {
+    if (element == null) return null;
+
+    final DomManager dom = DomManager.getDomManager(element.getProject());
+
+    final XmlAttribute attr = PsiTreeUtil.getParentOfType(element, XmlAttribute.class, false);
+    if (attr != null) {
+      final GenericAttributeValue el = dom.getDomElement(attr);
+      if (el != null) {
+        return el.getParentOfType(ParameterElement.class, false);
+      }
+    }
+
+    final XmlTag tag = PsiTreeUtil.getParentOfType(element, XmlTag.class, false);
+    if (tag != null) {
+      final DomElement el = dom.getDomElement(tag);
+      if (el instanceof ParameterElement) {
+        return (ParameterElement) el;
+      }
+    }
+
+    return null;
   }
 }
