@@ -1,9 +1,6 @@
 package com.jonnyzzz.teamcity.renamer.model;
 
-import com.intellij.util.xml.Attribute;
-import com.intellij.util.xml.Convert;
-import com.intellij.util.xml.GenericAttributeValue;
-import com.intellij.util.xml.NameValue;
+import com.intellij.util.xml.*;
 import com.jonnyzzz.teamcity.renamer.resolve.property.ParameterReferenceConverter;
 
 /**
@@ -11,6 +8,7 @@ import com.jonnyzzz.teamcity.renamer.resolve.property.ParameterReferenceConverte
  */
 public abstract class ParameterElement extends TeamCityElement {
 
+  @Required
   @NameValue
   @Attribute("name")
   public abstract GenericAttributeValue<String> getParameterName();

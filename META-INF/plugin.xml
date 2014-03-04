@@ -34,6 +34,9 @@
     <localInspection language="XML" shortName="TeamCityResolveInspection" displayName="TeamCity references resolve problems"
                      enabledByDefault="true" level="ERROR" implementationClass="com.jonnyzzz.teamcity.renamer.inspection.ResolvedInspection"/>
 
+    <codeInsight.lineMarkerProvider language="XML" implementationClass="com.jonnyzzz.teamcity.renamer.inspection.ParameterLineMarkerProvider"/>
+
+
   </extensions>
 
   <application-components>
