@@ -66,10 +66,10 @@ public class ParameterLineMarkerProvider implements LineMarkerProvider {
             }).filter(Predicates.notNull())
             .toList();
 
-    final Map<ParameterElement,ParameterElement> resolved = DeclaredProperties.findOverriddenParametersFromParents(parameters);
+    final Multimap<ParameterElement, ParameterElement> resolved = DeclaredProperties.findOverriddenParametersFromParents(parameters);
     final Multimap<ParameterElement, ParameterElement> children = DeclaredProperties.findOverriddenByChildrenParameters(parameters);
 
-    for (Map.Entry<ParameterElement, ParameterElement> e : resolved.entrySet()) {
+    for (Map.Entry<ParameterElement, Collection<ParameterElement>> e : resolved.asMap().entrySet()) {
       final ParameterElement toHighlight = e.getKey();
       final XmlAttributeValue value = toHighlight.getParameterName().getXmlAttributeValue();
       if (value == null) continue;
@@ -91,7 +91,7 @@ public class ParameterLineMarkerProvider implements LineMarkerProvider {
 
     public OverriddenUpMarker(@NotNull final ParameterElement parameter,
                               @NotNull final XmlAttributeValue psiValue,
-                              @NotNull final ParameterElement target) {
+                              @NotNull final Collection<ParameterElement> target) {
       super(psiValue,
               psiValue.getValueTextRange(),
               AllIcons.General.OverridingMethod,
@@ -102,23 +102,29 @@ public class ParameterLineMarkerProvider implements LineMarkerProvider {
       myParameterName = parameter.getParameterNameString();
     }
 
-    private static GutterIconNavigationHandler<XmlAttributeValue> navigation(@NotNull final ParameterElement target) {
+    private static GutterIconNavigationHandler<XmlAttributeValue> navigation(@NotNull final Collection<ParameterElement> target) {
       return new GutterIconNavigationHandler<XmlAttributeValue>() {
         @Override
         public void navigate(MouseEvent e, XmlAttributeValue elt) {
-          PsiNavigateUtil.navigate(target.getParameterName().getXmlAttributeValue());
+          if (target.size() == 1) {
+            PsiNavigateUtil.navigate(target.iterator().next().getParameterName().getXmlAttributeValue());
+          }
         }
       };
     }
 
-    private static com.intellij.util.Function<? super XmlAttributeValue, String> tooltip(@NotNull final ParameterElement target) {
+    private static com.intellij.util.Function<? super XmlAttributeValue, String> tooltip(@NotNull final Collection<ParameterElement> target) {
       return new com.intellij.util.Function<XmlAttributeValue, String>() {
         @Override
         public String fun(XmlAttributeValue xmlAttributeValue) {
-          final TeamCityFile file = target.getParentOfType(TeamCityFile.class, false);
-          if (file != null)
-            return "Overrides parameter from " + file.getFilePresentableName();
-          return "Overrides parameter from ???";
+          return "Overrides from " + Joiner.on(", ").join(FluentIterable.from(target).transform(new Function<ParameterElement, Object>() {
+            @Override
+            public Object apply(ParameterElement parameterElement) {
+              final TeamCityFile file = parameterElement.getParentOfType(TeamCityFile.class, false);
+              if (file == null) return null;
+              return file.getFilePresentableName();
+            }
+          }).filter(Predicates.notNull()));
         }
       };
     }
@@ -146,7 +152,9 @@ public class ParameterLineMarkerProvider implements LineMarkerProvider {
       return new GutterIconNavigationHandler<XmlAttributeValue>() {
         @Override
         public void navigate(MouseEvent e, XmlAttributeValue elt) {
-          //TODO: Multi navigation...
+          if (target.size() == 1) {
+            PsiNavigateUtil.navigate(target.iterator().next().getParameterName().getXmlAttributeValue());
+          }
         }
       };
     }

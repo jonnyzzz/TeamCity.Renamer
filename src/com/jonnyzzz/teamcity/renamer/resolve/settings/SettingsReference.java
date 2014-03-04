@@ -36,10 +36,9 @@ public class SettingsReference extends PsiReferenceBase<PsiElement> {
   @Nullable
   @Override
   public PsiElement resolve() {
-    for (DeclaredTemplate template : DeclaredTemplates.fromContext(myContext)) {
-      if (template.getName().equals(myName)) {
-        return template.getFile().getSettingsElement().getXmlElement();
-      }
+    final DeclaredTemplate resolve = DeclaredTemplates.resolve(myContext, myName);
+    if (resolve != null) {
+      return resolve.getFile().getSettingsElement().getXmlElement();
     }
 
     return null;

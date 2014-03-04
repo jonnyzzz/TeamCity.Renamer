@@ -3,13 +3,20 @@ package com.jonnyzzz.teamcity.renamer.resolve.property;
 import com.google.common.base.Function;
 import com.google.common.collect.*;
 import com.intellij.util.xml.DomElement;
+import com.intellij.util.xml.GenericAttributeValue;
 import com.jonnyzzz.teamcity.renamer.model.ParameterElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
+import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
 import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
+import com.jonnyzzz.teamcity.renamer.resolve.settings.DeclaredTemplate;
+import com.jonnyzzz.teamcity.renamer.resolve.settings.DeclaredTemplates;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import static com.jonnyzzz.teamcity.renamer.resolve.Visitors.getProjectFiles;
 
@@ -25,16 +32,17 @@ public class DeclaredProperties {
 
     return Iterables.concat(
             file.getDeclaredParameters(),
-            fromParentParameters(file),
-            getParametersFromTemplate(file)
+            fromParentParameters(file)
     );
   }
 
   @NotNull
   private static Iterable<DeclaredProperty> fromParentParameters(@NotNull final TeamCityFile file) {
-    return FluentIterable
-            .from(getProjectFiles(file.getParentProjectFile()))
-            .transformAndConcat(FILE_TO_DECLARATIONS);
+    return Iterables.concat(FluentIterable
+                    .from(getProjectFiles(file.getParentProjectFile()))
+                    .transformAndConcat(FILE_TO_DECLARATIONS),
+            getParametersFromTemplate(file)
+    );
   }
 
   @NotNull
@@ -103,26 +111,17 @@ public class DeclaredProperties {
     return nameToGiven;
   }
 
-  @NotNull
-  private static Map<String, DeclaredProperty> indexProperties(@NotNull Iterable<DeclaredProperty> elements) {
-    final Map<String, DeclaredProperty> nameToGiven = new HashMap<>();
-    for (DeclaredProperty element : elements) {
-      final String name = element.getName();
-      nameToGiven.put(name, element);
-    }
-    return nameToGiven;
-  }
-
   /**
    * @return map from given parameter to detected override
    */
   @NotNull
-  public static Map<ParameterElement, ParameterElement> findOverriddenParametersFromParents(@NotNull final Iterable<ParameterElement> elements) {
-    final Map<ParameterElement, ParameterElement> map = new HashMap<>();
+  public static Multimap<ParameterElement, ParameterElement> findOverriddenParametersFromParents(@NotNull final Iterable<ParameterElement> elements) {
     final Map<String, ParameterElement> nameToGiven = indexElements(elements);
     TeamCityFile containingFile = sameContainingFile(elements);
 
-    if (containingFile == null) return Collections.emptyMap();
+    if (containingFile == null) return ImmutableListMultimap.of();
+
+    final Multimap<ParameterElement, ParameterElement> map = ArrayListMultimap.create();
     for (DeclaredProperty dp : fromParentParameters(containingFile)) {
       final ParameterElement originalElement = nameToGiven.get(dp.getName());
       if (originalElement != null) map.put(originalElement, dp.getParameterElement());
@@ -151,7 +150,16 @@ public class DeclaredProperties {
 
   @NotNull
   private static Iterable<DeclaredProperty> getParametersFromTemplate(@NotNull final TeamCityFile file) {
-    //TODO: fixme
+    if (file instanceof BuildTypeFile) {
+      final GenericAttributeValue<String> baseTemplateElement = ((BuildTypeFile) file).getSettings().getBaseTemplate();
+      final String templateId = baseTemplateElement.getStringValue();
+
+      final DeclaredTemplate resolved = DeclaredTemplates.resolve(file, templateId);
+      if (resolved != null) {
+        return resolved.getFile().getDeclaredParameters();
+      }
+    }
+
     return ImmutableList.of();
   }
 

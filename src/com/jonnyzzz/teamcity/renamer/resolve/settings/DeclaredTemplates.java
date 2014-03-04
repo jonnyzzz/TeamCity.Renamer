@@ -7,6 +7,8 @@ import com.intellij.util.xml.DomElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
 import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.generate.tostring.util.StringUtil;
 
 import static com.jonnyzzz.teamcity.renamer.resolve.Visitors.getProjectFiles;
 
@@ -27,6 +29,20 @@ public class DeclaredTemplates {
                 return projectFile.getDeclaredTemplates();
               }
             });
+  }
+
+
+  @Nullable
+  public static DeclaredTemplate resolve(@NotNull final DomElement context, @Nullable final String templateId) {
+    if (StringUtil.isEmpty(templateId)) return null;
+
+    for (DeclaredTemplate template : DeclaredTemplates.fromContext(context)) {
+      if (template.getName().equals(templateId)) {
+        return template;
+      }
+    }
+
+    return null;
   }
 
 }
