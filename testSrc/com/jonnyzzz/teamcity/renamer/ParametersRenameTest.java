@@ -31,7 +31,7 @@ public class ParametersRenameTest extends LightCodeInsightTestCase {
   }
 
 
-  public void test_propery_rename_should_include_overridden() {
+  public void test_property_rename_should_include_overridden() {
     fail();
   }
 
