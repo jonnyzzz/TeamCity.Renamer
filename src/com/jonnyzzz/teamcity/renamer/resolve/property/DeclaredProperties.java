@@ -92,7 +92,7 @@ public class DeclaredProperties {
       if (declarationElement == null) continue;
 
       final ParameterElement overrideElement = property.getParameterElement();
-      if (overrideElement == declarationElement) continue;
+      if (overrideElement.equals(declarationElement)) continue;
       result.put(declarationElement, overrideElement);
     }
 
