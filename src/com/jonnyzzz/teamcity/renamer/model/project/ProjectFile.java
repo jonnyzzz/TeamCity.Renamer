@@ -1,6 +1,7 @@
 package com.jonnyzzz.teamcity.renamer.model.project;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
@@ -15,6 +16,8 @@ import com.jonnyzzz.teamcity.renamer.resolve.property.DeclaredProperty;
 import com.jonnyzzz.teamcity.renamer.resolve.settings.DeclaredTemplate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Collections;
 
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
@@ -91,8 +94,30 @@ public abstract class ProjectFile extends TeamCityFile {
 
   @NotNull
   public final Iterable<ProjectFile> getSubProjects() {
-    //TODO: implement me
-    return ImmutableList.of();
+    final PsiDirectory thisDir = getContainingDirectory();
+    if (thisDir == null) return Collections.emptyList();
+
+    final PsiDirectory projectsDir = thisDir.getParentDirectory();
+    if (projectsDir == null) return Collections.emptyList();
+
+    final String thisProjectId = getFileId();
+    if (thisProjectId == null) return Collections.emptyList();
+
+    return FluentIterable
+            .from(ImmutableList.copyOf(projectsDir.getSubdirectories()))
+            .transform(new Function<PsiDirectory, ProjectFile>() {
+              @Override
+              public ProjectFile apply(PsiDirectory psiDirectory) {
+                return toTeamCityFile(ProjectFile.class, psiDirectory.findFile(PROJECT_CONFIG_FILE_NAME));
+              }
+            })
+            .filter(Predicates.notNull())
+            .filter(new Predicate<ProjectFile>() {
+              @Override
+              public boolean apply(ProjectFile projectFile) {
+                return thisProjectId.equals(projectFile.getParentProjectId());
+              }
+            });
   }
 
   @NotNull
