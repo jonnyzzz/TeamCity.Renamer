@@ -87,8 +87,6 @@ public class ParameterLineMarkerProvider implements LineMarkerProvider {
   }
 
   private static class OverriddenUpMarker extends LineMarkerInfo<XmlAttributeValue> {
-    private final String myParameterName;
-
     public OverriddenUpMarker(@NotNull final ParameterElement parameter,
                               @NotNull final XmlAttributeValue psiValue,
                               @NotNull final Collection<ParameterElement> target) {
@@ -96,83 +94,53 @@ public class ParameterLineMarkerProvider implements LineMarkerProvider {
               psiValue.getValueTextRange(),
               AllIcons.General.OverridingMethod,
               Pass.UPDATE_ALL,
-              tooltip(target),
-              navigation(target),
+              tooltip("Overrides from ", target),
+              navigation(parameter.getParameterNameString(), target),
               GutterIconRenderer.Alignment.LEFT);
-      myParameterName = parameter.getParameterNameString();
-    }
-
-    private static GutterIconNavigationHandler<XmlAttributeValue> navigation(@NotNull final Collection<ParameterElement> target) {
-      return new GutterIconNavigationHandler<XmlAttributeValue>() {
-        @Override
-        public void navigate(MouseEvent e, XmlAttributeValue elt) {
-          if (target.size() == 1) {
-            PsiNavigateUtil.navigate(target.iterator().next().getParameterName().getXmlAttributeValue());
-          }
-        }
-      };
-    }
-
-    private static com.intellij.util.Function<? super XmlAttributeValue, String> tooltip(@NotNull final Collection<ParameterElement> target) {
-      return new com.intellij.util.Function<XmlAttributeValue, String>() {
-        @Override
-        public String fun(XmlAttributeValue xmlAttributeValue) {
-          return "Overrides from " + Joiner.on(", ").join(FluentIterable.from(target).transform(new Function<ParameterElement, Object>() {
-            @Override
-            public Object apply(ParameterElement parameterElement) {
-              final TeamCityFile file = parameterElement.getParentOfType(TeamCityFile.class, false);
-              if (file == null) return null;
-              return file.getFilePresentableName();
-            }
-          }).filter(Predicates.notNull()));
-        }
-      };
     }
   }
 
   private static class OverriddenDownMarker extends LineMarkerInfo<XmlAttributeValue> {
-    private final String myParameterName;
-
     public OverriddenDownMarker(@NotNull final ParameterElement parameter,
-                              @NotNull final XmlAttributeValue psiValue,
-                              @NotNull final Collection<ParameterElement> targets) {
+                                @NotNull final XmlAttributeValue psiValue,
+                                @NotNull final Collection<ParameterElement> targets) {
       super(psiValue,
               psiValue.getValueTextRange(),
               AllIcons.General.OverridenMethod,
               Pass.UPDATE_ALL,
-              tooltip(targets),
+              tooltip("Overridden in ", targets),
               navigation(parameter.getParameterNameString(), targets),
               GutterIconRenderer.Alignment.LEFT);
-      myParameterName = parameter.getParameterNameString();
     }
+  }
 
-    private static GutterIconNavigationHandler<XmlAttributeValue> navigation(@Nullable final String parameterName,
-                                                                             @NotNull final Collection<ParameterElement> target) {
-      if (parameterName == null || target.isEmpty()) return null;
-      return new GutterIconNavigationHandler<XmlAttributeValue>() {
-        @Override
-        public void navigate(MouseEvent e, XmlAttributeValue elt) {
-          if (target.size() == 1) {
-            PsiNavigateUtil.navigate(target.iterator().next().getParameterName().getXmlAttributeValue());
+  private static GutterIconNavigationHandler<XmlAttributeValue> navigation(@Nullable final String parameterName,
+                                                                           @NotNull final Collection<ParameterElement> target) {
+    if (parameterName == null || target.isEmpty()) return null;
+    return new GutterIconNavigationHandler<XmlAttributeValue>() {
+      @Override
+      public void navigate(MouseEvent e, XmlAttributeValue elt) {
+        if (target.size() == 1) {
+          PsiNavigateUtil.navigate(target.iterator().next().getParameterName().getXmlAttributeValue());
+        }
+      }
+    };
+  }
+
+  private static com.intellij.util.Function<? super XmlAttributeValue, String> tooltip(@NotNull final String prefix,
+                                                                                       @NotNull final Collection<ParameterElement> target) {
+    return new com.intellij.util.Function<XmlAttributeValue, String>() {
+      @Override
+      public String fun(XmlAttributeValue xmlAttributeValue) {
+        return prefix + Joiner.on(", ").join(FluentIterable.from(target).transform(new Function<ParameterElement, Object>() {
+          @Override
+          public Object apply(ParameterElement parameterElement) {
+            final TeamCityFile file = parameterElement.getParentOfType(TeamCityFile.class, false);
+            if (file == null) return null;
+            return file.getFilePresentableName();
           }
-        }
-      };
-    }
-
-    private static com.intellij.util.Function<? super XmlAttributeValue, String> tooltip(@NotNull final Collection<ParameterElement> target) {
-      return new com.intellij.util.Function<XmlAttributeValue, String>() {
-        @Override
-        public String fun(XmlAttributeValue xmlAttributeValue) {
-          return "Overridden in " + Joiner.on(", ").join(FluentIterable.from(target).transform(new Function<ParameterElement, Object>() {
-            @Override
-            public Object apply(ParameterElement parameterElement) {
-              final TeamCityFile file = parameterElement.getParentOfType(TeamCityFile.class, false);
-              if (file == null) return null;
-              return file.getFilePresentableName();
-            }
-          }).filter(Predicates.notNull()));
-        }
-      };
-    }
+        }).filter(Predicates.notNull()));
+      }
+    };
   }
 }
