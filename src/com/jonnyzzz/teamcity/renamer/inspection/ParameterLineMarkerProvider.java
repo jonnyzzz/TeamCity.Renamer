@@ -1,8 +1,10 @@
 package com.jonnyzzz.teamcity.renamer.inspection;
 
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Multimap;
 import com.intellij.codeHighlighting.Pass;
 import com.intellij.codeInsight.daemon.GutterIconNavigationHandler;
 import com.intellij.codeInsight.daemon.LineMarkerInfo;
@@ -64,22 +66,32 @@ public class ParameterLineMarkerProvider implements LineMarkerProvider {
             }).filter(Predicates.notNull())
             .toList();
 
-    final Map<ParameterElement,ParameterElement> resolved = DeclaredProperties.findParametersOverride(parameters);
+    final Map<ParameterElement,ParameterElement> resolved = DeclaredProperties.findOverriddenParametersFromParents(parameters);
+    final Multimap<ParameterElement, ParameterElement> children = DeclaredProperties.findOverriddenByChildrenParameters(parameters);
+
     for (Map.Entry<ParameterElement, ParameterElement> e : resolved.entrySet()) {
       final ParameterElement toHighlight = e.getKey();
       final XmlAttributeValue value = toHighlight.getParameterName().getXmlAttributeValue();
       if (value == null) continue;
 
-      result.add(new OverriddenMarker(toHighlight, value, e.getValue()));
+      result.add(new OverriddenUpMarker(toHighlight, value, e.getValue()));
+    }
+
+    for (Map.Entry<ParameterElement, Collection<ParameterElement>> e : children.asMap().entrySet()) {
+      final ParameterElement toHighlight = e.getKey();
+      final XmlAttributeValue value = toHighlight.getParameterName().getXmlAttributeValue();
+      if (value == null) continue;
+
+      result.add(new OverriddenDownMarker(toHighlight, value, e.getValue()));
     }
   }
 
-  private static class OverriddenMarker extends LineMarkerInfo<XmlAttributeValue> {
+  private static class OverriddenUpMarker extends LineMarkerInfo<XmlAttributeValue> {
     private final String myParameterName;
 
-    public OverriddenMarker(@NotNull final ParameterElement parameter,
-                            @NotNull final XmlAttributeValue psiValue,
-                            @NotNull final ParameterElement target) {
+    public OverriddenUpMarker(@NotNull final ParameterElement parameter,
+                              @NotNull final XmlAttributeValue psiValue,
+                              @NotNull final ParameterElement target) {
       super(psiValue,
               psiValue.getValueTextRange(),
               AllIcons.General.OverridingMethod,
@@ -107,6 +119,50 @@ public class ParameterLineMarkerProvider implements LineMarkerProvider {
           if (file != null)
             return "Overrides parameter from " + file.getFilePresentableName();
           return "Overrides parameter from ???";
+        }
+      };
+    }
+  }
+
+  private static class OverriddenDownMarker extends LineMarkerInfo<XmlAttributeValue> {
+    private final String myParameterName;
+
+    public OverriddenDownMarker(@NotNull final ParameterElement parameter,
+                              @NotNull final XmlAttributeValue psiValue,
+                              @NotNull final Collection<ParameterElement> targets) {
+      super(psiValue,
+              psiValue.getValueTextRange(),
+              AllIcons.General.OverridenMethod,
+              Pass.UPDATE_ALL,
+              tooltip(targets),
+              navigation(parameter.getParameterNameString(), targets),
+              GutterIconRenderer.Alignment.LEFT);
+      myParameterName = parameter.getParameterNameString();
+    }
+
+    private static GutterIconNavigationHandler<XmlAttributeValue> navigation(@Nullable final String parameterName,
+                                                                             @NotNull final Collection<ParameterElement> target) {
+      if (parameterName == null || target.isEmpty()) return null;
+      return new GutterIconNavigationHandler<XmlAttributeValue>() {
+        @Override
+        public void navigate(MouseEvent e, XmlAttributeValue elt) {
+          //TODO: Multi navigation...
+        }
+      };
+    }
+
+    private static com.intellij.util.Function<? super XmlAttributeValue, String> tooltip(@NotNull final Collection<ParameterElement> target) {
+      return new com.intellij.util.Function<XmlAttributeValue, String>() {
+        @Override
+        public String fun(XmlAttributeValue xmlAttributeValue) {
+          return "Overridden in " + Joiner.on(", ").join(FluentIterable.from(target).transform(new Function<ParameterElement, Object>() {
+            @Override
+            public Object apply(ParameterElement parameterElement) {
+              final TeamCityFile file = parameterElement.getParentOfType(TeamCityFile.class, false);
+              if (file == null) return null;
+              return file.getFilePresentableName();
+            }
+          }).filter(Predicates.notNull()));
         }
       };
     }

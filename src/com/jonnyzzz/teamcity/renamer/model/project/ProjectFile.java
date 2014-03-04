@@ -90,6 +90,12 @@ public abstract class ProjectFile extends TeamCityFile {
   }
 
   @NotNull
+  public final Iterable<ProjectFile> getSubProjects() {
+    //TODO: implement me
+    return ImmutableList.of();
+  }
+
+  @NotNull
   public final Iterable<DeclaredTemplate> getDeclaredTemplates() {
     return FluentIterable
             .from(getTemplates())
