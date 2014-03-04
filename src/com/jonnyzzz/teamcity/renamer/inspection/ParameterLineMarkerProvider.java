@@ -17,6 +17,7 @@ import com.intellij.util.PsiNavigateUtil;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomManager;
 import com.jonnyzzz.teamcity.renamer.model.ParameterElement;
+import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
 import com.jonnyzzz.teamcity.renamer.resolve.property.DeclaredProperties;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -69,16 +70,16 @@ public class ParameterLineMarkerProvider implements LineMarkerProvider {
       final XmlAttributeValue value = toHighlight.getParameterName().getXmlAttributeValue();
       if (value == null) continue;
 
-      result.add(new ParameterMergeableLineMarkerInfo(toHighlight, value, e.getValue()));
+      result.add(new OverriddenMarker(toHighlight, value, e.getValue()));
     }
   }
 
-  private static class ParameterMergeableLineMarkerInfo extends LineMarkerInfo<XmlAttributeValue> {
+  private static class OverriddenMarker extends LineMarkerInfo<XmlAttributeValue> {
     private final String myParameterName;
 
-    public ParameterMergeableLineMarkerInfo(@NotNull final ParameterElement parameter,
-                                            @NotNull final XmlAttributeValue psiValue,
-                                            @NotNull final ParameterElement target) {
+    public OverriddenMarker(@NotNull final ParameterElement parameter,
+                            @NotNull final XmlAttributeValue psiValue,
+                            @NotNull final ParameterElement target) {
       super(psiValue,
               psiValue.getValueTextRange(),
               AllIcons.General.OverridingMethod,
@@ -103,7 +104,10 @@ public class ParameterLineMarkerProvider implements LineMarkerProvider {
       return new com.intellij.util.Function<XmlAttributeValue, String>() {
         @Override
         public String fun(XmlAttributeValue xmlAttributeValue) {
-          return "Parameter " + target.getParameterName().getStringValue() + " :: TODO";
+          final TeamCityFile file = target.getParentOfType(TeamCityFile.class, false);
+          if (file != null)
+            return "Overrides parameter from " + file.getFilePresentableName();
+          return "Overrides parameter from ???";
         }
       };
     }

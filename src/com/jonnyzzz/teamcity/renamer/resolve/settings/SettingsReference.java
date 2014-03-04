@@ -38,7 +38,7 @@ public class SettingsReference extends PsiReferenceBase<PsiElement> {
   public PsiElement resolve() {
     for (DeclaredTemplate template : DeclaredTemplates.fromContext(myContext)) {
       if (template.getName().equals(myName)) {
-        return template.getFile().getSettings().getXmlElement();
+        return template.getFile().getSettingsElement().getXmlElement();
       }
     }
 

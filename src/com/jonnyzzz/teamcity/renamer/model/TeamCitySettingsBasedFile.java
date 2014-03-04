@@ -3,8 +3,6 @@ package com.jonnyzzz.teamcity.renamer.model;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
-import com.intellij.util.xml.Required;
-import com.intellij.util.xml.SubTag;
 import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
 import com.jonnyzzz.teamcity.renamer.resolve.property.DeclaredProperty;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 public abstract class TeamCitySettingsBasedFile extends TeamCityFile {
 
   @Nullable
-  public String getFileId() {
+  public final String getFileId() {
     final PsiFile containingFile = getContainingFile();
     if (containingFile == null) return null;
 
@@ -27,7 +25,7 @@ public abstract class TeamCitySettingsBasedFile extends TeamCityFile {
    * @return containing project file. For ProjectFile returns parent project (if any)
    */
   @Nullable
-  public ProjectFile getParentProjectFile() {
+  public final ProjectFile getParentProjectFile() {
     final PsiDirectory containingDir = getContainingDirectory();
     if (containingDir == null) return null;
 
@@ -38,16 +36,15 @@ public abstract class TeamCitySettingsBasedFile extends TeamCityFile {
     return TeamCityFile.toTeamCityFile(ProjectFile.class, projectFile);
   }
 
-  @Required
-  @SubTag("settings")
-  public SettingsElement getSettings() {
+  @NotNull
+  public SettingsElement getSettingsElement() {
     throw new RuntimeException("Must be implemented");
   }
 
   @NotNull
   @Override
-  public Iterable<DeclaredProperty> getDeclaredParameters() {
-    return getSettings().getParametersBlock().getDeclarations();
+  public final Iterable<DeclaredProperty> getDeclaredParameters() {
+    return getSettingsElement().getParametersBlock().getDeclarations();
   }
 
 }

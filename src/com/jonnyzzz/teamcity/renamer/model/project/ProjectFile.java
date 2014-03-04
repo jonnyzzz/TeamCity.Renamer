@@ -6,9 +6,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
-import com.intellij.util.xml.Attribute;
-import com.intellij.util.xml.GenericAttributeValue;
-import com.intellij.util.xml.SubTag;
+import com.intellij.util.xml.*;
 import com.jonnyzzz.teamcity.renamer.model.ParametersBlockElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
@@ -22,15 +20,21 @@ import org.jetbrains.annotations.Nullable;
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
 public abstract class ProjectFile extends TeamCityFile {
-
   @Attribute("parent-id")
   public abstract GenericAttributeValue<String> getParentProjectIdElement();
 
   @SubTag("parameters")
   public abstract ParametersBlockElement getParametersBlock();
 
+
+  @NotNull
+  @Override
+  protected final String getFileKind() {
+    return "project";
+  }
+
   @Nullable
-  public String getParentProjectId() {
+  public final String getParentProjectId() {
     final GenericAttributeValue<String> parentProjectAttribute = getParentProjectIdElement();
     if (parentProjectAttribute != null) {
       final String parentProjectId = parentProjectAttribute.getStringValue();
@@ -43,7 +47,7 @@ public abstract class ProjectFile extends TeamCityFile {
   }
 
   @Nullable
-  public String getFileId() {
+  public final String getFileId() {
     final PsiDirectory containingDirectory = getContainingDirectory();
     if (containingDirectory == null) return null;
 
@@ -53,13 +57,13 @@ public abstract class ProjectFile extends TeamCityFile {
 
   @NotNull
   @Override
-  public Iterable<DeclaredProperty> getDeclaredParameters() {
+  public final Iterable<DeclaredProperty> getDeclaredParameters() {
     return getParametersBlock().getDeclarations();
   }
 
   @Nullable
   @Override
-  public ProjectFile getParentProjectFile() {
+  public final ProjectFile getParentProjectFile() {
     final String parentProjectId = getParentProjectId();
     if (parentProjectId == null) return null;
 
@@ -76,17 +80,17 @@ public abstract class ProjectFile extends TeamCityFile {
   }
 
   @NotNull
-  public Iterable<BuildTypeFile> getBuildTypes() {
+  public final Iterable<BuildTypeFile> getBuildTypes() {
     return getBuildOrTemplates(BuildTypeFile.class);
   }
 
   @NotNull
-  public Iterable<BuildTemplateFile> getTemplates() {
+  public final Iterable<BuildTemplateFile> getTemplates() {
     return getBuildOrTemplates(BuildTemplateFile.class);
   }
 
   @NotNull
-  public Iterable<DeclaredTemplate> getDeclaredTemplates() {
+  public final Iterable<DeclaredTemplate> getDeclaredTemplates() {
     return FluentIterable
             .from(getTemplates())
             .transform(new Function<BuildTemplateFile, DeclaredTemplate>() {

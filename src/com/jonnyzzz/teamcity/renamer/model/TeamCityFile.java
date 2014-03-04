@@ -1,10 +1,10 @@
 package com.jonnyzzz.teamcity.renamer.model;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.xml.XmlFile;
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.DomManager;
+import com.intellij.util.xml.*;
 import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
 import com.jonnyzzz.teamcity.renamer.resolve.property.DeclaredProperty;
 import org.jetbrains.annotations.NotNull;
@@ -16,6 +16,25 @@ import org.jetbrains.annotations.Nullable;
 public abstract class TeamCityFile extends TeamCityElement {
   public static final String PROJECT_CONFIG_FILE_NAME = "project-config.xml";
 
+  @Required
+  @SubTag("name")
+  public abstract GenericDomValue<String> getName();
+
+  @SubTag("description")
+  public abstract GenericDomValue<String> getBuildTypeDescription();
+
+  @NotNull
+  public final String getFilePresentableName() {
+    return getFileKind()
+            + " <b>" +
+            StringUtil.escapeXml(getName().getRawText())
+            + "</b>(" + getFileId() + ")";
+  }
+
+  @NotNull
+  protected String getFileKind() {
+    throw new RuntimeException("Must be implemented");
+  }
 
 
   @Nullable
@@ -37,7 +56,7 @@ public abstract class TeamCityFile extends TeamCityElement {
   }
 
   @Override
-  public String toString() {
+  public final String toString() {
     return "[" + getFileId() + "] " + super.toString();
   }
 
