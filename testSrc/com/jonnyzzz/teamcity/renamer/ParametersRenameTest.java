@@ -31,6 +31,9 @@ public class ParametersRenameTest extends LightCodeInsightTestCase {
   }
 
 
+  public void test_propery_rename_should_include_overridden() {
+    fail();
+  }
 
 
   private void doTest(@NotNull final String filePath) throws Exception {
@@ -61,6 +64,8 @@ public class ParametersRenameTest extends LightCodeInsightTestCase {
     rename.run();
     checkResultByFile(filePath + "-after.xml");
   }
+
+
 
 
 }
