@@ -7,7 +7,9 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.xml.*;
+import com.jonnyzzz.teamcity.renamer.resolve.property.DeclaredProperty;
 import com.jonnyzzz.teamcity.renamer.resolve.property.ParameterReferenceConverter;
+import com.jonnyzzz.teamcity.renamer.resolve.property.RenameableParameterElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.generate.tostring.util.StringUtil;
@@ -32,6 +34,14 @@ public abstract class ParameterElement extends TeamCityElement {
     final String name = getParameterName().getStringValue();
     if (name == null || StringUtil.isEmpty(name)) return null;
     return name.trim();
+  }
+
+  @Nullable
+  public final RenameableParameterElement toRenameableReference(@NotNull final TeamCityFile requestor) {
+    final DeclaredProperty apply = DeclaredProperty.FROM_PARAMETER_ELEMENT.apply(this);
+    if (apply == null) return null;
+
+    return new RenameableParameterElement(requestor, apply);
   }
 
 
