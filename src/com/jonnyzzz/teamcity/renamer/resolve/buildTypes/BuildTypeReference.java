@@ -39,21 +39,14 @@ public class BuildTypeReference extends PsiReferenceBase<PsiElement> {
     if (file == null)
       return null;
 
-    ProjectFile projectFile = file.getParentProjectFile();
-    if (projectFile == null)
+    BuildTypeFile buildType = file.findBuildTypeById(value);
+    if (buildType == null)
       return null;
-
-    for (BuildTypeFile f : projectFile.getAllBuildTypes()) {
-      if (value.equals(f.getFileId())) {
-        XmlElement xmlElement = f.getXmlElement();
-        if (xmlElement == null)
-          continue;
-
-        final PsiFile containingFile = xmlElement.getContainingFile();
-        return new RenameableTeamCityFileElement(containingFile);
-      }
-    }
-    return null;
+    XmlElement xmlElement = buildType.getXmlElement();
+    if (xmlElement == null)
+      return null;
+    final PsiFile containingFile = xmlElement.getContainingFile();
+    return new RenameableTeamCityFileElement(containingFile);
   }
 
   @NotNull
