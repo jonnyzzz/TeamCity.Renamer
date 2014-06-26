@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
 public class ParameterReference extends PsiReferenceBase<PsiElement> {
-  private static final Pattern BUILT_IN_PARAMETER_PATTERN = Pattern.compile("env\\..*|teamcity\\.tool\\..*|system\\.agent\\..*");
+  private static final Pattern BUILT_IN_PARAMETER_PATTERN = Pattern.compile("vcsroot\\..*|.env\\..*|teamcity\\.tool\\..*|system\\.agent\\..*");
 
   @NotNull
   private final DomElement myAttr;
