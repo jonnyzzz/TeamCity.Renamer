@@ -5,6 +5,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.impl.RenameableFakePsiElement;
 import com.intellij.util.IncorrectOperationException;
+import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,7 +15,7 @@ import javax.swing.*;
 public class RenameableTeamCityFileElement extends RenameableFakePsiElement {
   private final PsiFile myContainingFile;
 
-  public RenameableTeamCityFileElement(PsiFile containingFile) {
+  public RenameableTeamCityFileElement(@NotNull final PsiFile containingFile) {
     super(containingFile);
     myContainingFile = containingFile;
   }
@@ -32,13 +33,27 @@ public class RenameableTeamCityFileElement extends RenameableFakePsiElement {
 
   @Override
   public String getTypeName() {
-    return "vcsRoot";
+    return "VcsRoot";
   }
 
   @Nullable
   @Override
   public Icon getIcon() {
     return null;
+  }
+
+  @Override
+  public String getPresentableText() {
+    return getLocationString() + " :: " + getName();
+  }
+
+  @Nullable
+  @Override
+  public String getLocationString() {
+    final TeamCityFile file =TeamCityFile.toTeamCityFile(TeamCityFile.class, myContainingFile);
+
+    if (file == null) return super.getPresentableText();
+    return file.getFilePresentableNameText();
   }
 
   @Override
