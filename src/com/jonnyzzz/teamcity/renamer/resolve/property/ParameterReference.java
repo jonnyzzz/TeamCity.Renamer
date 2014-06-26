@@ -5,6 +5,7 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceBase;
+import com.intellij.psi.impl.FakePsiElement;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.xml.DomElement;
 import com.jonnyzzz.teamcity.renamer.model.ParameterElement;
@@ -13,12 +14,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
 public class ParameterReference extends PsiReferenceBase<PsiElement> {
+  private static final Pattern BUILT_IN_PARAMETER_PATTERN = Pattern.compile("env\\..*|teamcity\\.tool\\..*|system\\.agent\\..*");
+
   @NotNull
   private final DomElement myAttr;
   @NotNull
@@ -44,7 +48,14 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> {
         return new RenameableParameterElement(file, property);
       }
     }
+    if (checkIfBuiltInParameter()) {
+      return new FakeElement();
+    }
     return null;
+  }
+
+  private boolean checkIfBuiltInParameter() {
+    return BUILT_IN_PARAMETER_PATTERN.matcher(myReferredVariableName).matches();
   }
 
   @NotNull
@@ -91,4 +102,11 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> {
     return super.bindToElement(element);
   }
 
+  private class FakeElement extends FakePsiElement {
+    @Override
+    public PsiElement getParent() {
+      return null;
+    }
+
+  }
 }

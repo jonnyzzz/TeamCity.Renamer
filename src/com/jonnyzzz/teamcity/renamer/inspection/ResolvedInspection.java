@@ -7,8 +7,6 @@ import com.intellij.util.xml.highlighting.DomHighlightingHelper;
 import com.jonnyzzz.teamcity.renamer.model.ParameterElement;
 import com.jonnyzzz.teamcity.renamer.model.SettingsElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityElement;
-import org.jetbrains.annotations.Nls;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
@@ -29,10 +27,4 @@ public class ResolvedInspection extends BasicDomElementsInspection<TeamCityEleme
     }
   }
 
-  @Nls
-  @NotNull
-  @Override
-  public String getGroupDisplayName() {
-    return "TeamCity";
-  }
 }

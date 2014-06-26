@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 public abstract class MetaRunnerFile extends TeamCitySettingsBasedFile {
   @Required
   @Attribute("name")
-  public abstract GenericAttributeValue<String> getNameAttr();
+  public abstract GenericAttributeValue<String> getRunnerName();
 
   @Required
   @SubTag("settings")
