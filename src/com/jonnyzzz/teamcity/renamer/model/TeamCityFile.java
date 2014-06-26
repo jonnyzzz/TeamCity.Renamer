@@ -78,8 +78,8 @@ public abstract class TeamCityFile extends TeamCityElement {
 
 
   @Nullable
-  protected static <T extends TeamCityFile> T toTeamCityFile(@NotNull final Class<T> clazz,
-                                                             @Nullable final PsiFile psiFile) {
+  public static <T extends TeamCityFile> T toTeamCityFile(@NotNull final Class<T> clazz,
+                                                          @Nullable final PsiFile psiFile) {
     if (psiFile == null) return null;
     if (!psiFile.getName().endsWith(".xml")) return null;
     if (!(psiFile instanceof XmlFile)) return null;
