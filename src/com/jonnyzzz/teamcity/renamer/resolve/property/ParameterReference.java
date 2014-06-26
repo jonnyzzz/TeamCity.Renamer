@@ -81,7 +81,7 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> {
     if (!Dependencies.getDependencyIds(myAttr).iterator().hasNext()) return null;
 
     final int dot2 = myReferredVariableName.indexOf('.', "dep.".length());
-    if (dot2 <= 0 && dot2 + 1 < myReferredVariableName.length()) return null;
+    if (dot2 <= 0 || dot2 + 1 >= myReferredVariableName.length()) return null;
 
     final String buildTypeId = myReferredVariableName.substring("dep.".length(), dot2);
     final BuildTypeFile buildType = Visitors.findBuildType(myAttr, buildTypeId);
@@ -126,6 +126,14 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> {
 
   @Override
   public PsiElement handleElementRename(String newElementName) throws IncorrectOperationException {
+    if (myReferredVariableName.startsWith("dep.")) {
+      final int dot2 = myReferredVariableName.indexOf('.', "dep.".length());
+      if (dot2 > 0 && dot2 + 1 < myReferredVariableName.length()) {
+        final String buildTypeId = myReferredVariableName.substring("dep.".length(), dot2);
+
+        return super.handleElementRename("dep." + buildTypeId + "." + newElementName);
+      }
+    }
     return super.handleElementRename(newElementName);
   }
 
@@ -135,7 +143,7 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> {
   }
 
   @Override
-  public PsiElement bindToElement(@NotNull PsiElement element) throws IncorrectOperationException {
+  public PsiElement bindToElement(@NotNull PsiElement element)  throws IncorrectOperationException {
     return super.bindToElement(element);
   }
 
