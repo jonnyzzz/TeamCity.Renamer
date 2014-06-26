@@ -20,7 +20,7 @@ public abstract class TeamCityElement implements DomElement {
   }
 
   @Nullable
-  protected PsiDirectory getContainingDirectory() {
+  public PsiDirectory getContainingDirectory() {
     final PsiFile containingFile = getContainingFile();
     if (containingFile == null) return null;
 

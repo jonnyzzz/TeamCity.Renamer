@@ -40,6 +40,9 @@
 
     <psi.referenceContributor language="XML" implementation="com.jonnyzzz.teamcity.renamer.resolve.property.PropertyFromTextContributor"/>
 
+    <definitionsScopedSearch implementation="com.jonnyzzz.teamcity.renamer.model.ParametersScopedSearch"/>
+    <referencesSearch implementation="com.jonnyzzz.teamcity.renamer.model.ParametersReferencesSearch"/>
+
     <!--
     <localInspection language="XML"
                      level="ERROR"
