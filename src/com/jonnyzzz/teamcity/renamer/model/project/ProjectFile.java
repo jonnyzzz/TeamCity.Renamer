@@ -23,7 +23,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -131,24 +130,9 @@ public abstract class ProjectFile extends TeamCityFile {
 
   @NotNull
   public final Iterable<ProjectFile> getSubProjects() {
-    final PsiDirectory thisDir = getContainingDirectory();
-    if (thisDir == null) return Collections.emptyList();
-
-    final PsiDirectory projectsDir = thisDir.getParentDirectory();
-    if (projectsDir == null) return Collections.emptyList();
-
     final String thisProjectId = getFileId();
-    if (thisProjectId == null) return Collections.emptyList();
-
-    return FluentIterable
-            .from(ImmutableList.copyOf(projectsDir.getSubdirectories()))
-            .transform(new Function<PsiDirectory, ProjectFile>() {
-              @Override
-              public ProjectFile apply(PsiDirectory psiDirectory) {
-                return toTeamCityFile(ProjectFile.class, psiDirectory.findFile(PROJECT_CONFIG_FILE_NAME));
-              }
-            })
-            .filter(Predicates.notNull())
+    if (thisProjectId == null) return ImmutableList.of();
+    return FluentIterable.from(Visitors.getAllProjects(this))
             .filter(new Predicate<ProjectFile>() {
               @Override
               public boolean apply(ProjectFile projectFile) {

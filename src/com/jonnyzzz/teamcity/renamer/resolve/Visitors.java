@@ -1,11 +1,17 @@
 package com.jonnyzzz.teamcity.renamer.resolve;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicates;
 import com.google.common.collect.AbstractIterator;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.intellij.psi.PsiDirectory;
+import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
 import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.Iterator;
 
 /**
@@ -33,6 +39,30 @@ public class Visitors {
         };
       }
     };
+  }
+
+
+  @NotNull
+  public static Iterable<ProjectFile> getAllProjects(@Nullable final ProjectFile project) {
+    if (project == null) return ImmutableList.of();
+
+    //project directory
+    final PsiDirectory thisDir = project.getContainingDirectory();
+    if (thisDir == null) return Collections.emptyList();
+
+    //all projects directory
+    final PsiDirectory projectsDir = thisDir.getParentDirectory();
+    if (projectsDir == null) return Collections.emptyList();
+
+    return FluentIterable
+            .from(ImmutableList.copyOf(projectsDir.getSubdirectories()))
+            .transform(new Function<PsiDirectory, ProjectFile>() {
+              @Override
+              public ProjectFile apply(PsiDirectory psiDirectory) {
+                return TeamCityFile.toTeamCityFile(ProjectFile.class, psiDirectory.findFile(ProjectFile.PROJECT_CONFIG_FILE_NAME));
+              }
+            })
+            .filter(Predicates.notNull());
   }
 
 }
