@@ -3,8 +3,7 @@
   <description/>
   <settings>
     <parameters>
-      <param name="aaa" value="%bcb%askdddkdkdkdkd%ggg%"/>
-      <param name="<caret>ggg" value="test %%  %ggg%"/>
+      <param name="ppp002" value="%bcb%askdddkdkdkdkd%ggg%"/>
     </parameters>
   </settings>
 </build-type>
