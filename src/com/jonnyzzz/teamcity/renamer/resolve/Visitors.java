@@ -47,7 +47,7 @@ public class Visitors {
 
   @Nullable
   public static BuildTypeFile findBuildType(@Nullable final DomElement context,
-                                            @Nullable String buildTypeId) {
+                                            @Nullable final String buildTypeId) {
     if (context == null) return null;
     if (buildTypeId == null) return null;
 
