@@ -26,9 +26,6 @@ public abstract class BuildTypeFile extends TeamCitySettingsBasedFile {
   @SubTag("settings")
   public abstract BuildTypeSettingsElement getSettings();
 
-  @SubTag("build-runners")
-  public abstract BuildRunnersElement getBuildRunners();
-
   @NotNull
   @Override
   public final SettingsElement getSettingsElement() {
