@@ -1,6 +1,7 @@
 package com.jonnyzzz.teamcity.renamer.diagram;
 
 import com.intellij.diagram.*;
+import com.intellij.diagram.presentation.DiagramLineType;
 import com.intellij.diagram.presentation.DiagramState;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataContext;
@@ -18,8 +19,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -123,30 +126,57 @@ public class TCDiagramProvider extends BaseDiagramProvider<TCDElement> {
     }
   }
 
-  private class TCDiagramEdge extends DiagramNodeBase<TCDElement> {
-    private final TCDElement myElement;
+  private class TCDiagramEdge extends DiagramEdgeBase<TCDElement> {
+    private final TCDiagramNode mySource;
 
-    public TCDiagramEdge(@NotNull final TCDElement element) {
-      super(TCDiagramProvider.this);
-      myElement = element;
-    }
-
-    @Nullable
-    @Override
-    public String getTooltip() {
-      return null;
-    }
-
-    @Override
-    public Icon getIcon() {
-      return null;
+    public TCDiagramEdge(@NotNull final TCDiagramNode source, @NotNull final TCDiagramNode target) {
+      super(source, target, new DiagramRelationshipInfoAdapter("snapshot", DiagramLineType.DASHED) {
+        @Override
+        public Shape getStartArrow() {
+          return null;
+        }
+      });
+      mySource = source;
     }
 
     @NotNull
     @Override
     public TCDElement getIdentifyingElement() {
-      return myElement;
+      return mySource.myElement;
     }
+  }
+
+  private static class VisManager extends AbstractUmlVisibilityManager {
+    public static final VisibilityLevel PROVIDED = new VisibilityLevel("Provided");
+    public static final VisibilityLevel COMPILE = new VisibilityLevel("Compile");
+    public static final VisibilityLevel RUNTIME = new VisibilityLevel("Runtime");
+    public static final VisibilityLevel TEST = new VisibilityLevel("Test");
+    //public static final VisibilityLevel SYSTEM = new VisibilityLevel("System");
+    //public static final VisibilityLevel IMPORT = new VisibilityLevel("Import");
+    public static final VisibilityLevel ALL = new VisibilityLevel("All");
+    public static final VisibilityLevel[] LEVELS = {COMPILE, PROVIDED, RUNTIME, TEST, /*SYSTEM, IMPORT,*/ ALL};
+
+    public VisibilityLevel[] getVisibilityLevels() {
+      return LEVELS;
+    }
+
+    public VisibilityLevel getVisibilityLevel(Object element) {
+      return ALL;
+    }
+
+    public Comparator<VisibilityLevel> getComparator() {
+      return VisibilityLevel.DUMMY_COMPARATOR;
+    }
+
+    @Override
+    public boolean isRelayoutNeeded() {
+      return true;
+    }
+  }
+
+  @Override
+  public DiagramVisibilityManager createVisibilityManager() {
+    return new VisManager();
   }
 
   @Override
@@ -154,10 +184,23 @@ public class TCDiagramProvider extends BaseDiagramProvider<TCDElement> {
                                                       @Nullable TCDElement tcdElement,
                                                       @Nullable VirtualFile virtualFile,
                                                       DiagramPresentationModel diagramPresentationModel) {
+    List<BuildTypeFile> deps = tcdElement == null ? new ArrayList<BuildTypeFile>() : tcdElement.getBuildType().getSnapshotDependencies();
+    final List<DiagramNode<TCDElement>> nodes = new ArrayList<>();
+    final List<DiagramEdge<TCDElement>> edges = new ArrayList<>();
+    if (tcdElement != null) {
+      TCDiagramNode source = new TCDiagramNode(tcdElement);
+      nodes.add(source);
+      for (BuildTypeFile f : deps) {
+        nodes.add(new TCDiagramNode(new TCDElement(f)));
+        edges.add(new TCDiagramEdge(source, new TCDiagramNode(new TCDElement(f))));
+      }
+    }
+
+
     return new DiagramDataModel<TCDElement>(project, this) {
 
-      private final List<DiagramNode<TCDElement>> myNodes = new ArrayList<>();
-      private final List<DiagramEdge<TCDElement>> myEdges = new ArrayList<>();
+      private final List<DiagramNode<TCDElement>> myNodes = nodes;
+      private final List<DiagramEdge<TCDElement>> myEdges = edges;
 
       @NotNull
       @Override

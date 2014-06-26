@@ -1,12 +1,13 @@
 package com.jonnyzzz.teamcity.renamer.diagram;
 
+import com.intellij.pom.Navigatable;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
-public class TCDElement {
+public class TCDElement implements Navigatable {
   private final BuildTypeFile myFile;
 
   public TCDElement(@NotNull final BuildTypeFile file) {
@@ -23,4 +24,23 @@ public class TCDElement {
     return "" + myFile.getName().getStringValue();
   }
 
+  @NotNull
+  public BuildTypeFile getBuildType() {
+    return myFile;
+  }
+
+  @Override
+  public void navigate(boolean requestFocus) {
+
+  }
+
+  @Override
+  public boolean canNavigate() {
+    return false;
+  }
+
+  @Override
+  public boolean canNavigateToSource() {
+    return false;
+  }
 }
