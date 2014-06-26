@@ -37,7 +37,11 @@
 
     <codeInsight.lineMarkerProvider language="XML" implementationClass="com.jonnyzzz.teamcity.renamer.inspection.ParameterLineMarkerProvider"/>
 
-
+    <localInspection language="XML"
+                     level="ERROR"
+                     enabledByDefault="true"
+                     displayName="TeamCity Duplicated Parameters"
+                     implementationClass="com.jonnyzzz.teamcity.renamer.inspection.DuplicatedParameterInspection"/>
   </extensions>
 
   <application-components>
