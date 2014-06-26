@@ -3,13 +3,11 @@ package com.jonnyzzz.teamcity.renamer.resolve.property;
 import com.google.common.base.Function;
 import com.google.common.collect.*;
 import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.GenericAttributeValue;
 import com.jonnyzzz.teamcity.renamer.model.ParameterElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
 import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
-import com.jonnyzzz.teamcity.renamer.resolve.settings.DeclaredTemplate;
-import com.jonnyzzz.teamcity.renamer.resolve.settings.DeclaredTemplates;
+import com.jonnyzzz.teamcity.renamer.model.template.BuildTemplateFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -152,12 +150,9 @@ public class DeclaredProperties {
   @NotNull
   private static Iterable<DeclaredProperty> getParametersFromTemplate(@NotNull final TeamCityFile file) {
     if (file instanceof BuildTypeFile) {
-      final GenericAttributeValue<String> baseTemplateElement = ((BuildTypeFile) file).getSettings().getBaseTemplate();
-      final String templateId = baseTemplateElement.getStringValue();
-
-      final DeclaredTemplate resolved = DeclaredTemplates.resolve(file, templateId);
-      if (resolved != null) {
-        return resolved.getFile().getDeclaredParameters();
+      final BuildTemplateFile baseTemplate = ((BuildTypeFile) file).getBaseTemplate();
+      if (baseTemplate != null) {
+        return baseTemplate.getDeclaredParameters();
       }
     }
 
