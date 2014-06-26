@@ -6,6 +6,7 @@ import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.intellij.psi.PsiDirectory;
+import com.jonnyzzz.teamcity.renamer.model.TeamCityElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
 import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
 import org.jetbrains.annotations.NotNull;
@@ -41,6 +42,21 @@ public class Visitors {
     };
   }
 
+  @NotNull
+  public static Iterable<ProjectFile> getAllProjects(@Nullable TeamCityElement element) {
+    if (element == null) return ImmutableList.of();
+
+    final ProjectFile project = element.getParentOfType(ProjectFile.class, false);
+    if (project != null) {
+      return getAllProjects(project);
+    }
+
+    final TeamCityFile file = element.getParentOfType(TeamCityFile.class, false);
+    if (file != null) {
+      return getAllProjects(file.getParentProjectFile());
+    }
+    return ImmutableList.of();
+  }
 
   @NotNull
   public static Iterable<ProjectFile> getAllProjects(@Nullable final ProjectFile project) {
