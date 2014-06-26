@@ -114,7 +114,7 @@ public abstract class TeamCityFile extends TeamCityElement {
   }
 
   @Nullable
-  private static DomElement findContainingDomElement(@NotNull final PsiElement psiElement) {
+  public static DomElement findContainingDomElement(@NotNull final PsiElement psiElement) {
     final DomManager domManager = DomManager.getDomManager(psiElement.getProject());
 
     if (psiElement instanceof XmlTag) {
