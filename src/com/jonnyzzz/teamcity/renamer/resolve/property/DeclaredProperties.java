@@ -93,6 +93,7 @@ public class DeclaredProperties {
 
       final ParameterElement overrideElement = property.getParameterElement();
       if (overrideElement.equals(declarationElement)) continue;
+      if (overrideElement.getParent().equals(declarationElement.getParent())) continue; // Duplicated parameter case
       result.put(declarationElement, overrideElement);
     }
 
