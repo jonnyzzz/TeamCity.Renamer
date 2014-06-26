@@ -6,6 +6,7 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceBase;
+import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.xml.GenericDomValue;
 import com.jonnyzzz.teamcity.renamer.model.ParameterElement;
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +28,7 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> {
                             @NotNull final PsiElement element,
                             @NotNull final TextRange range,
                             @NotNull final String referredVariableName) {
-    super(element, range, false);
+    super(element, range, true);
     myAttr = attr;
     myReferredVariableName = referredVariableName;
   }
@@ -68,5 +69,23 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> {
     }
 
     return result.toArray();
+  }
+
+  //TODO: add     <automaticRenamerFactory implementation="com.intellij.refactoring.rename.naming.AutomaticInheritorRenamerFactory"/>
+
+
+  @Override
+  public PsiElement handleElementRename(String newElementName) throws IncorrectOperationException {
+    return super.handleElementRename(newElementName);
+  }
+
+  @Override
+  public boolean isReferenceTo(PsiElement element) {
+    return super.isReferenceTo(element);
+  }
+
+  @Override
+  public PsiElement bindToElement(@NotNull PsiElement element) throws IncorrectOperationException {
+    return super.bindToElement(element);
   }
 }
