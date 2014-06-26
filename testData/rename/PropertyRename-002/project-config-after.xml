@@ -1,0 +1,7 @@
+<project>
+  <name>aaaa</name>
+  <parameters>
+    <param name="ppp002-after" value="z"/>
+    <param name="qqq" value="%ppp002-after%c"/>
+  </parameters>
+</project>
