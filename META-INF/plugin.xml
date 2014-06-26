@@ -38,11 +38,15 @@
 
     <codeInsight.lineMarkerProvider language="XML" implementationClass="com.jonnyzzz.teamcity.renamer.inspection.ParameterLineMarkerProvider"/>
 
+    <psi.referenceContributor language="XML" implementation="com.jonnyzzz.teamcity.renamer.resolve.property.PropertyFromTextContributor"/>
+
+    <!--
     <localInspection language="XML"
                      level="ERROR"
                      enabledByDefault="true"
                      displayName="TeamCity Duplicated Parameters"
-                     implementationClass="com.jonnyzzz.teamcity.renamer.inspection.DuplicatedParameterInspection" groupName="TeamCity Renamer"/>
+                     implementationClass="com.jonnyzzz.teamcity.renamer.inspection.DuplicatedParameterInspection"/>
+                     -->
   </extensions>
 
   <application-components>

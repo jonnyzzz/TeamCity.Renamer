@@ -1,9 +1,6 @@
 package com.jonnyzzz.teamcity.renamer.model;
 
 import com.intellij.util.xml.SubTag;
-import com.intellij.util.xml.SubTagList;
-
-import java.util.List;
 
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
@@ -11,9 +8,12 @@ import java.util.List;
 public abstract class SettingsElement extends TeamCityElement {
 
   @SubTag("vcs-settings")
-  public abstract VcsSettingsElement getVcsRoots();
+  public abstract VcsSettingsElement getVcsSettings();
 
   @SubTag("parameters")
   public abstract ParametersBlockElement getParametersBlock();
+
+  @SubTag("dependencies")
+  public abstract SnapshotDependenciesElement getSnapshotDependencies();
 
 }
