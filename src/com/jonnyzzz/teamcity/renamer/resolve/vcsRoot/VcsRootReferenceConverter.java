@@ -17,8 +17,7 @@ public class VcsRootReferenceConverter extends Converter<String> implements Cust
     XmlAttributeValue xmlValue = val.getXmlAttributeValue();
     if(xmlValue == null) return PsiReference.EMPTY_ARRAY;
 
-    String rootId = xmlValue.getValue();
-    return new PsiReference[]{new VcsRootReference(val, element, rootId)};
+    return new PsiReference[]{new VcsRootReference(val, element)};
   }
 
   @Nullable
