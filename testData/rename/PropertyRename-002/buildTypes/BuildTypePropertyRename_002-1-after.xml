@@ -5,6 +5,7 @@
     <parameters>
       <param name="ppp002-after" value="%bcb%askdddkdkdkdkd%ggg%"/>
       <param name="y" value="%ppp002-after%askdddkdkdkdkd%ggg%"/>
+      <param name="YYY" value="%ppp002-after%askdddkdkdkdkd%ggg%"/>
     </parameters>
   </settings>
 </build-type>
