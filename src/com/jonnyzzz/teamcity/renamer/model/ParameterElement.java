@@ -1,11 +1,14 @@
 package com.jonnyzzz.teamcity.renamer.model;
 
+import com.intellij.pom.PomTarget;
+import com.intellij.pom.PomTargetPsiElement;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.xml.*;
 import com.jonnyzzz.teamcity.renamer.resolve.property.ParameterReferenceConverter;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.generate.tostring.util.StringUtil;
 
@@ -36,8 +39,17 @@ public abstract class ParameterElement extends TeamCityElement {
   public static ParameterElement fromPsiElement(@Nullable final PsiElement element) {
     if (element == null) return null;
 
-    final DomManager dom = DomManager.getDomManager(element.getProject());
+    if (element instanceof PomTargetPsiElement) {
+      final PomTarget target = ((PomTargetPsiElement) element).getTarget();
+      if (target instanceof DomTarget) {
+        final DomElement domElement = ((DomTarget) target).getDomElement();
+        if (domElement != null) {
+          return domElement.getParentOfType(ParameterElement.class, false);
+        }
+      }
+    }
 
+    final DomManager dom = DomManager.getDomManager(element.getProject());
     final XmlAttribute attr = PsiTreeUtil.getParentOfType(element, XmlAttribute.class, false);
     if (attr != null) {
       final GenericAttributeValue el = dom.getDomElement(attr);
@@ -55,5 +67,9 @@ public abstract class ParameterElement extends TeamCityElement {
     }
 
     return null;
+  }
+
+  public void setParameterName(@NotNull String newName) {
+    getParameterName().setStringValue(newName);
   }
 }
