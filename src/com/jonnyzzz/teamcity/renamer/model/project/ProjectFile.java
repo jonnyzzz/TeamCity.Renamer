@@ -14,12 +14,14 @@ import com.jonnyzzz.teamcity.renamer.model.ParametersBlockElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
 import com.jonnyzzz.teamcity.renamer.model.template.BuildTemplateFile;
+import com.jonnyzzz.teamcity.renamer.model.vcsRoot.VcsRootFile;
 import com.jonnyzzz.teamcity.renamer.resolve.property.DeclaredProperty;
 import com.jonnyzzz.teamcity.renamer.resolve.settings.DeclaredTemplate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.Iterator;
 
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
@@ -95,6 +97,11 @@ public abstract class ProjectFile extends TeamCityFile {
   }
 
   @NotNull
+  public final Iterable<VcsRootFile> getVcsRoots() {
+    return getProjectEntities("vcsRoots", VcsRootFile.class);
+  }
+
+  @NotNull
   public final Iterable<ProjectFile> getSubProjects() {
     final PsiDirectory thisDir = getContainingDirectory();
     if (thisDir == null) return Collections.emptyList();
@@ -138,18 +145,24 @@ public abstract class ProjectFile extends TeamCityFile {
 
   @NotNull
   private <T extends TeamCityFile> Iterable<T> getBuildOrTemplates(@NotNull final Class<T> type) {
+    return getProjectEntities("buildTypes", type);
+  }
+
+  @NotNull
+  private <T extends TeamCityFile> Iterable<T> getProjectEntities(@NotNull final String subdirName,
+                                                                  @NotNull final Class<T> entityType) {
     final PsiDirectory dir = getContainingDirectory();
     if (dir == null) return ImmutableList.of();
 
-    final PsiDirectory buildTypesDir = dir.findSubdirectory("buildTypes");
-    if (buildTypesDir == null) return ImmutableList.of();
+    final PsiDirectory subdir = dir.findSubdirectory(subdirName);
+    if (subdir == null) return ImmutableList.of();
 
     return FluentIterable
-            .from(ImmutableList.copyOf(buildTypesDir.getFiles()))
+            .from(ImmutableList.copyOf(subdir.getFiles()))
             .transform(new Function<PsiFile, T>() {
               @Override
               public T apply(PsiFile xmlFile) {
-                return toTeamCityFile(type, xmlFile);
+                return toTeamCityFile(entityType, xmlFile);
               }
             }).filter(Predicates.notNull());
   }

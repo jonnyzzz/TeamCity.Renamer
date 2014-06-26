@@ -25,6 +25,7 @@
   <extensions defaultExtensionNs="com.intellij">
     <errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
 
+    <dom.fileDescription implementation="com.jonnyzzz.teamcity.renamer.model.vcsRoot.VcsRootDescription"/>
     <dom.fileDescription implementation="com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeDescription"/>
     <dom.fileDescription implementation="com.jonnyzzz.teamcity.renamer.model.template.BuildTypeTemplateDescription"/>
     <dom.fileDescription implementation="com.jonnyzzz.teamcity.renamer.model.project.ProjectFileDescription"/>
