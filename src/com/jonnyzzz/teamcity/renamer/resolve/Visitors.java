@@ -6,6 +6,7 @@ import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.intellij.psi.PsiDirectory;
+import com.intellij.util.xml.DomElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
@@ -45,7 +46,7 @@ public class Visitors {
   }
 
   @Nullable
-  public static BuildTypeFile findBuildType(@Nullable final TeamCityFile context,
+  public static BuildTypeFile findBuildType(@Nullable final DomElement context,
                                             @Nullable String buildTypeId) {
     if (context == null) return null;
     if (buildTypeId == null) return null;
@@ -97,7 +98,7 @@ public class Visitors {
   }
 
   @NotNull
-  public static Iterable<ProjectFile> getAllProjects(@Nullable TeamCityElement element) {
+  public static Iterable<ProjectFile> getAllProjects(@Nullable DomElement element) {
     if (element == null) return ImmutableList.of();
 
     final ProjectFile project = element.getParentOfType(ProjectFile.class, false);
