@@ -1,0 +1,7 @@
+<project>
+  <name>aaaa</name>
+  <parameters>
+    <param name="<caret>ppp002" value="z"/>
+    <param name="qqq" value="%ppp002%c"/>
+  </parameters>
+</project>

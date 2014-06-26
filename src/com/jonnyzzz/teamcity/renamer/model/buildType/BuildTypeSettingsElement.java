@@ -3,7 +3,7 @@ package com.jonnyzzz.teamcity.renamer.model.buildType;
 import com.intellij.util.xml.Attribute;
 import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.GenericAttributeValue;
-import com.intellij.util.xml.Required;
+import com.intellij.util.xml.SubTag;
 import com.jonnyzzz.teamcity.renamer.model.SettingsElement;
 import com.jonnyzzz.teamcity.renamer.resolve.settings.SettingsRefConverter;
 import org.jetbrains.annotations.NotNull;
@@ -16,4 +16,7 @@ public abstract class BuildTypeSettingsElement extends SettingsElement {
   @Attribute("ref")
   @Convert(value = SettingsRefConverter.class, soft = false)
   public abstract GenericAttributeValue<String> getBaseTemplate();
+
+  @SubTag("build-runners")
+  public abstract BuildRunnersElement getBuildRunners();
 }

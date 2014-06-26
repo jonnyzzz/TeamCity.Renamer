@@ -7,10 +7,15 @@ import com.intellij.util.xml.SubTag;
  */
 public abstract class SettingsElement extends TeamCityElement {
 
-//  @SubTagList("vcs-settings")
-//  public abstract List<VcsRootElement> getVcsRoots();
+  @SubTag("vcs-settings")
+  public abstract VcsSettingsElement getVcsSettings();
 
   @SubTag("parameters")
   public abstract ParametersBlockElement getParametersBlock();
 
+  @SubTag("dependencies")
+  public abstract SnapshotDependenciesElement getSnapshotDependencies();
+
+  @SubTag("artifact-dependencies")
+  public abstract ArtifactDependenciesElement getArtifactDependencies();
 }

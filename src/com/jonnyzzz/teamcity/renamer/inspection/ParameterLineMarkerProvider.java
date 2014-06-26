@@ -37,6 +37,8 @@ import java.util.Map;
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
 public class ParameterLineMarkerProvider implements LineMarkerProvider {
+  //TODO: use com.intellij.lang.annotation.Annotator
+
 
   @Nullable
   @Override
@@ -96,7 +98,7 @@ public class ParameterLineMarkerProvider implements LineMarkerProvider {
                               @NotNull final Collection<ParameterElement> target) {
       super(psiValue,
               psiValue.getValueTextRange(),
-              AllIcons.General.OverridingMethod,
+              AllIcons.Gutter.OverridingMethod,
               Pass.UPDATE_ALL,
               tooltip("Overrides from ", target),
               navigation(parameter.getParameterNameString(), target),
@@ -110,7 +112,7 @@ public class ParameterLineMarkerProvider implements LineMarkerProvider {
                                 @NotNull final Collection<ParameterElement> targets) {
       super(psiValue,
               psiValue.getValueTextRange(),
-              AllIcons.General.OverridenMethod,
+              AllIcons.Gutter.OverridenMethod,
               Pass.UPDATE_ALL,
               tooltip("Overridden in ", targets),
               navigation(parameter.getParameterNameString(), targets),
