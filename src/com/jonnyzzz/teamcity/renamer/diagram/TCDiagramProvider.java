@@ -10,6 +10,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ModificationTracker;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.search.FilenameIndex;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.ui.SimpleColoredText;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
@@ -22,7 +24,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -89,7 +90,11 @@ public class TCDiagramProvider extends BaseDiagramProvider<TCDElement> {
       @Nullable
       @Override
       public TCDElement resolveElementByFQN(String s, Project project) {
-        return null;
+        PsiFile[] files = FilenameIndex.getFilesByName(project, s + ".xml", GlobalSearchScope.allScope(project));
+        if (files.length == 0)
+          return null;
+        BuildTypeFile f = TeamCityFile.toTeamCityFile(BuildTypeFile.class, files[0]);
+        return new TCDElement(f);
       }
     };
   }
@@ -144,39 +149,6 @@ public class TCDiagramProvider extends BaseDiagramProvider<TCDElement> {
     public TCDElement getIdentifyingElement() {
       return mySource.myElement;
     }
-  }
-
-  private static class VisManager extends AbstractUmlVisibilityManager {
-    public static final VisibilityLevel PROVIDED = new VisibilityLevel("Provided");
-    public static final VisibilityLevel COMPILE = new VisibilityLevel("Compile");
-    public static final VisibilityLevel RUNTIME = new VisibilityLevel("Runtime");
-    public static final VisibilityLevel TEST = new VisibilityLevel("Test");
-    //public static final VisibilityLevel SYSTEM = new VisibilityLevel("System");
-    //public static final VisibilityLevel IMPORT = new VisibilityLevel("Import");
-    public static final VisibilityLevel ALL = new VisibilityLevel("All");
-    public static final VisibilityLevel[] LEVELS = {COMPILE, PROVIDED, RUNTIME, TEST, /*SYSTEM, IMPORT,*/ ALL};
-
-    public VisibilityLevel[] getVisibilityLevels() {
-      return LEVELS;
-    }
-
-    public VisibilityLevel getVisibilityLevel(Object element) {
-      return ALL;
-    }
-
-    public Comparator<VisibilityLevel> getComparator() {
-      return VisibilityLevel.DUMMY_COMPARATOR;
-    }
-
-    @Override
-    public boolean isRelayoutNeeded() {
-      return true;
-    }
-  }
-
-  @Override
-  public DiagramVisibilityManager createVisibilityManager() {
-    return new VisManager();
   }
 
   @Override
