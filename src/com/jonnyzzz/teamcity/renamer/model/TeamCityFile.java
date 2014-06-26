@@ -10,6 +10,7 @@ import com.intellij.psi.xml.XmlFile;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.spellchecker.xml.NoSpellchecking;
 import com.intellij.util.xml.*;
+import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
 import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
 import com.jonnyzzz.teamcity.renamer.resolve.property.DeclaredProperty;
 import org.jetbrains.annotations.NotNull;
@@ -134,6 +135,19 @@ public abstract class TeamCityFile extends TeamCityElement {
     final XmlTag tag = PsiTreeUtil.getParentOfType(psiElement, XmlTag.class);
     if (tag != null) {
       return domManager.getDomElement(tag);
+    }
+    return null;
+  }
+
+  @Nullable
+  public BuildTypeFile findBuildTypeById(@NotNull String buildTypeId) {
+    ProjectFile projectFile = getParentProjectFile();
+    if (projectFile == null)
+      return null;
+
+    for (BuildTypeFile f : projectFile.getAllBuildTypes()) {
+      if (buildTypeId.equals(f.getFileId()))
+        return f;
     }
     return null;
   }
