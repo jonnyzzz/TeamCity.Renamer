@@ -49,7 +49,7 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> {
       }
     }
     if (checkIfBuiltInParameter()) {
-      return new FakeElement();
+      return new TeamCityPredefinedParameter(myReferredVariableName);
     }
     return null;
   }
@@ -102,11 +102,37 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> {
     return super.bindToElement(element);
   }
 
-  private class FakeElement extends FakePsiElement {
+  private static class TeamCityPredefinedParameter extends FakePsiElement {
+    private final String myName;
+
+    public TeamCityPredefinedParameter(@NotNull final String name) {
+      myName = name;
+    }
+
+    @Override
+    public boolean isWritable() {
+      return false;
+    }
+
+    @Override
+    public String getName() {
+      return myName;
+    }
+
     @Override
     public PsiElement getParent() {
       return null;
     }
 
+    @Override
+    public String getPresentableText() {
+      return getLocationString() + " :: " + getName();
+    }
+
+    @Nullable
+    @Override
+    public String getLocationString() {
+      return "[TeamCity Predefined]";
+    }
   }
 }

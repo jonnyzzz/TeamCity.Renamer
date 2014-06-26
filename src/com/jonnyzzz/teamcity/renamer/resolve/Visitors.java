@@ -8,7 +8,9 @@ import com.google.common.collect.ImmutableList;
 import com.intellij.psi.PsiDirectory;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
+import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
 import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
+import com.jonnyzzz.teamcity.renamer.model.vcsRoot.VcsRootFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,6 +42,58 @@ public class Visitors {
         };
       }
     };
+  }
+
+  @Nullable
+  public static BuildTypeFile findBuildType(@Nullable final TeamCityFile context,
+                                            @Nullable String buildTypeId) {
+    if (context == null) return null;
+    if (buildTypeId == null) return null;
+
+
+    for (ProjectFile projectFile : getAllProjects(context)) {
+      for (BuildTypeFile buildTypeFile : projectFile.getAllBuildTypes()) {
+
+        if (buildTypeId.equals(buildTypeFile.getFileId())) {
+          return buildTypeFile;
+        }
+      }
+    }
+    return null;
+  }
+
+  @Nullable
+  public static VcsRootFile findVCSRoot(@Nullable final TeamCityFile context,
+                                        @Nullable String vcsRootId) {
+    if (context == null) return null;
+    if (vcsRootId == null) return null;
+
+    for (ProjectFile projectFile : getAllProjects(context)) {
+      for (VcsRootFile buildTypeFile : projectFile.getAllVcsRoots()) {
+
+        if (vcsRootId.equals(buildTypeFile.getFileId())) {
+          return buildTypeFile;
+        }
+      }
+    }
+    return null;
+  }
+
+  @Nullable
+  private static PsiDirectory getRootDirectory(@Nullable final TeamCityElement element) {
+    if (element == null) return null;
+
+    final ProjectFile projectFile = element.getParentOfType(ProjectFile.class, false);
+    if (projectFile != null) {
+      return projectFile.getContainingDirectory();
+    }
+
+    final TeamCityFile file = element.getParentOfType(TeamCityFile.class, false);
+    if (file == null) return null;
+
+    final ProjectFile theProject = file.getParentProjectFile();
+    if (theProject == null) return null;
+    return theProject.getContainingDirectory();
   }
 
   @NotNull
