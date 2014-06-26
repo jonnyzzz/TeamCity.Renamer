@@ -1,9 +1,10 @@
 package com.jonnyzzz.teamcity.renamer.model.buildType;
 
 import com.intellij.util.xml.*;
-import com.jonnyzzz.teamcity.renamer.model.SettingsElement;
+import com.jonnyzzz.teamcity.renamer.model.ParametersBlockElement;
+import com.jonnyzzz.teamcity.renamer.model.TeamCityElement;
 
-public abstract class BuildRunnerElement extends SettingsElement {
+public abstract class BuildRunnerElement extends TeamCityElement {
 
   @Required
   @Attribute("id")
@@ -15,4 +16,7 @@ public abstract class BuildRunnerElement extends SettingsElement {
 
   @Attribute("name")
   public abstract GenericAttributeValue<String> getName();
+
+  @SubTag("parameters")
+  public abstract ParametersBlockElement getParametersBlock();
 }
