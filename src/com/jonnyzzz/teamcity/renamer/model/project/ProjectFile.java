@@ -94,6 +94,25 @@ public abstract class ProjectFile extends TeamCityFile {
     return getBuildOrTemplates(BuildTypeFile.class);
   }
 
+  public final Iterable<BuildTypeFile> getAllBuildTypes() {
+    final PsiDirectory containingDir = getContainingDirectory();
+    if (containingDir == null) return ImmutableList.of();
+
+    PsiDirectory projectsDir = containingDir.getParent();
+    if (projectsDir == null) return ImmutableList.of();
+
+    List<ProjectFile> projects = new ArrayList<>();
+    for (PsiDirectory projectDir : projectsDir.getSubdirectories()) {
+      ProjectFile p = toTeamCityFile(ProjectFile.class, projectDir.findFile(PROJECT_CONFIG_FILE_NAME));
+      if (p != null)
+        projects.add(p);
+    }
+
+    return Iterables.concat(FluentIterable
+            .from(projects)
+            .transformAndConcat(FILE_TO_DECLARED_BUILD_TYPES));
+  }
+
   @NotNull
   public final Iterable<BuildTemplateFile> getTemplates() {
     return getBuildOrTemplates(BuildTemplateFile.class);
@@ -103,14 +122,6 @@ public abstract class ProjectFile extends TeamCityFile {
   public final Iterable<VcsRootFile> getOwnVcsRoots() {
     return getProjectEntities("vcsRoots", VcsRootFile.class);
   }
-
-  private static final Function<ProjectFile, Iterable<VcsRootFile>> FILE_TO_ROOTS
-          = new Function<ProjectFile, Iterable<VcsRootFile>>() {
-    @Override
-    public Iterable<VcsRootFile> apply(ProjectFile projectFile) {
-      return projectFile.getOwnVcsRoots();
-    }
-  };
 
   public final Iterable<VcsRootFile> getAllVcsRoots() {
     return Iterables.concat(FluentIterable
@@ -183,4 +194,20 @@ public abstract class ProjectFile extends TeamCityFile {
               }
             }).filter(Predicates.notNull());
   }
+
+  private static final Function<ProjectFile, Iterable<VcsRootFile>> FILE_TO_ROOTS
+          = new Function<ProjectFile, Iterable<VcsRootFile>>() {
+    @Override
+    public Iterable<VcsRootFile> apply(ProjectFile projectFile) {
+      return projectFile.getOwnVcsRoots();
+    }
+  };
+
+  private static final Function<ProjectFile, Iterable<BuildTypeFile>> FILE_TO_DECLARED_BUILD_TYPES
+          = new Function<ProjectFile, Iterable<BuildTypeFile>>() {
+    @Override
+    public Iterable<BuildTypeFile> apply(ProjectFile projectFile) {
+      return projectFile.getBuildTypes();
+    }
+  };
 }

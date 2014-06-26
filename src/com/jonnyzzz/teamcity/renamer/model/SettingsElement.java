@@ -13,4 +13,7 @@ public abstract class SettingsElement extends TeamCityElement {
   @SubTag("parameters")
   public abstract ParametersBlockElement getParametersBlock();
 
+  @SubTag("dependencies")
+  public abstract SnapshotDependenciesElement getSnapshotDependencies();
+
 }
