@@ -1,5 +1,6 @@
 package com.jonnyzzz.teamcity.renamer.resolve.property;
 
+import com.google.common.collect.Iterables;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.util.TextRange;
@@ -10,8 +11,10 @@ import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.xml.DomElement;
 import com.jonnyzzz.teamcity.renamer.model.ParameterElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
+import com.jonnyzzz.teamcity.renamer.model.TeamCitySettingsBasedFile;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
 import com.jonnyzzz.teamcity.renamer.resolve.Visitors;
+import com.jonnyzzz.teamcity.renamer.resolve.deps.Dependencies;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -72,6 +75,11 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> {
   private PsiElement resolveDepParameter() {
     if (!myReferredVariableName.startsWith("dep.")) return null;
 
+    final TeamCitySettingsBasedFile file = myAttr.getParentOfType(TeamCitySettingsBasedFile.class, false);
+    if (file == null) return null;
+
+    if (!Dependencies.getDependencyIds(myAttr).iterator().hasNext()) return null;
+
     final int dot2 = myReferredVariableName.indexOf('.', "dep.".length());
     if (dot2 <= 0 && dot2 + 1 < myReferredVariableName.length()) return null;
 
@@ -79,6 +87,7 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> {
     final BuildTypeFile buildType = Visitors.findBuildType(myAttr, buildTypeId);
     if (buildType == null) return null;
 
+    if (!Iterables.contains(Dependencies.getDependencyIds(myAttr), buildTypeId)) return null;
     return resolvePropertyFromContext(buildType, myReferredVariableName.substring(dot2+1));
   }
 
