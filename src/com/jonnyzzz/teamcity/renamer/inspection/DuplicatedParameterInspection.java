@@ -41,7 +41,7 @@ public class DuplicatedParameterInspection extends DomElementsInspection<TeamCit
       if (!dups.contains(name)) {
         continue;
       }
-      holder.createProblem(parameter, HighlightSeverity.ERROR, "Duplicated property name", new RemoveDomElementQuickFix(parameter));
+      holder.createProblem(parameter, HighlightSeverity.ERROR, "Duplicated property '" + name + "'", new RemoveDomElementQuickFix(parameter));
     }
   }
 
