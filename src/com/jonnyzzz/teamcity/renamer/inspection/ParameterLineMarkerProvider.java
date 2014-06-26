@@ -37,6 +37,8 @@ import java.util.Map;
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
 public class ParameterLineMarkerProvider implements LineMarkerProvider {
+  //TODO: use com.intellij.lang.annotation.Annotator
+
 
   @Nullable
   @Override
