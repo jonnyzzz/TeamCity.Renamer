@@ -16,4 +16,6 @@ public abstract class SettingsElement extends TeamCityElement {
   @SubTag("dependencies")
   public abstract SnapshotDependenciesElement getSnapshotDependencies();
 
+  @SubTag("artifact-dependencies")
+  public abstract ArtifactDependenciesElement getArtifactDependencies();
 }
