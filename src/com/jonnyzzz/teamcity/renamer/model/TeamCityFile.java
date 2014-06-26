@@ -2,8 +2,13 @@ package com.jonnyzzz.teamcity.renamer.model;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlFile;
+import com.intellij.psi.xml.XmlTag;
+import com.intellij.spellchecker.xml.NoSpellchecking;
 import com.intellij.util.xml.*;
 import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
 import com.jonnyzzz.teamcity.renamer.resolve.property.DeclaredProperty;
@@ -13,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
+@NoSpellchecking
 public abstract class TeamCityFile extends TeamCityElement {
   public static final String PROJECT_CONFIG_FILE_NAME = "project-config.xml";
 
@@ -93,6 +99,43 @@ public abstract class TeamCityFile extends TeamCityElement {
     if (xml == null) return null;
     if (!clazz.isInstance(xml)) return null;
     return clazz.cast(xml);
+  }
+
+  @Nullable
+  public static <T extends TeamCityElement> T toTeamCityElement(@NotNull final Class<T> clazz,
+                                                                @Nullable final PsiElement psiElement) {
+
+    if (psiElement == null) return null;
+    final DomElement xml = findContainingDomElement(psiElement);
+
+    if (xml == null) return null;
+    if (!clazz.isInstance(xml)) return null;
+    return clazz.cast(xml);
+  }
+
+  @Nullable
+  private static DomElement findContainingDomElement(@NotNull final PsiElement psiElement) {
+    final DomManager domManager = DomManager.getDomManager(psiElement.getProject());
+
+    if (psiElement instanceof XmlTag) {
+      return domManager.getDomElement((XmlTag) psiElement);
+    }
+
+    if (psiElement instanceof XmlAttribute) {
+      return domManager.getDomElement((XmlAttribute) psiElement);
+    }
+
+
+    final XmlAttribute xmlAttribute = PsiTreeUtil.getParentOfType(psiElement, XmlAttribute.class);
+    if (xmlAttribute != null) {
+      return domManager.getDomElement(xmlAttribute);
+    }
+
+    final XmlTag tag = PsiTreeUtil.getParentOfType(psiElement, XmlTag.class);
+    if (tag != null) {
+      return domManager.getDomElement(tag);
+    }
+    return null;
   }
 
 }
