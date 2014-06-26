@@ -10,6 +10,8 @@ import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.xml.DomElement;
 import com.jonnyzzz.teamcity.renamer.model.ParameterElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
+import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
+import com.jonnyzzz.teamcity.renamer.resolve.Visitors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,16 +46,40 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> {
       return new TeamCityPredefinedParameter(myReferredVariableName);
     }
 
+    final PsiElement declaredResolve = resolvePropertyFromContext(myAttr, myReferredVariableName);
+    if (declaredResolve != null) return declaredResolve;
 
+    final PsiElement depResolve = resolveDepParameter();
+    if (depResolve != null) return depResolve;
+
+    return null;
+  }
+
+  @Nullable
+  private PsiElement resolvePropertyFromContext(@NotNull final DomElement context, @NotNull String referredVariableName) {
     final TeamCityFile file = TeamCityFile.toTeamCityFile(TeamCityFile.class, myElement.getContainingFile());
     if (file == null) return null;
 
-    for (DeclaredProperty property : DeclaredProperties.fromContext(myAttr)) {
-      if (myReferredVariableName.equals(property.getName())) {
+    for (DeclaredProperty property : DeclaredProperties.fromContext(context)) {
+      if (referredVariableName.equals(property.getName())) {
         return new RenameableParameterElement(file, property);
       }
     }
     return null;
+  }
+
+  @Nullable
+  private PsiElement resolveDepParameter() {
+    if (!myReferredVariableName.startsWith("dep.")) return null;
+
+    final int dot2 = myReferredVariableName.indexOf('.', "dep.".length());
+    if (dot2 <= 0 && dot2 + 1 < myReferredVariableName.length()) return null;
+
+    final String buildTypeId = myReferredVariableName.substring("dep.".length(), dot2);
+    final BuildTypeFile buildType = Visitors.findBuildType(myAttr, buildTypeId);
+    if (buildType == null) return null;
+
+    return resolvePropertyFromContext(buildType, myReferredVariableName.substring(dot2+1));
   }
 
   private boolean checkIfBuiltInParameter() {
