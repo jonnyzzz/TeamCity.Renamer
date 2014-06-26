@@ -40,6 +40,11 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> {
   @Nullable
   @Override
   public PsiElement resolve() {
+    if (checkIfBuiltInParameter()) {
+      return new TeamCityPredefinedParameter(myReferredVariableName);
+    }
+
+
     final TeamCityFile file = TeamCityFile.toTeamCityFile(TeamCityFile.class, myElement.getContainingFile());
     if (file == null) return null;
 
@@ -47,9 +52,6 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> {
       if (myReferredVariableName.equals(property.getName())) {
         return new RenameableParameterElement(file, property);
       }
-    }
-    if (checkIfBuiltInParameter()) {
-      return new TeamCityPredefinedParameter(myReferredVariableName);
     }
     return null;
   }
