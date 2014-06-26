@@ -1,6 +1,5 @@
 package com.jonnyzzz.teamcity.renamer.resolve.property;
 
-import com.intellij.codeInsight.lookup.AutoCompletionPolicy;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.util.TextRange;
@@ -63,9 +62,8 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> {
       //skip overrides
       if (!names.add(name)) continue;
 
-      final LookupElementBuilder builder = LookupElementBuilder.create(name).withCaseSensitivity(false);
-      final LookupElement element = AutoCompletionPolicy.GIVE_CHANCE_TO_OVERWRITE.applyPolicy(builder);
-      result.add(element);
+      final LookupElementBuilder builder = LookupElementBuilder.create(variant, name).withCaseSensitivity(false);
+      result.add(builder);
     }
 
     return result.toArray();
