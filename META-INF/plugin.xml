@@ -40,7 +40,7 @@
     <psi.referenceContributor language="XML" implementation="com.jonnyzzz.teamcity.renamer.resolve.property.PropertyFromTextContributor"/>
 
     <definitionsScopedSearch implementation="com.jonnyzzz.teamcity.renamer.model.ParametersScopedSearch"/>
-    <referencesSearch implementation="com.jonnyzzz.teamcity.renamer.model.ParametersReferencesSearch"/>
+    <renamePsiElementProcessor implementation="com.jonnyzzz.teamcity.renamer.model.ParameterRenameProcessor"/>
 
     <!--
     <localInspection language="XML"
