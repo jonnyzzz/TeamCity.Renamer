@@ -1,0 +1,13 @@
+<idea-plugin url="http://www.jetbrains.com/idea">
+  <extensions defaultExtensionNs="com.intellij">
+    <diagram.Provider implementation="com.jonnyzzz.teamcity.renamer.diagram.TCDiagramProvider" />
+  </extensions>
+  <actions>
+    <group id="TeamCity.DependencyGraphMenu">
+      <separator/>
+      <reference id="ShowUmlDiagram"/>
+      <reference id="ShowUmlDiagramPopup"/>
+      <add-to-group group-id="ToolsMenu" anchor="last"/>
+    </group>
+  </actions>
+</idea-plugin>

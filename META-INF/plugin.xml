@@ -51,4 +51,5 @@
     <!-- Add your actions here -->
   </actions>
 
+  <depends optional="true" config-file="uml-support.xml">com.intellij.diagram</depends>
 </idea-plugin>
