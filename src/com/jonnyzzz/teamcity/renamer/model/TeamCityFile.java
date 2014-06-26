@@ -9,7 +9,10 @@ import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.spellchecker.xml.NoSpellchecking;
-import com.intellij.util.xml.*;
+import com.intellij.util.xml.DomElement;
+import com.intellij.util.xml.DomManager;
+import com.intellij.util.xml.GenericDomValue;
+import com.intellij.util.xml.SubTag;
 import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
 import com.jonnyzzz.teamcity.renamer.resolve.property.DeclaredProperty;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +25,6 @@ import org.jetbrains.annotations.Nullable;
 public abstract class TeamCityFile extends TeamCityElement {
   public static final String PROJECT_CONFIG_FILE_NAME = "project-config.xml";
 
-  @Required
   @SubTag("name")
   public abstract GenericDomValue<String> getName();
 

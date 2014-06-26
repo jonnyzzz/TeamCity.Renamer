@@ -29,11 +29,12 @@
     <dom.fileDescription implementation="com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeDescription"/>
     <dom.fileDescription implementation="com.jonnyzzz.teamcity.renamer.model.template.BuildTypeTemplateDescription"/>
     <dom.fileDescription implementation="com.jonnyzzz.teamcity.renamer.model.project.ProjectFileDescription"/>
+    <dom.fileDescription implementation="com.jonnyzzz.teamcity.renamer.model.metaRunner.MetaRunnerDescription"/>
     <dom.extender domClass="com.jonnyzzz.teamcity.renamer.model.TeamCityElement" extenderClass="com.jonnyzzz.teamcity.renamer.model.TeamCityExtender"/>
 
 
     <localInspection language="XML" shortName="TeamCityResolveInspection" displayName="TeamCity references resolve problems"
-                     enabledByDefault="true" level="ERROR" implementationClass="com.jonnyzzz.teamcity.renamer.inspection.ResolvedInspection"/>
+                     enabledByDefault="true" level="ERROR" implementationClass="com.jonnyzzz.teamcity.renamer.inspection.ResolvedInspection" groupName="TeamCity Renamer"/>
 
     <codeInsight.lineMarkerProvider language="XML" implementationClass="com.jonnyzzz.teamcity.renamer.inspection.ParameterLineMarkerProvider"/>
 
@@ -41,7 +42,7 @@
                      level="ERROR"
                      enabledByDefault="true"
                      displayName="TeamCity Duplicated Parameters"
-                     implementationClass="com.jonnyzzz.teamcity.renamer.inspection.DuplicatedParameterInspection"/>
+                     implementationClass="com.jonnyzzz.teamcity.renamer.inspection.DuplicatedParameterInspection" groupName="TeamCity Renamer"/>
   </extensions>
 
   <application-components>
