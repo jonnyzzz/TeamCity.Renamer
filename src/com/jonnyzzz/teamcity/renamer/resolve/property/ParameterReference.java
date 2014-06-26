@@ -6,6 +6,7 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceBase;
 import com.intellij.util.IncorrectOperationException;
+import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.GenericDomValue;
 import com.jonnyzzz.teamcity.renamer.model.ParameterElement;
 import org.jetbrains.annotations.NotNull;
@@ -19,11 +20,11 @@ import java.util.*;
  */
 public class ParameterReference extends PsiReferenceBase<PsiElement> {
   @NotNull
-  private final GenericDomValue<String> myAttr;
+  private final DomElement myAttr;
   @NotNull
   private final String myReferredVariableName;
 
-  public ParameterReference(@NotNull final GenericDomValue<String> attr,
+  public ParameterReference(@NotNull final DomElement attr,
                             @NotNull final PsiElement element,
                             @NotNull final TextRange range,
                             @NotNull final String referredVariableName) {

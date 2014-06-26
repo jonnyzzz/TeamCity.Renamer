@@ -20,7 +20,7 @@ public abstract class ParameterElement extends TeamCityElement {
   public abstract GenericAttributeValue<String> getParameterName();
 
   @Attribute("value")
-  @Convert(value = ParameterReferenceConverter.class, soft = false)
+  @Referencing(value = ParameterReferenceConverter.class, soft = false)
   public abstract GenericAttributeValue<String> getParameterValue();
 
 

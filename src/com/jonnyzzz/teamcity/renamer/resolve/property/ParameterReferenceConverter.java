@@ -5,9 +5,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.util.xml.*;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +13,7 @@ import java.util.List;
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
-public class ParameterReferenceConverter extends Converter<String> implements CustomReferenceConverter<String> {
+public class ParameterReferenceConverter implements CustomReferenceConverter<String> {
   @NotNull
   @Override
   public PsiReference[] createReferences(GenericDomValue<String> _value, PsiElement element, ConvertContext context) {
@@ -57,15 +55,4 @@ public class ParameterReferenceConverter extends Converter<String> implements Cu
     return references.toArray(new PsiReference[references.size()]);
   }
 
-  @Nullable
-  @Override
-  public String fromString(@Nullable @NonNls String s, ConvertContext context) {
-    return s;
-  }
-
-  @Nullable
-  @Override
-  public String toString(@Nullable String s, ConvertContext context) {
-    return s;
-  }
 }
