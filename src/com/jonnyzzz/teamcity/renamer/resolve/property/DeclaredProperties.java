@@ -58,7 +58,7 @@ public class DeclaredProperties {
               @Override
               public Iterator<DeclaredProperty> iterator() {
                 return FluentIterable
-                        .from(Iterables.concat(project.getSubProjects(), project.getBuildTypes(), project.getTemplates(), project.getVcsRoots()))
+                        .from(Iterables.concat(project.getSubProjects(), project.getBuildTypes(), project.getTemplates(), project.getOwnVcsRoots()))
                         .transformAndConcat(CHILDREN_DECLARATIONS)
                         .iterator();
               }
