@@ -1,8 +1,8 @@
 package com.jonnyzzz.teamcity.renamer.model.vcsRoot;
 
-import com.intellij.util.xml.DomFileDescription;
+import com.jonnyzzz.teamcity.renamer.model.TeamCityFileDescriptionBase;
 
-public class VcsRootDescription extends DomFileDescription<VcsRootFile> {
+public class VcsRootDescription extends TeamCityFileDescriptionBase<VcsRootFile> {
   public VcsRootDescription() {
     super(VcsRootFile.class, "vcs-root");
   }

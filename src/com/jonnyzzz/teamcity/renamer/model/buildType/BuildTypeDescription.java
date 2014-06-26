@@ -1,11 +1,11 @@
 package com.jonnyzzz.teamcity.renamer.model.buildType;
 
-import com.intellij.util.xml.DomFileDescription;
+import com.jonnyzzz.teamcity.renamer.model.TeamCityFileDescriptionBase;
 
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
-public class BuildTypeDescription extends DomFileDescription<BuildTypeFile> {
+public class BuildTypeDescription extends TeamCityFileDescriptionBase<BuildTypeFile> {
   public BuildTypeDescription() {
     super(BuildTypeFile.class, "build-type");
   }
