@@ -5,6 +5,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.xml.Attribute;
@@ -15,13 +16,15 @@ import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
 import com.jonnyzzz.teamcity.renamer.model.template.BuildTemplateFile;
 import com.jonnyzzz.teamcity.renamer.model.vcsRoot.VcsRootFile;
+import com.jonnyzzz.teamcity.renamer.resolve.Visitors;
 import com.jonnyzzz.teamcity.renamer.resolve.property.DeclaredProperty;
 import com.jonnyzzz.teamcity.renamer.resolve.settings.DeclaredTemplate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
@@ -97,8 +100,22 @@ public abstract class ProjectFile extends TeamCityFile {
   }
 
   @NotNull
-  public final Iterable<VcsRootFile> getVcsRoots() {
+  public final Iterable<VcsRootFile> getOwnVcsRoots() {
     return getProjectEntities("vcsRoots", VcsRootFile.class);
+  }
+
+  private static final Function<ProjectFile, Iterable<VcsRootFile>> FILE_TO_ROOTS
+          = new Function<ProjectFile, Iterable<VcsRootFile>>() {
+    @Override
+    public Iterable<VcsRootFile> apply(ProjectFile projectFile) {
+      return projectFile.getOwnVcsRoots();
+    }
+  };
+
+  public final Iterable<VcsRootFile> getAllVcsRoots() {
+    return Iterables.concat(FluentIterable
+            .from(Visitors.getProjectFiles(this))
+            .transformAndConcat(FILE_TO_ROOTS));
   }
 
   @NotNull
