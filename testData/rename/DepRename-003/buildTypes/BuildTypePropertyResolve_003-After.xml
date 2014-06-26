@@ -1,0 +1,12 @@
+<build-type>
+  <name>Build</name>
+  <description/>
+  <settings>
+    <dependencies>
+      <depend-on sourceBuildTypeId="BuildTypePropertyResolve_003-A"></depend-on>
+    </dependencies>
+    <parameters>
+      <param name="Y" value="aaa   %dep.BuildTypePropertyResolve_003-A.QpR% dddd "/>
+    </parameters>
+  </settings>
+</build-type>

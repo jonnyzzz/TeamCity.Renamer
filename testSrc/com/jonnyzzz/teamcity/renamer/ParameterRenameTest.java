@@ -44,4 +44,17 @@ public class ParameterRenameTest extends BaseTest {
     myFixture.checkResultByFile("PropertyRename-002/buildTypes/BuildTypePropertyRename_002-2.xml", "PropertyRename-002/buildTypes/BuildTypePropertyRename_002-2-after.xml", true);
   }
 
+  public void test_03() throws Exception {
+    myFixture.configureByFiles(
+            "DepRename-003/project-config.xml",
+            "DepRename-003/buildTypes/BuildTypePropertyResolve_003-A.xml",
+            "DepRename-003/buildTypes/BuildTypePropertyResolve_003.xml");
+
+    myFixture.renameElementAtCaret("QpR");
+
+    myFixture.checkResultByFile("DepRename-003/buildTypes/BuildTypePropertyResolve_003.xml", "DepRename-003/buildTypes/BuildTypePropertyResolve_003-After.xml", true);
+    myFixture.checkResultByFile("DepRename-003/buildTypes/BuildTypePropertyResolve_003-A.xml", "DepRename-003/buildTypes/BuildTypePropertyResolve_003-A-After.xml", true);
+  }
+
+
 }

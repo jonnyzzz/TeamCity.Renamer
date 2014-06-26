@@ -1,0 +1,10 @@
+<build-type>
+  <name>Build</name>
+  <description/>
+  <settings>
+    <parameters>
+      <param name="<caret>aaa" value="%bcb%askdddkdkdkdkd%ggg%"/>
+      <param name="ggg" value="test %%  %<ref>ggg%"/>
+    </parameters>
+  </settings>
+</build-type>
