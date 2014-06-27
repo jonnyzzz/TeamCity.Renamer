@@ -56,7 +56,7 @@ class TCDataModel extends DiagramDataModel<TCElement> {
   public DiagramNode<TCElement> addElement(final TCElement tcdElement) {
     TCNode node = myId2Node.get(tcdElement.getId());
     if (node != null)
-      return node;
+      return null;
 
     node = new TCNode(myTcDiagramProvider, tcdElement);
     myNodes.add(node);
