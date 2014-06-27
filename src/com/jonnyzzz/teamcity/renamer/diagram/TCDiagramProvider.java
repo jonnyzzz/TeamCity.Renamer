@@ -2,6 +2,7 @@ package com.jonnyzzz.teamcity.renamer.diagram;
 
 import com.google.common.base.Function;
 import com.intellij.diagram.*;
+import com.intellij.diagram.extras.DiagramExtras;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.jonnyzzz.teamcity.renamer.model.TeamCitySettingsBasedFile;
@@ -20,6 +21,7 @@ public class TCDiagramProvider extends BaseDiagramProvider<TCElement> {
   private DiagramElementManager<TCElement> myElementManager = new TCElementManager();
   private DiagramVfsResolver<TCElement> myVcsResolver = new TCVfsResolver();
   private TCColorManager myColorManager = new TCColorManager();
+  private DiagramExtras<TCElement> myExtras = new TCDiagramExtras();
 
   @Override
   @Pattern("[a-zA-Z0-9_-]*")
@@ -40,6 +42,12 @@ public class TCDiagramProvider extends BaseDiagramProvider<TCElement> {
   @Override
   public DiagramColorManager getColorManager() {
     return myColorManager;
+  }
+
+  @NotNull
+  @Override
+  public DiagramExtras<TCElement> getExtras() {
+    return myExtras;
   }
 
   @Override
