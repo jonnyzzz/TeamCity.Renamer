@@ -94,6 +94,6 @@ public abstract class ParameterElement extends TeamCityElement implements AutoFo
     final String name = getParameterNameString();
     if (name == null) return null;
 
-    return "name=\"" + name + "\" value=\"...";
+    return "name=\"" + name + "\" value=...";
   }
 }

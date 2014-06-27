@@ -5,6 +5,8 @@ import com.google.common.collect.FluentIterable;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
+import com.intellij.util.xml.GenericAttributeValue;
+import com.intellij.util.xml.SubTag;
 import com.intellij.util.xml.SubTagList;
 import com.jonnyzzz.teamcity.renamer.model.ParameterElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
@@ -25,6 +27,9 @@ public abstract class VcsRootFile extends TeamCityFile {
 
   @SubTagList("param")
   public abstract List<ParameterElement> getParameters();
+
+  @SubTag("name")
+  public abstract GenericAttributeValue<String> getVcsRootName();
 
   @NotNull
   @Override

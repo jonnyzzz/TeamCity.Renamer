@@ -31,35 +31,24 @@ public class VcsRootReference extends PsiReferenceBase<PsiElement> {
   @Nullable
   @Override
   public PsiElement resolve() {
-    TeamCityFile file = myAttr.getParentOfType(TeamCityFile.class, false);
-    if (file == null)
-      return null;
-
-    ProjectFile projectFile = file.getParentProjectFile();
-    if (projectFile == null)
-      return null;
-
-    String value = myAttr.getValue();
+    String value = myAttr.getStringValue();
     if (value == null)
       return null;
 
-    for (final VcsRootFile f : projectFile.getAllVcsRoots()) {
-      if (value.equals(f.getFileId())) {
-        final XmlElement xmlElement = f.getXmlElement();
-        if (xmlElement == null)
-          continue;
+    VcsRootFile f = VcsRoots.resolveVcsRoot(myAttr, value);
+    if (f == null) return null;
+    final XmlElement xmlElement = f.getXmlElement();
+    if (xmlElement == null)
+      return null;
 
-        final PsiFile containingFile = xmlElement.getContainingFile();
-        return new RenameableTeamCityFileElement(containingFile);
-      }
-    }
-    return null;
+    final PsiFile containingFile = xmlElement.getContainingFile();
+    return new RenameableTeamCityFileElement(containingFile);
   }
 
   @Override
   public PsiElement handleElementRename(String newElementName) throws IncorrectOperationException {
     if (newElementName == null)
-      return super.handleElementRename(newElementName);
+      return super.handleElementRename(null);
 
     if (newElementName.endsWith(".xml")) {
       String name = newElementName.substring(0, newElementName.length() - 4);

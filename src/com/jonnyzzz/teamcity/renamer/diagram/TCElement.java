@@ -21,7 +21,7 @@ public class TCElement implements Navigatable {
 
   @NotNull
   public String getName() {
-    return "" + myFile.getName().getStringValue();
+    return "" + myFile.getFileName().getStringValue();
   }
 
   @NotNull

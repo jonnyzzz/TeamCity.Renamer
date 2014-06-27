@@ -11,7 +11,6 @@ import com.jonnyzzz.teamcity.renamer.model.TeamCityElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
 import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
-import com.jonnyzzz.teamcity.renamer.model.vcsRoot.VcsRootFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,23 +55,6 @@ public class Visitors {
       for (BuildTypeFile buildTypeFile : projectFile.getAllBuildTypes()) {
 
         if (buildTypeId.equals(buildTypeFile.getFileId())) {
-          return buildTypeFile;
-        }
-      }
-    }
-    return null;
-  }
-
-  @Nullable
-  public static VcsRootFile findVCSRoot(@Nullable final TeamCityFile context,
-                                        @Nullable String vcsRootId) {
-    if (context == null) return null;
-    if (vcsRootId == null) return null;
-
-    for (ProjectFile projectFile : getAllProjects(context)) {
-      for (VcsRootFile buildTypeFile : projectFile.getAllVcsRoots()) {
-
-        if (vcsRootId.equals(buildTypeFile.getFileId())) {
           return buildTypeFile;
         }
       }
