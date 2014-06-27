@@ -30,14 +30,12 @@ public class Dependencies {
     final List<BuildTypeFile> items = new ArrayList<>();
     final Set<String> used = new HashSet<>();
 
-    final BuildTemplateFile baseTemplate = (file instanceof BuildTypeFile) ? ((BuildTypeFile) file).getBaseTemplate() : null;
-
-    for (BuildTypeFile snapshotDependency : Iterables.concat(file.getSnapshotDependencies(), baseTemplate != null ? baseTemplate.getSnapshotDependencies() : ImmutableList.<BuildTypeFile>of())) {
+    for (BuildTypeFile snapshotDependency : getAllSnapshotDependencies(file)) {
       if (!used.add(snapshotDependency.getFileId())) continue;
       items.add((snapshotDependency));
     }
 
-    for (BuildTypeFile artifactDependency : Iterables.concat(file.getArtifactDependencies(), baseTemplate != null ? baseTemplate.getArtifactDependencies() : ImmutableList.<BuildTypeFile>of())) {
+    for (BuildTypeFile artifactDependency : getAllArtifactDependencies(file)) {
       if (!used.add(artifactDependency.getFileId())) continue;
       items.add((artifactDependency));
     }
@@ -45,6 +43,17 @@ public class Dependencies {
     return items;
   }
 
+  @NotNull
+  public static Iterable<BuildTypeFile> getAllSnapshotDependencies(@NotNull final TeamCitySettingsBasedFile file) {
+    final BuildTemplateFile baseTemplate = (file instanceof BuildTypeFile) ? ((BuildTypeFile) file).getBaseTemplate() : null;
+    return Iterables.concat(file.getSnapshotDependencies(), baseTemplate != null ? baseTemplate.getSnapshotDependencies() : ImmutableList.<BuildTypeFile>of());
+  }
+
+  @NotNull
+  public static Iterable<BuildTypeFile> getAllArtifactDependencies(@NotNull final TeamCitySettingsBasedFile file) {
+    final BuildTemplateFile baseTemplate = (file instanceof BuildTypeFile) ? ((BuildTypeFile) file).getBaseTemplate() : null;
+    return Iterables.concat(file.getArtifactDependencies(), baseTemplate != null ? baseTemplate.getArtifactDependencies() : ImmutableList.<BuildTypeFile>of());
+  }
 
   @NotNull
   public static Iterable<TeamCitySettingsBasedFile> getDependingOnMe(@Nullable final TeamCitySettingsBasedFile file) {
