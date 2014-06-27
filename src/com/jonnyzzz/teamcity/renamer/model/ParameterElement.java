@@ -29,6 +29,8 @@ public abstract class ParameterElement extends TeamCityElement implements AutoFo
   @Referencing(value = ParameterReferenceConverter.class, soft = false)
   public abstract GenericAttributeValue<String> getParameterValue();
 
+  @TagValue
+  public abstract String getTagValue();
 
   @Nullable
   public String getParameterNameString() {

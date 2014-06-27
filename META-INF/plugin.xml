@@ -46,13 +46,10 @@
 
     <lang.foldingBuilder language="XML" implementationClass="com.jonnyzzz.teamcity.renamer.folding.RunnersFoldingBuilder"/>
 
-    <!--
     <localInspection language="XML"
-                     level="ERROR"
                      enabledByDefault="true"
-                     displayName="TeamCity Duplicated Parameters"
-                     implementationClass="com.jonnyzzz.teamcity.renamer.inspection.DuplicatedParameterInspection"/>
-                     -->
+                     displayName="TeamCity Parameter redundant"
+                     implementationClass="com.jonnyzzz.teamcity.renamer.inspection.ParameterOverridesHimselfInspection" groupName="TeamCity Renamer"/>
   </extensions>
 
   <application-components>
