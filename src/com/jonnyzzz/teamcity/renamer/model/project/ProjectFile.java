@@ -142,6 +142,16 @@ public abstract class ProjectFile extends TeamCityFile {
             .transformAndConcat(FILE_TO_META_RUNNERS));
   }
 
+  public final Iterable<BuildTemplateFile> getOwnBuildTemplates() {
+    return getProjectEntities("buildTypes", BuildTemplateFile.class);
+  }
+
+  public final Iterable<BuildTemplateFile> getAllBuildTemplates() {
+    return Iterables.concat(FluentIterable
+            .from(Visitors.getProjectFiles(this))
+            .transformAndConcat(FILE_TO_BUILD_TEMPLATES));
+  }
+
   @NotNull
   public final Iterable<ProjectFile> getSubProjects() {
     final String thisProjectId = getFileId();
@@ -210,6 +220,14 @@ public abstract class ProjectFile extends TeamCityFile {
     @Override
     public Iterable<MetaRunnerFile> apply(ProjectFile projectFile) {
       return projectFile.getOwnMetaRunners();
+    }
+  };
+
+  private static final Function<ProjectFile, Iterable<BuildTemplateFile>> FILE_TO_BUILD_TEMPLATES
+          = new Function<ProjectFile, Iterable<BuildTemplateFile>>() {
+    @Override
+    public Iterable<BuildTemplateFile> apply(ProjectFile projectFile) {
+      return projectFile.getOwnBuildTemplates();
     }
   };
 

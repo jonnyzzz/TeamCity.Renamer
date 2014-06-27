@@ -4,7 +4,7 @@ import com.intellij.util.xml.Attribute;
 import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.GenericAttributeValue;
 import com.jonnyzzz.teamcity.renamer.model.SettingsElement;
-import com.jonnyzzz.teamcity.renamer.resolve.settings.SettingsRefConverter;
+import com.jonnyzzz.teamcity.renamer.resolve.settings.BuildTemplateConverter;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -13,6 +13,6 @@ import org.jetbrains.annotations.NotNull;
 public abstract class BuildTypeSettingsElement extends SettingsElement {
   @NotNull
   @Attribute("ref")
-  @Convert(value = SettingsRefConverter.class, soft = false)
+  @Convert(value = BuildTemplateConverter.class, soft = false)
   public abstract GenericAttributeValue<String> getBaseTemplate();
 }
