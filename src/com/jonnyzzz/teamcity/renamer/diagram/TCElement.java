@@ -35,6 +35,16 @@ public class TCElement implements Navigatable {
   }
 
   @Override
+  public boolean equals(Object obj) {
+    return (obj instanceof TCElement) && ((TCElement) obj).getId().equals(getId());
+  }
+
+  @Override
+  public int hashCode() {
+    return getId().hashCode();
+  }
+
+  @Override
   public boolean canNavigate() {
     return false;
   }

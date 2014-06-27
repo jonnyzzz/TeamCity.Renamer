@@ -62,7 +62,6 @@ public class AddChildrenAction extends DiagramAddElementAction {
               final Point point = DiagramUtils.getBestPositionForNode(builder);
               builder.createDraggedNode(node, node.getTooltip(), point);
               builder.updateGraph();
-              builder.relayout();
             }
             builder.requestFocus();
           }

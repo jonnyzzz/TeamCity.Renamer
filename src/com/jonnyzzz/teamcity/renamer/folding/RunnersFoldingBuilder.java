@@ -5,6 +5,7 @@ import com.intellij.lang.XmlCodeFoldingBuilder;
 import com.intellij.lang.XmlCodeFoldingSettings;
 import com.intellij.lang.folding.FoldingDescriptor;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.UnfairTextRange;
 import com.intellij.psi.PsiElement;
@@ -39,6 +40,7 @@ public class RunnersFoldingBuilder extends XmlCodeFoldingBuilder {
 
   @Override
   protected boolean addToFold(List<FoldingDescriptor> foldings, PsiElement elementToFold, Document document) {
+    if (DumbService.getInstance(elementToFold.getProject()).isDumb()) return false;
     if (findFoldText(elementToFold) == null) return false;
     return super.addToFold(foldings, elementToFold, document);
   }

@@ -81,8 +81,8 @@ public class TCDiagramProvider extends BaseDiagramProvider<TCElement> {
       public Iterable<TCEdge> getEdges(@NotNull TCDataModel model, @NotNull TCNode node) {
         List<TCEdge> result = new ArrayList<>();
         TeamCitySettingsBasedFile buildType = node.getIdentifyingElement().getFile();
-        Map<String, BuildTypeFile> snap = idMap(buildType.getSnapshotDependencies());
-        Map<String, BuildTypeFile> art = idMap(buildType.getArtifactDependencies());
+        Map<String, BuildTypeFile> snap = idMap(Dependencies.getAllSnapshotDependencies(buildType));
+        Map<String, BuildTypeFile> art = idMap(Dependencies.getAllArtifactDependencies(buildType));
         for (Map.Entry<String, BuildTypeFile> e : snap.entrySet()) {
           TCNode neighbour = model.getNodeById(e.getKey());
           if (neighbour == null)
@@ -139,8 +139,9 @@ public class TCDiagramProvider extends BaseDiagramProvider<TCElement> {
     return visited.values();
   }
 
-  private Map<String, BuildTypeFile> idMap(@NotNull List<BuildTypeFile> buildTypes) {
-    Map<String, BuildTypeFile> result = new HashMap<>();
+  @NotNull
+  private Map<String, BuildTypeFile> idMap(@NotNull Iterable<BuildTypeFile> buildTypes) {
+    Map<String, BuildTypeFile> result = new TreeMap<>();
     for (BuildTypeFile f : buildTypes) {
       result.put(f.getFileId(), f);
     }
