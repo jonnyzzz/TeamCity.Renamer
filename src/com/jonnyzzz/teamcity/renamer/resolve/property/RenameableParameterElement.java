@@ -1,7 +1,11 @@
 package com.jonnyzzz.teamcity.renamer.resolve.property;
 
 import com.intellij.openapi.util.TextRange;
+import com.intellij.pom.PomTarget;
+import com.intellij.pom.PomTargetPsiElement;
+import com.intellij.psi.ManipulatableTarget;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiTarget;
 import com.intellij.psi.impl.RenameableFakePsiElement;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.xml.DomElement;
@@ -16,7 +20,7 @@ import javax.swing.*;
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
-public class RenameableParameterElement extends RenameableFakePsiElement {
+public class RenameableParameterElement extends RenameableFakePsiElement implements PsiTarget, PomTargetPsiElement {
   private final DomElement myRequester;
   private final DeclaredProperty myProperty;
 
@@ -35,6 +39,12 @@ public class RenameableParameterElement extends RenameableFakePsiElement {
   @Override
   public String getPresentableText() {
     return getLocationString() + " :: " + getName();
+  }
+
+  @NotNull
+  @Override
+  public PomTarget getTarget() {
+    return new ManipulatableTarget(this);
   }
 
   @Nullable
