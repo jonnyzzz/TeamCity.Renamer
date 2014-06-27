@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
 public class ParameterReference extends PsiReferenceBase<PsiElement> implements LocalQuickFixProvider {
-  private static final Pattern BUILT_IN_PARAMETER_PATTERN = Pattern.compile("vcsroot\\..*|.env\\..*|teamcity\\.tool\\..*|system\\.agent\\..*");
+  private static final Pattern BUILT_IN_PARAMETER_PATTERN = Pattern.compile("vcsroot\\..*|env\\..*|teamcity\\.tool\\..*|system\\.agent\\..*");
 
   @NotNull
   private final DomElement myAttr;
@@ -54,15 +54,15 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> implements 
   @Nullable
   @Override
   public PsiElement resolve() {
-    if (checkIfBuiltInParameter()) {
-      return new TeamCityPredefinedParameter(myReferredVariableName);
-    }
-
     final PsiElement declaredResolve = resolvePropertyFromContext(myAttr, myReferredVariableName);
     if (declaredResolve != null) return declaredResolve;
 
     final PsiElement depResolve = resolveDepParameter();
     if (depResolve != null) return depResolve;
+
+    if (checkIfBuiltInParameter()) {
+      return new TeamCityPredefinedParameter(myReferredVariableName);
+    }
 
     return null;
   }
