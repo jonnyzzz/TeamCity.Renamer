@@ -8,6 +8,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReferenceBase;
 import com.intellij.psi.xml.XmlElement;
 import com.intellij.util.ArrayUtil;
+import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.xml.GenericDomValue;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
 import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
@@ -21,7 +22,7 @@ import java.util.List;
  * @author Ivan Chirkov
  */
 public abstract class TeamCityFileReference<T extends TeamCityFile> extends PsiReferenceBase<PsiElement> {
-  private final GenericDomValue<String> myAttr;
+  protected final GenericDomValue<String> myAttr;
 
   protected TeamCityFileReference(@NotNull GenericDomValue<String> attr, @NotNull PsiElement element) {
     super(element);
@@ -54,6 +55,19 @@ public abstract class TeamCityFileReference<T extends TeamCityFile> extends PsiR
       }
     }
     return null;
+  }
+
+  @Override
+  public PsiElement handleElementRename(String newElementName) throws IncorrectOperationException {
+    if (newElementName == null)
+      return super.handleElementRename(null);
+
+    if (newElementName.endsWith(".xml")) {
+      String name = newElementName.substring(0, newElementName.length() - 4);
+      return super.handleElementRename(name);
+    }
+
+    return super.handleElementRename(newElementName);
   }
 
   @NotNull
