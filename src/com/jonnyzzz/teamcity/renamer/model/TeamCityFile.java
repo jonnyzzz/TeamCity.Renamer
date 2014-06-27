@@ -27,7 +27,7 @@ public abstract class TeamCityFile extends TeamCityElement {
   public abstract GenericDomValue<String> getFileName();
 
   @SubTag("description")
-  public abstract GenericDomValue<String> getBuildTypeDescription();
+  public abstract GenericDomValue<String> getFileDescription();
 
   @NotNull
   public final String getFilePresentableNameHTML() {

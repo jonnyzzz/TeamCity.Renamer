@@ -53,10 +53,12 @@ public class RunnersFoldingBuilder extends XmlCodeFoldingBuilder {
     if (!(psi instanceof XmlTag))return null;
 
     final DomElement dom = DomManager.getDomManager(psi.getProject()).getDomElement((XmlTag) psi);
-    if (dom instanceof AutoFoldableElement) {
-      return ((AutoFoldableElement) dom).getFoldedText();
-    }
-    return null;
+    if (dom == null) return null;
+
+    final AutoFoldableElement fold = dom.getParentOfType(AutoFoldableElement.class, false);
+    if (fold == null) return null;
+
+    return fold.getFoldedText();
   }
 
   @Nullable
