@@ -1,9 +1,6 @@
 package com.jonnyzzz.teamcity.renamer.diagram;
 
-import com.intellij.diagram.DiagramBuilder;
-import com.intellij.diagram.DiagramEdge;
-import com.intellij.diagram.DiagramNode;
-import com.intellij.diagram.Utils;
+import com.intellij.diagram.*;
 import com.intellij.diagram.actions.DiagramAddElementAction;
 import com.intellij.diagram.extras.DiagramExtras;
 import com.intellij.diagram.extras.providers.DiagramDnDProvider;
@@ -46,6 +43,11 @@ public class TCDiagramExtras extends DiagramExtras<TCElement> {
   @Override
   public JComponent createNodeComponent(DiagramNode<TCElement> node, DiagramBuilder builder, Point basePoint) {
     return super.createNodeComponent(node, builder, basePoint);
+  }
+
+  @Override
+  public DiagramElementsProvider<TCElement>[] getElementsProviders() {
+    return new DiagramElementsProvider[]{ new TCDiagramElementsProvider() };
   }
 
   @Override
