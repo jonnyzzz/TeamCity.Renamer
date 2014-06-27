@@ -24,7 +24,7 @@ public abstract class TeamCityFile extends TeamCityElement {
   public static final String PROJECT_CONFIG_FILE_NAME = "project-config.xml";
 
   @SubTag("name")
-  public abstract GenericDomValue<String> getName();
+  public abstract GenericDomValue<String> getFileName();
 
   @SubTag("description")
   public abstract GenericDomValue<String> getBuildTypeDescription();
@@ -47,7 +47,7 @@ public abstract class TeamCityFile extends TeamCityElement {
 
   @NotNull
   protected final String getPresentableName() {
-    final String thisName = getName().getRawText();
+    final String thisName = getFileName().getRawText();
     final ProjectFile parentFile = getParentProjectFile();
     if (parentFile == null) return thisName;
     return parentFile.getPresentableName() + " :: " + thisName;
