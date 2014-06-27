@@ -23,7 +23,7 @@ public abstract class SnapshotDependencyElement extends TeamCityElement implemen
 
     final BuildTypeFile buildType = Visitors.findBuildType(ref, depId);
     if (buildType == null) {
-      return "??? " + depId;
+      return null;
     }
 
     return buildType.getFilePresentableNameText();
