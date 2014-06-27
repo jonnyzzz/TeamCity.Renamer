@@ -51,6 +51,16 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> implements 
     myReferredVariableName = referredVariableName;
   }
 
+  @NotNull
+  public DomElement getContainingDomElement() {
+    return myAttr;
+  }
+
+  @NotNull
+  public TextRange getReferenceTextRange() {
+    return getRangeInElement().shiftRight(getElement().getTextOffset());
+  }
+
   @Nullable
   @Override
   public PsiElement resolve() {
