@@ -54,6 +54,11 @@ public abstract class TeamCityFileReference<T extends TeamCityFile> extends PsiR
         return new RenameableTeamCityFileElement(containingFile);
       }
     }
+
+    if (isBuiltIn()) {
+      return new TeamCityPredefined(value);
+    }
+
     return null;
   }
 
@@ -99,4 +104,8 @@ public abstract class TeamCityFileReference<T extends TeamCityFile> extends PsiR
   }
 
   protected abstract Iterable<T> getAll(@NotNull ProjectFile projectFile);
+
+  protected boolean isBuiltIn() {
+    return false;
+  }
 }

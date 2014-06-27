@@ -10,7 +10,6 @@ import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceBase;
-import com.intellij.psi.impl.FakePsiElement;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.xml.DomElement;
@@ -22,6 +21,7 @@ import com.jonnyzzz.teamcity.renamer.model.buildType.BuildRunnerElement;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
 import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
 import com.jonnyzzz.teamcity.renamer.model.template.BuildTemplateFile;
+import com.jonnyzzz.teamcity.renamer.resolve.TeamCityPredefined;
 import com.jonnyzzz.teamcity.renamer.resolve.Visitors;
 import com.jonnyzzz.teamcity.renamer.resolve.deps.Dependencies;
 import org.jetbrains.annotations.NotNull;
@@ -61,7 +61,7 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> implements 
     if (depResolve != null) return depResolve;
 
     if (checkIfBuiltInParameter()) {
-      return new TeamCityPredefinedParameter(myReferredVariableName);
+      return new TeamCityPredefined(myReferredVariableName);
     }
 
     return null;
@@ -206,40 +206,6 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> implements 
       return null;
     }
     return fixes.toArray(new LocalQuickFix[fixes.size()]);
-  }
-
-  private static class TeamCityPredefinedParameter extends FakePsiElement {
-    private final String myName;
-
-    public TeamCityPredefinedParameter(@NotNull final String name) {
-      myName = name;
-    }
-
-    @Override
-    public boolean isWritable() {
-      return false;
-    }
-
-    @Override
-    public String getName() {
-      return myName;
-    }
-
-    @Override
-    public PsiElement getParent() {
-      return null;
-    }
-
-    @Override
-    public String getPresentableText() {
-      return getLocationString() + " :: " + getName();
-    }
-
-    @Nullable
-    @Override
-    public String getLocationString() {
-      return "[TeamCity Predefined]";
-    }
   }
 
   @NotNull

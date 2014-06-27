@@ -51,6 +51,7 @@ public abstract class VcsRootFile extends TeamCityFile {
     return FileUtil.getNameWithoutExtension(containingFile.getName());
   }
 
+  @Override
   @Nullable
   public final ProjectFile getParentProjectFile() {
     final PsiDirectory containingDir = getContainingDirectory();

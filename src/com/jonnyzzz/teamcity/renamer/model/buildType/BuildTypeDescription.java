@@ -2,11 +2,13 @@ package com.jonnyzzz.teamcity.renamer.model.buildType;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.intellij.openapi.module.Module;
 import com.intellij.psi.xml.XmlFile;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFileDescriptionBase;
 import com.jonnyzzz.teamcity.renamer.model.template.BuildTemplateFile;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 
@@ -31,5 +33,10 @@ public class BuildTypeDescription extends TeamCityFileDescriptionBase<BuildTypeF
 
     if (baseTemplate == null) return base;
     return Sets.union(ImmutableSet.of(baseTemplate), base);
+  }
+
+  @Override
+  public boolean isMyFile(@NotNull XmlFile file, @Nullable Module module) {
+    return super.isMyFile(file, module) && file.getParent() != null && "buildTypes".equals(file.getParent().getName());
   }
 }
