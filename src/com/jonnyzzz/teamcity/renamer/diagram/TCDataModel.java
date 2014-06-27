@@ -104,90 +104,96 @@ class TCDataModel extends DiagramDataModel<TCElement> {
   @Override
   public void removeEdge(final DiagramEdge<TCElement> edge) {
     myEdges.remove(edge);
-    final String sourceBuildTypeId = edge.getSource().getIdentifyingElement().getId();
-    final TeamCitySettingsBasedFile file = edge.getTarget().getIdentifyingElement().getFile();
+    refreshDataModel();
 
-    WriteCommandAction.runWriteCommandAction(getProject(), new Runnable() {
+    ApplicationManager.getApplication().invokeLater(new Runnable() {
       @Override
       public void run() {
-        FileDocumentManager.getInstance().saveAllDocuments();
-        PsiDocumentManager.getInstance(getProject()).commitAllDocuments();
-
-        CommandProcessor.getInstance().executeCommand(getProject(), new Runnable() {
-          private void deleteDependency(@NotNull final TeamCityElement el) {
-            el.undefine();
-          }
-
+        WriteCommandAction.runWriteCommandAction(getProject(), new Runnable() {
           @Override
           public void run() {
-            final BuildTemplateFile baseTemplate = (file instanceof BuildTypeFile) ? ((BuildTypeFile) file).getBaseTemplate() : null;
+            FileDocumentManager.getInstance().saveAllDocuments();
+            PsiDocumentManager.getInstance(getProject()).commitAllDocuments();
 
-            if (edge.getRelationship() == TCRelationships.SNAPSHOT || edge.getRelationship() == TCRelationships.SNAPSHOT_ART) {
-              for (final SnapshotDependencyElement dep : file.getSettingsElement().getSnapshotDependencies().getDependencies()) {
-                String id = dep.getSourceBuildTypeId().getStringValue();
-                if (id == null)
-                  continue;
-
-                if (id.equals(sourceBuildTypeId))
-                  deleteDependency(dep);
+            CommandProcessor.getInstance().executeCommand(getProject(), new Runnable() {
+              private void deleteDependency(@NotNull final TeamCityElement el) {
+                el.undefine();
               }
 
-              if (baseTemplate != null) {
-                for (final SnapshotDependencyElement dep : baseTemplate.getSettingsElement().getSnapshotDependencies().getDependencies()) {
-                  String id = dep.getSourceBuildTypeId().getStringValue();
-                  if (id == null)
-                    continue;
-                  if (id.equals(sourceBuildTypeId))
-                    deleteDependency(dep);
+              @Override
+              public void run() {
+                final String sourceBuildTypeId = edge.getSource().getIdentifyingElement().getId();
+                final TeamCitySettingsBasedFile file = edge.getTarget().getIdentifyingElement().getFile();
 
-                }
-              }
-            }
-            if (edge.getRelationship() == TCRelationships.ARTIFACT || edge.getRelationship() == TCRelationships.SNAPSHOT_ART) {
-              for (final ArtifactDependencyElement dep : file.getSettingsElement().getArtifactDependencies().getDependencies()) {
-                String id = dep.getSourceBuildTypeId().getStringValue();
-                if (id == null)
-                  continue;
-                if (id.equals(sourceBuildTypeId))
-                  deleteDependency(dep);
-              }
+                final BuildTemplateFile baseTemplate = (file instanceof BuildTypeFile) ? ((BuildTypeFile) file).getBaseTemplate() : null;
 
-              if (baseTemplate != null) {
-                for (final ArtifactDependencyElement dep : baseTemplate.getSettingsElement().getArtifactDependencies().getDependencies()) {
-                  String id = dep.getSourceBuildTypeId().getStringValue();
-                  if (id == null)
-                    continue;
-                  if (id.equals(sourceBuildTypeId))
-                    deleteDependency(dep);
-                }
-              }
-            }
-          }
-        }, "Remove dependencies", "TeamCity");
+                if (edge.getRelationship() == TCRelationships.SNAPSHOT || edge.getRelationship() == TCRelationships.SNAPSHOT_ART) {
+                  for (final SnapshotDependencyElement dep : file.getSettingsElement().getSnapshotDependencies().getDependencies()) {
+                    String id = dep.getSourceBuildTypeId().getStringValue();
+                    if (id == null)
+                      continue;
 
-        PsiDocumentManager.getInstance(getProject()).commitAllDocuments();
-        FileDocumentManager.getInstance().saveAllDocuments();
+                    if (id.equals(sourceBuildTypeId))
+                      deleteDependency(dep);
+                  }
 
-        final DiagramBuilder builder = getBuilder();
-        ApplicationManager.getApplication().invokeLater(
-                new Runnable() {
-                  @Override
-                  public void run() {
-                    builder.updateDataModel();
-                    builder.update(true, false);
+                  if (baseTemplate != null) {
+                    for (final SnapshotDependencyElement dep : baseTemplate.getSettingsElement().getSnapshotDependencies().getDependencies()) {
+                      String id = dep.getSourceBuildTypeId().getStringValue();
+                      if (id == null)
+                        continue;
+                      if (id.equals(sourceBuildTypeId))
+                        deleteDependency(dep);
+
+                    }
                   }
                 }
-        );
+                if (edge.getRelationship() == TCRelationships.ARTIFACT || edge.getRelationship() == TCRelationships.SNAPSHOT_ART) {
+                  for (final ArtifactDependencyElement dep : file.getSettingsElement().getArtifactDependencies().getDependencies()) {
+                    String id = dep.getSourceBuildTypeId().getStringValue();
+                    if (id == null)
+                      continue;
+                    if (id.equals(sourceBuildTypeId))
+                      deleteDependency(dep);
+                  }
 
+                  if (baseTemplate != null) {
+                    for (final ArtifactDependencyElement dep : baseTemplate.getSettingsElement().getArtifactDependencies().getDependencies()) {
+                      String id = dep.getSourceBuildTypeId().getStringValue();
+                      if (id == null)
+                        continue;
+                      if (id.equals(sourceBuildTypeId))
+                        deleteDependency(dep);
+                    }
+                  }
+                }
+              }
+            }, "Remove dependencies", "TeamCity");
+
+            PsiDocumentManager.getInstance(getProject()).commitAllDocuments();
+            FileDocumentManager.getInstance().saveAllDocuments();
+
+            final DiagramBuilder builder = getBuilder();
+            ApplicationManager.getApplication().invokeLater(
+                    new Runnable() {
+                      @Override
+                      public void run() {
+                        builder.updateDataModel();
+                        builder.update(true, false);
+                      }
+                    }
+            );
+
+          }
+        });
       }
     });
-
   }
 
   @NotNull
   @Override
   public ModificationTracker getModificationTracker() {
-    return ModificationTracker.NEVER_CHANGED;
+    return ModificationTracker.EVER_CHANGED;
   }
 
   @Override
