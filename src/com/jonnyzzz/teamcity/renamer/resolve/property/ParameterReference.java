@@ -5,25 +5,23 @@ import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.LocalQuickFixProvider;
-import com.intellij.codeInspection.ProblemDescriptor;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceBase;
 import com.intellij.psi.impl.FakePsiElement;
-import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.DomUtil;
 import com.jonnyzzz.teamcity.renamer.model.ParameterElement;
 import com.jonnyzzz.teamcity.renamer.model.ParametersBlockElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
 import com.jonnyzzz.teamcity.renamer.model.TeamCitySettingsBasedFile;
+import com.jonnyzzz.teamcity.renamer.model.buildType.BuildRunnerElement;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
+import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
+import com.jonnyzzz.teamcity.renamer.model.template.BuildTemplateFile;
 import com.jonnyzzz.teamcity.renamer.resolve.Visitors;
 import com.jonnyzzz.teamcity.renamer.resolve.deps.Dependencies;
 import org.jetbrains.annotations.NotNull;
@@ -162,9 +160,52 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> implements 
   @Override
   public LocalQuickFix[] getQuickFixes() {
     if (resolve() == null) {
-      return new LocalQuickFix[]{new DefineLocalParameter (myReferredVariableName)};
+      return getLocalQuickFixesForParameter(myAttr.getParentOfType(ParameterElement.class, false), myReferredVariableName);
     }
-    return LocalQuickFix.EMPTY_ARRAY;
+    return null;
+  }
+
+  @Nullable
+  public static LocalQuickFix[] getLocalQuickFixesForParameter(@Nullable final ParameterElement parameter, @NotNull final String name) {
+    if (parameter == null) {
+      return null;
+    }
+    final List<LocalQuickFix> fixes = new ArrayList<>();
+
+    final BuildRunnerElement buildRunner = parameter.getParentOfType(BuildRunnerElement.class, false);
+    final BuildTypeFile buildTypeFile = parameter.getParentOfType(BuildTypeFile.class, false);
+    final BuildTemplateFile buildTemplateFile = parameter.getParentOfType(BuildTemplateFile.class, false);
+    final ProjectFile projectFile = parameter.getParentOfType(ProjectFile.class, false);
+
+    if (buildRunner != null) {
+      fixes.add(new DefineBuildRunnerParameter(name, buildRunner));
+      if (buildTypeFile != null) {
+        fixes.add(new DefineBuildTypeParameter(name, buildTypeFile));
+        final BuildTemplateFile template = buildTypeFile.getBaseTemplate();
+        if (template != null) {
+          fixes.add(new DefineBuildTemplateParameter(name, template));
+        }
+        fixes.add(new DefineProjectParameter(name, buildTypeFile.getParentProjectFile()));
+      } else if (buildTemplateFile != null) {
+        fixes.add(new DefineBuildTemplateParameter(name, buildTemplateFile));
+        fixes.add(new DefineProjectParameter(name, buildTemplateFile.getParentProjectFile()));
+      }
+    } else if (buildTypeFile != null) {
+      fixes.add(new DefineBuildTypeParameter(name, buildTypeFile));
+      final BuildTemplateFile template = buildTypeFile.getBaseTemplate();
+      if (template != null) {
+        fixes.add(new DefineBuildTemplateParameter(name, template));
+      }
+      fixes.add(new DefineProjectParameter(name, buildTypeFile.getParentProjectFile()));
+    } else if (buildTemplateFile != null) {
+      fixes.add(new DefineBuildTemplateParameter(name, buildTemplateFile));
+      fixes.add(new DefineProjectParameter(name, buildTemplateFile.getParentProjectFile()));
+    } else if (projectFile != null) {
+      fixes.add(new DefineProjectParameter(name, projectFile));
+    } else {
+      return null;
+    }
+    return fixes.toArray(new LocalQuickFix[fixes.size()]);
   }
 
   private static class TeamCityPredefinedParameter extends FakePsiElement {
@@ -198,63 +239,6 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> implements 
     @Override
     public String getLocationString() {
       return "[TeamCity Predefined]";
-    }
-  }
-
-  private static abstract class AbstractDefineNewParameterQuickFix implements LocalQuickFix {
-    private final String myNewParameterName;
-
-    private AbstractDefineNewParameterQuickFix(String newParameterName) {
-      myNewParameterName = newParameterName;
-    }
-
-    @NotNull
-    @Override
-    public final String getFamilyName() {
-      return "Create parameter";
-    }
-
-    @Override
-    public void applyFix(@NotNull final Project project, @NotNull final ProblemDescriptor descriptor) {
-      final PsiElement element = descriptor.getPsiElement();
-      final DomElement domElement = DomUtil.getDomElement(element);
-      if (domElement == null) {
-        return;
-      }
-      final ParameterElement pe = domElement.getParentOfType(ParameterElement.class, false);
-      if (pe == null) {
-        return;
-      }
-      ParametersBlockElement parameters = getWhereToPlace(pe);
-      if (parameters == null) {
-        return;
-      }
-      final XmlTag parameter = addParameter(parameters, myNewParameterName, "");
-      //noinspection ConstantConditions
-      final XmlAttributeValue ve = parameter.getAttribute("value").getValueElement();
-      if (ve instanceof Navigatable) {
-        ((Navigatable) ve).navigate(true);
-      }
-    }
-
-    protected abstract ParametersBlockElement getWhereToPlace(ParameterElement element);
-  }
-
-  private static class DefineLocalParameter extends AbstractDefineNewParameterQuickFix {
-
-    private DefineLocalParameter(String newParameterName) {
-      super(newParameterName);
-    }
-
-    @NotNull
-    @Override
-    public String getName() {
-      return "Create parameter in local context";
-    }
-
-    @Override
-    protected ParametersBlockElement getWhereToPlace(ParameterElement element) {
-      return element.getParentOfType(ParametersBlockElement.class, false);
     }
   }
 

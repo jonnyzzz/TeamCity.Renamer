@@ -26,9 +26,13 @@ public abstract class VcsRootEntryRefElement extends TeamCityElement implements 
 
     final VcsRootFile root = VcsRoots.resolve(this, rootId);
     if (root == null) return null;
-    final GenericAttributeValue<String> rootName = root.getVcsRootName();
-    if (rootName == null) return null;
 
-    return rootName.getStringValue();
+    final GenericAttributeValue<String> rootName = root.getVcsRootName();
+    if (rootName != null) {
+      final String rootNameString = rootName.getStringValue();
+      if (rootNameString != null) return rootNameString;
+    }
+    return rootId;
+
   }
 }

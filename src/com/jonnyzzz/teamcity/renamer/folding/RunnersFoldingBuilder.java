@@ -74,6 +74,6 @@ public class RunnersFoldingBuilder extends XmlCodeFoldingBuilder {
       return new UnfairTextRange(nameEnd, end);
     }
 
-    return super.getRangeToFold(element);
+    return null;
   }
 }
