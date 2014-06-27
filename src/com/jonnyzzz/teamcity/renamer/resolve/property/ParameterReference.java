@@ -3,13 +3,24 @@ package com.jonnyzzz.teamcity.renamer.resolve.property;
 import com.google.common.collect.Iterables;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.codeInspection.LocalQuickFix;
+import com.intellij.codeInspection.LocalQuickFixProvider;
+import com.intellij.codeInspection.ProblemDescriptor;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceBase;
 import com.intellij.psi.impl.FakePsiElement;
+import com.intellij.psi.xml.XmlAttributeValue;
+import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.xml.DomElement;
+import com.intellij.util.xml.DomUtil;
 import com.jonnyzzz.teamcity.renamer.model.ParameterElement;
+import com.jonnyzzz.teamcity.renamer.model.ParametersBlockElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
 import com.jonnyzzz.teamcity.renamer.model.TeamCitySettingsBasedFile;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
@@ -25,7 +36,7 @@ import java.util.regex.Pattern;
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
-public class ParameterReference extends PsiReferenceBase<PsiElement> {
+public class ParameterReference extends PsiReferenceBase<PsiElement> implements LocalQuickFixProvider {
   private static final Pattern BUILT_IN_PARAMETER_PATTERN = Pattern.compile("vcsroot\\..*|.env\\..*|teamcity\\.tool\\..*|system\\.agent\\..*");
 
   @NotNull
@@ -147,6 +158,15 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> {
     return super.bindToElement(element);
   }
 
+  @Nullable
+  @Override
+  public LocalQuickFix[] getQuickFixes() {
+    if (resolve() == null) {
+      return new LocalQuickFix[]{new DefineLocalParameter (myReferredVariableName)};
+    }
+    return LocalQuickFix.EMPTY_ARRAY;
+  }
+
   private static class TeamCityPredefinedParameter extends FakePsiElement {
     private final String myName;
 
@@ -179,5 +199,76 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> {
     public String getLocationString() {
       return "[TeamCity Predefined]";
     }
+  }
+
+  private static abstract class AbstractDefineNewParameterQuickFix implements LocalQuickFix {
+    private final String myNewParameterName;
+
+    private AbstractDefineNewParameterQuickFix(String newParameterName) {
+      myNewParameterName = newParameterName;
+    }
+
+    @NotNull
+    @Override
+    public final String getFamilyName() {
+      return "Create parameter";
+    }
+
+    @Override
+    public void applyFix(@NotNull final Project project, @NotNull final ProblemDescriptor descriptor) {
+      final PsiElement element = descriptor.getPsiElement();
+      final DomElement domElement = DomUtil.getDomElement(element);
+      if (domElement == null) {
+        return;
+      }
+      final ParameterElement pe = domElement.getParentOfType(ParameterElement.class, false);
+      if (pe == null) {
+        return;
+      }
+      ParametersBlockElement parameters = getWhereToPlace(pe);
+      if (parameters == null) {
+        return;
+      }
+      final XmlTag parameter = addParameter(parameters, myNewParameterName, "");
+      //noinspection ConstantConditions
+      final XmlAttributeValue ve = parameter.getAttribute("value").getValueElement();
+      if (ve instanceof Navigatable) {
+        ((Navigatable) ve).navigate(true);
+      }
+    }
+
+    protected abstract ParametersBlockElement getWhereToPlace(ParameterElement element);
+  }
+
+  private static class DefineLocalParameter extends AbstractDefineNewParameterQuickFix {
+
+    private DefineLocalParameter(String newParameterName) {
+      super(newParameterName);
+    }
+
+    @NotNull
+    @Override
+    public String getName() {
+      return "Create parameter in local context";
+    }
+
+    @Override
+    protected ParametersBlockElement getWhereToPlace(ParameterElement element) {
+      return element.getParentOfType(ParametersBlockElement.class, false);
+    }
+  }
+
+  @NotNull
+  public static XmlTag addParameter(@NotNull final ParametersBlockElement parameters, @NotNull final String name, @NotNull final String value) {
+    return ApplicationManager.getApplication().runWriteAction(new Computable<XmlTag>() {
+      @Override
+      public XmlTag compute() {
+        final XmlTag parametersXmlTag = parameters.getXmlTag();
+        final XmlTag child = parametersXmlTag.createChildTag("param", parametersXmlTag.getNamespace(), null, false);
+        child.setAttribute("name", name);
+        child.setAttribute("value", value);
+        return parametersXmlTag.addSubTag(child, false);
+      }
+    });
   }
 }
