@@ -18,6 +18,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.xml.XmlElement;
 import com.intellij.util.IncorrectOperationException;
+import com.jonnyzzz.teamcity.renamer.model.ArtifactDependencyElement;
 import com.jonnyzzz.teamcity.renamer.model.SnapshotDependencyElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCitySettingsBasedFile;
 import com.jonnyzzz.teamcity.renamer.resolve.buildTypes.TeamCityFileNamedReference;
@@ -95,11 +96,21 @@ public class TCDiagramExtras extends DiagramExtras<TCElement> {
           DiagramNode<TCElement> source = edge.getSource();
           DiagramNode<TCElement> target = edge.getTarget();
           TeamCitySettingsBasedFile tcFile = target.getIdentifyingElement().getFile();
-          for (SnapshotDependencyElement el : tcFile.getSettingsElement().getSnapshotDependencies().getDependencies()) {
-            if (source.getIdentifyingElement().getId().equals(el.getSourceBuildTypeId().getValue())) {
-              XmlElement xmlElement = el.getXmlElement();
-              if (xmlElement != null)
-                return xmlElement;
+          if (e.getRelationship() == TCRelationships.SNAPSHOT_ART || e.getRelationship() == TCRelationships.SNAPSHOT) {
+            for (SnapshotDependencyElement el : tcFile.getSettingsElement().getSnapshotDependencies().getDependencies()) {
+              if (source.getIdentifyingElement().getId().equals(el.getSourceBuildTypeId().getValue())) {
+                XmlElement xmlElement = el.getXmlElement();
+                if (xmlElement != null)
+                  return xmlElement;
+              }
+            }
+          } else {
+            for (ArtifactDependencyElement el : tcFile.getSettingsElement().getArtifactDependencies().getDependencies()) {
+              if (source.getIdentifyingElement().getId().equals(el.getSourceBuildTypeId().getValue())) {
+                XmlElement xmlElement = el.getXmlElement();
+                if (xmlElement != null)
+                  return xmlElement;
+              }
             }
           }
         }
