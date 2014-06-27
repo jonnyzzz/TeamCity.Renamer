@@ -16,6 +16,8 @@ import java.util.Set;
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
 public abstract class TeamCityFileDescriptionBase<T extends TeamCityFile> extends DomFileDescription<T> {
+  private static final int outVersionBase = (int)(System.currentTimeMillis() & 0xfffffff);
+
   public TeamCityFileDescriptionBase(@NotNull final Class<T> rootElementClass,
                                      @NotNull final @NonNls String rootTagName,
                                      @NotNull @NonNls final String... allPossibleRootTagNamespaces) {
@@ -29,7 +31,7 @@ public abstract class TeamCityFileDescriptionBase<T extends TeamCityFile> extend
 
   @Override
   public int getStubVersion() {
-    return getClass().getName().hashCode() & 0xffffff + 42;
+    return outVersionBase + getClass().getName().hashCode() & 0xffffff + 42;
   }
 
   @NotNull
