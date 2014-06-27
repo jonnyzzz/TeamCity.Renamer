@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.CustomShortcutSet;
 import com.intellij.openapi.actionSystem.ShortcutSet;
 import com.intellij.openapi.project.Project;
 import com.jonnyzzz.teamcity.renamer.model.TeamCitySettingsBasedFile;
+import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
 import com.jonnyzzz.teamcity.renamer.resolve.deps.Dependencies;
 
 import javax.swing.*;
@@ -20,11 +21,12 @@ public class TCDiagramDependingOnMeProvider extends TCDiagramDependenciesProvide
   public TCElement[] getElements(TCElement element, Project project) {
     final ArrayList<TCElement> items = new ArrayList<>();
     for (TeamCitySettingsBasedFile file : Dependencies.getDependingOnMe(element.getFile())) {
-      items.add(new TCElement(file));
+      if (file instanceof BuildTypeFile) {
+        items.add(new TCElement(file));
+      }
     }
     return items.toArray(new TCElement[items.size()]);
   }
-
 
   @Override
   public ShortcutSet getShortcutSet() {
