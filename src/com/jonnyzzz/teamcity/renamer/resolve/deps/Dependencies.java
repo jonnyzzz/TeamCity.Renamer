@@ -9,7 +9,6 @@ import com.google.common.collect.Iterables;
 import com.intellij.util.xml.DomElement;
 import com.jonnyzzz.teamcity.renamer.model.*;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
-import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
 import com.jonnyzzz.teamcity.renamer.model.template.BuildTemplateFile;
 import com.jonnyzzz.teamcity.renamer.resolve.Visitors;
 import org.jetbrains.annotations.NotNull;
@@ -62,17 +61,8 @@ public class Dependencies {
     final String theId = file.getFileId();
     if (theId == null) return ImmutableList.of();
 
-    final ImmutableList<TeamCitySettingsBasedFile> allFiles = FluentIterable
-            .from(Visitors.getAllProjects(file))
-            .transformAndConcat(new Function<ProjectFile, Iterable<? extends TeamCitySettingsBasedFile>>() {
-              @Override
-              public Iterable<? extends TeamCitySettingsBasedFile> apply(ProjectFile proj) {
-                return Iterables.concat(proj.getOwnBuildTemplates(), proj.getOwnBuildTypes());
-              }
-            }).filter(Predicates.notNull()).toList();
-
-
-    return Iterables.filter(allFiles, new Predicate<TeamCitySettingsBasedFile>() {
+    return Iterables.filter(Visitors.getAllSettingsBasedFiles(file),
+            new Predicate<TeamCitySettingsBasedFile>() {
               @Override
               public boolean apply(TeamCitySettingsBasedFile teamCitySettingsBasedFile) {
                 return Iterables.contains(getDependencyIds(teamCitySettingsBasedFile), theId);

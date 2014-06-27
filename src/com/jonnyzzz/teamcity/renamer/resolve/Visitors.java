@@ -5,10 +5,12 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.util.xml.DomElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
+import com.jonnyzzz.teamcity.renamer.model.TeamCitySettingsBasedFile;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
 import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
 import org.jetbrains.annotations.NotNull;
@@ -77,6 +79,34 @@ public class Visitors {
     final ProjectFile theProject = file.getParentProjectFile();
     if (theProject == null) return null;
     return theProject.getContainingDirectory();
+  }
+
+  @NotNull
+  public static Iterable<BuildTypeFile> getAllBuildTypeFiles(@Nullable DomElement context) {
+    return
+            FluentIterable
+                    .from(Visitors.getAllProjects(context))
+                    .transformAndConcat(new Function<ProjectFile, Iterable<BuildTypeFile>>() {
+                      @Override
+                      public Iterable<BuildTypeFile> apply(ProjectFile proj) {
+                        return proj.getOwnBuildTypes();
+                      }
+                    }).filter(Predicates.notNull());
+
+  }
+
+
+  @NotNull
+  public static Iterable<TeamCitySettingsBasedFile> getAllSettingsBasedFiles(@Nullable DomElement context) {
+    return
+        FluentIterable
+            .from(Visitors.getAllProjects(context))
+            .transformAndConcat(new Function<ProjectFile, Iterable<? extends TeamCitySettingsBasedFile>>() {
+              @Override
+              public Iterable<? extends TeamCitySettingsBasedFile> apply(ProjectFile proj) {
+                return Iterables.concat(proj.getOwnBuildTemplates(), proj.getOwnBuildTypes());
+              }
+            }).filter(Predicates.notNull());
   }
 
   @NotNull

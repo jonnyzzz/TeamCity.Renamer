@@ -3,23 +3,19 @@ package com.jonnyzzz.teamcity.renamer.resolve.buildTypes;
 import com.intellij.pom.PomTarget;
 import com.intellij.pom.PomTargetPsiElement;
 import com.intellij.psi.ManipulatableTarget;
-import com.google.common.collect.ImmutableList;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiTarget;
 import com.intellij.psi.impl.RenameableFakePsiElement;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.xml.GenericDomValue;
+import com.jonnyzzz.teamcity.renamer.model.TeamCityElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
-import com.jonnyzzz.teamcity.renamer.model.TeamCitySettingsBasedFile;
-import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
@@ -68,20 +64,10 @@ public class TeamCityFileNamedReference extends RenameableFakePsiElement impleme
     return new ManipulatableTarget(this);
   }
 
-  
   @NotNull
-  public Collection<BuildTypeFile> getDependencies() {
-    if (myFile instanceof TeamCitySettingsBasedFile) {
-
-      List<BuildTypeFile> artifactDependencies = ((TeamCitySettingsBasedFile) myFile).getArtifactDependencies();
-      List<BuildTypeFile> snapshotDependencies = ((TeamCitySettingsBasedFile) myFile).getSnapshotDependencies();
-
-      return ImmutableList.<BuildTypeFile>builder().addAll(artifactDependencies).addAll(snapshotDependencies).build();
-
-    }
-    return ImmutableList.of();
+  public TeamCityElement getTeamCityContext() {
+    return myFile;
   }
-
 
   @Override
   public PsiElement setName(@NonNls @NotNull String name) throws IncorrectOperationException {

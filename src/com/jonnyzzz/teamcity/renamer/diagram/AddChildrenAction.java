@@ -20,6 +20,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.ui.UIUtil;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
+import com.jonnyzzz.teamcity.renamer.resolve.Visitors;
 import com.jonnyzzz.teamcity.renamer.resolve.buildTypes.TeamCityFileNamedReference;
 import org.jetbrains.annotations.NotNull;
 
@@ -61,6 +62,7 @@ public class AddChildrenAction extends DiagramAddElementAction {
               final Point point = DiagramUtils.getBestPositionForNode(builder);
               builder.createDraggedNode(node, node.getTooltip(), point);
               builder.updateGraph();
+              builder.relayout();
             }
             builder.requestFocus();
           }
@@ -71,7 +73,7 @@ public class AddChildrenAction extends DiagramAddElementAction {
 
   @Override
   public String getText() {
-    return "Add dependencies";
+    return "Add build configurations";
   }
 
   private static class ChooseByNameModel extends SimpleChooseByNameModel {
@@ -79,12 +81,12 @@ public class AddChildrenAction extends DiagramAddElementAction {
 
     public ChooseByNameModel(@NotNull final Project project,
                              @NotNull final TeamCityFileNamedReference ref) {
-      super(project, "Enter name", null);
+      super(project, "Enter build configuration name", null);
 
-      for (BuildTypeFile file : ref.getDependencies()) {
+      for (BuildTypeFile file : Visitors.getAllBuildTypeFiles(ref.getTeamCityContext())) {
         final String name = file.getFileName().getStringValue();
         if (name != null) {
-          modules.put(name, file);
+          modules.put(name.toLowerCase(), file);
         }
       }
     }
@@ -96,7 +98,7 @@ public class AddChildrenAction extends DiagramAddElementAction {
 
     @Override
     protected Object[] getElementsByName(String name, String pattern) {
-      final BuildTypeFile module = modules.get(name);
+      final BuildTypeFile module = modules.get((""+name).toLowerCase());
       return module == null ? AnAction.EMPTY_ARRAY : new Object[] {module};
     }
 
