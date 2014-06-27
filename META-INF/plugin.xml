@@ -46,6 +46,8 @@
 
     <lang.foldingBuilder language="XML" implementationClass="com.jonnyzzz.teamcity.renamer.folding.RunnersFoldingBuilder"/>
 
+    <findUsagesHandlerFactory implementation="com.jonnyzzz.teamcity.renamer.model.ParametersFindUsagesFactory"/>
+
     <localInspection language="XML"
                      enabledByDefault="true"
                      displayName="TeamCity Parameter redundant"

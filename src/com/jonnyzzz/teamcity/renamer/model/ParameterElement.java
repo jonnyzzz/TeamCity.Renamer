@@ -40,7 +40,7 @@ public abstract class ParameterElement extends TeamCityElement implements AutoFo
   }
 
   @Nullable
-  public final RenameableParameterElement toRenameableReference(@NotNull final TeamCityFile requestor) {
+  public final RenameableParameterElement toRenameableReference(@NotNull final DomElement requestor) {
     final DeclaredProperty apply = DeclaredProperty.FROM_PARAMETER_ELEMENT.apply(this);
     if (apply == null) return null;
 

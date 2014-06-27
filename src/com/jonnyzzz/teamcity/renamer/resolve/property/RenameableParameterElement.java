@@ -4,6 +4,7 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.RenameableFakePsiElement;
 import com.intellij.util.IncorrectOperationException;
+import com.intellij.util.xml.DomElement;
 import com.jonnyzzz.teamcity.renamer.model.ParameterElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
 import org.jetbrains.annotations.NonNls;
@@ -16,10 +17,10 @@ import javax.swing.*;
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
 public class RenameableParameterElement extends RenameableFakePsiElement {
-  private final TeamCityFile myRequester;
+  private final DomElement myRequester;
   private final DeclaredProperty myProperty;
 
-  public RenameableParameterElement(@NotNull final TeamCityFile requester,
+  public RenameableParameterElement(@NotNull final DomElement requester,
                                     @NotNull final DeclaredProperty property) {
     super(property.getResolvedValue());
     myRequester = requester;
