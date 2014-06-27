@@ -18,7 +18,7 @@ public abstract class BuildTypeFile extends TeamCitySettingsBasedFile {
 
   @NotNull
   @Override
-  protected String getFileKind() {
+  public String getFileKind() {
     return "build configuration";
   }
 

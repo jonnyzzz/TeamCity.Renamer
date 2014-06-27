@@ -54,7 +54,7 @@ public abstract class TeamCityFile extends TeamCityElement {
   }
 
   @NotNull
-  protected String getFileKind() {
+  public String getFileKind() {
     throw new RuntimeException("Must be implemented");
   }
 

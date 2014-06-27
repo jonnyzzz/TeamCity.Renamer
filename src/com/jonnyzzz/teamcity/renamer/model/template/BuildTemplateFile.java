@@ -18,7 +18,7 @@ public abstract class BuildTemplateFile extends TeamCitySettingsBasedFile {
 
   @NotNull
   @Override
-  protected final String getFileKind() {
+  public final String getFileKind() {
     return "template";
   }
 

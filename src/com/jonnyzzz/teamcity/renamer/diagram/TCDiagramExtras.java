@@ -10,6 +10,7 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.psi.xml.XmlElement;
 import com.jonnyzzz.teamcity.renamer.model.SnapshotDependencyElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCitySettingsBasedFile;
+import com.jonnyzzz.teamcity.renamer.resolve.buildTypes.TeamCityFileNamedReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,11 +39,8 @@ public class TCDiagramExtras extends DiagramExtras<TCElement> {
   public Object getData(String dataId, List<DiagramNode<TCElement>> diagramNodes, DiagramBuilder builder) {
     if (CommonDataKeys.PSI_ELEMENT.is(dataId)) {
       if ((diagramNodes.size() == 1)) {
-        TeamCitySettingsBasedFile tcFile = diagramNodes.get(0).getIdentifyingElement().getFile();
-        XmlElement xmlElement = tcFile.getXmlElement();
-        if (xmlElement == null)
-          return null;
-        return xmlElement.getContainingFile();
+        final TeamCitySettingsBasedFile tcFile = diagramNodes.get(0).getIdentifyingElement().getFile();
+        return new TeamCityFileNamedReference(tcFile);
       }
 
       final List<DiagramEdge> edges = DiagramUtils.getSelectedEdges(builder);
@@ -62,6 +60,10 @@ public class TCDiagramExtras extends DiagramExtras<TCElement> {
           }
         }
       }
+    }
+
+    if (CommonDataKeys.PROJECT.is(dataId)) {
+      return builder.getProject();
     }
 
     return super.getData(dataId, diagramNodes, builder);

@@ -41,7 +41,7 @@ public abstract class ProjectFile extends TeamCityFile {
 
   @NotNull
   @Override
-  protected final String getFileKind() {
+  public final String getFileKind() {
     return "project";
   }
 
