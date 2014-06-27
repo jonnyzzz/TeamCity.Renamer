@@ -2,6 +2,7 @@ package com.jonnyzzz.teamcity.renamer.model.buildType;
 
 import com.intellij.util.xml.GenericAttributeValue;
 import com.intellij.util.xml.Required;
+import com.intellij.util.xml.Stubbed;
 import com.intellij.util.xml.SubTag;
 import com.jonnyzzz.teamcity.renamer.model.ArtifactDependencyElement;
 import com.jonnyzzz.teamcity.renamer.model.SettingsElement;
@@ -28,6 +29,7 @@ public abstract class BuildTypeFile extends TeamCitySettingsBasedFile {
   }
 
   @Required
+  @Stubbed
   @SubTag("settings")
   public abstract BuildTypeSettingsElement getSettings();
 

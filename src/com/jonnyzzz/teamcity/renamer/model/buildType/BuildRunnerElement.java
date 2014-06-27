@@ -23,6 +23,7 @@ public abstract class BuildRunnerElement extends TeamCityElement implements Auto
   @Attribute("name")
   public abstract GenericAttributeValue<String> getBuildRunnerName();
 
+  @Stubbed
   @SubTag("parameters")
   public abstract ParametersBlockElement getParametersBlock();
 

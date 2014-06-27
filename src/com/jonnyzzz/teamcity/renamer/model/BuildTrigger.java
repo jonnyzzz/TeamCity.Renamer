@@ -2,6 +2,7 @@ package com.jonnyzzz.teamcity.renamer.model;
 
 import com.intellij.util.xml.Attribute;
 import com.intellij.util.xml.GenericAttributeValue;
+import com.intellij.util.xml.Stubbed;
 import com.intellij.util.xml.SubTag;
 import com.jonnyzzz.teamcity.renamer.folding.AutoFoldableElement;
 import org.jetbrains.annotations.Nullable;
@@ -10,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 * @author Eugene Petrenko (eugene.petrenko@gmail.com)
 */
 public abstract class BuildTrigger extends TeamCityElement implements AutoFoldableElement {
+  @Stubbed
   @SubTag("parameters")
   public abstract ParametersBlockElement getParameters();
 
