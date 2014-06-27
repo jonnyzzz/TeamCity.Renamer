@@ -1,6 +1,5 @@
 package com.jonnyzzz.teamcity.renamer.diagram;
 
-import com.google.common.collect.Iterables;
 import com.intellij.diagram.DiagramBuilder;
 import com.intellij.diagram.DiagramDataModel;
 import com.intellij.diagram.DiagramEdge;
@@ -30,7 +29,6 @@ class TCDataModel extends DiagramDataModel<TCElement> {
   private final Map<String, TCNode> myId2Node = new HashMap<>();
   private final List<TCNode> myNodes;
   private final List<DiagramEdge<TCElement>> myEdges;
-  private final Map<TCNode, List<TCEdge>> myCollapsedEdges = new HashMap<>();
   private TCEdgesProducer myEdgesProducer;
 
   public TCDataModel(@NotNull TCDiagramProvider tcDiagramProvider,
@@ -88,11 +86,6 @@ class TCDataModel extends DiagramDataModel<TCElement> {
         continue;
       for (DiagramEdge<TCElement> edge : neighbours) {
         myEdges.add(edge);
-      }
-      for (List<TCEdge> colEdges : myCollapsedEdges.values()) {
-        for (TCEdge e : colEdges) {
-          myEdges.add(e);
-        }
       }
     }
   }
@@ -206,27 +199,13 @@ class TCDataModel extends DiagramDataModel<TCElement> {
 
   @Override
   public void collapseNode(DiagramNode<TCElement> node) {
-    Set<String> directDepIds = idMap(Iterables.concat(node.getIdentifyingElement().getFile().getArtifactDependencies(),
-            node.getIdentifyingElement().getFile().getSnapshotDependencies())).keySet();
     Map<String, BuildTypeFile> reachable = idMap(Dependencies.getDependencies(node.getIdentifyingElement().getFile()));
     for (TCNode n : myNodes) {
       if (reachable.containsKey(n.getIdentifyingElement().getId()) || node == n)
         continue;
       for (String id : idMap(Dependencies.getDependencies(n.getIdentifyingElement().getFile())).keySet()) {
-        BuildTypeFile usedReachable = reachable.remove(id);
-        if (usedReachable != null && !directDepIds.contains(usedReachable.getFileId())) {
-          List<TCEdge> colEdges = myCollapsedEdges.get(node);
-          if (colEdges == null) {
-            colEdges = new ArrayList<>();
-            myCollapsedEdges.put((TCNode) node, colEdges);
-          }
-          String fileId = usedReachable.getFileId();
-          if (fileId == null)
-            continue;
-          TCNode usedReachableNode = getNodeById(fileId);
-          if (usedReachableNode == null)
-            continue;
-          colEdges.add(new TCEdge(usedReachableNode, (TCNode) node, TCRelationships.ARTIFACT));
+        if (reachable.remove(id) != null) {
+          int i = 0;
         }
 
       }
@@ -248,7 +227,6 @@ class TCDataModel extends DiagramDataModel<TCElement> {
       addElement(new TCElement(bt));
     }
     getBuilder().setSelected(node, true);
-    myCollapsedEdges.remove(node);
     refreshDataModel();
   }
 
