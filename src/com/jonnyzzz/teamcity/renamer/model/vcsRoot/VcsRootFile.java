@@ -22,7 +22,7 @@ public abstract class VcsRootFile extends TeamCityFile {
 
   @NotNull
   @Override
-  protected final String getFileKind() {
+  public final String getFileKind() {
     return "vcsRoot";
   }
 
