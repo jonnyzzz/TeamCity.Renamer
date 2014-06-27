@@ -125,6 +125,11 @@ public abstract class TeamCityFile extends TeamCityElement {
       return domManager.getDomElement((XmlAttribute) psiElement);
     }
 
+    if (psiElement instanceof XmlFile) {
+      DomFileElement<TeamCityFile> fileElement = domManager.getFileElement((XmlFile) psiElement, TeamCityFile.class);
+      if (fileElement != null)
+        return fileElement.getRootElement();
+    }
 
     final XmlAttribute xmlAttribute = PsiTreeUtil.getParentOfType(psiElement, XmlAttribute.class);
     if (xmlAttribute != null) {

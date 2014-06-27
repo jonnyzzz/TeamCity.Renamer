@@ -20,7 +20,6 @@ import com.jonnyzzz.teamcity.renamer.model.template.BuildTemplateFile;
 import com.jonnyzzz.teamcity.renamer.model.vcsRoot.VcsRootFile;
 import com.jonnyzzz.teamcity.renamer.resolve.Visitors;
 import com.jonnyzzz.teamcity.renamer.resolve.property.DeclaredProperty;
-import com.jonnyzzz.teamcity.renamer.resolve.settings.DeclaredTemplate;
 import org.apache.commons.lang.text.StrTokenizer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -142,6 +141,16 @@ public abstract class ProjectFile extends TeamCityFile {
             .transformAndConcat(FILE_TO_META_RUNNERS));
   }
 
+  public final Iterable<BuildTemplateFile> getOwnBuildTemplates() {
+    return getProjectEntities("buildTypes", BuildTemplateFile.class);
+  }
+
+  public final Iterable<BuildTemplateFile> getAllBuildTemplates() {
+    return Iterables.concat(FluentIterable
+            .from(Visitors.getProjectFiles(this))
+            .transformAndConcat(FILE_TO_BUILD_TEMPLATES));
+  }
+
   @NotNull
   public final Iterable<ProjectFile> getSubProjects() {
     final String thisProjectId = getFileId();
@@ -153,20 +162,6 @@ public abstract class ProjectFile extends TeamCityFile {
                 return thisProjectId.equals(projectFile.getParentProjectId());
               }
             });
-  }
-
-  @NotNull
-  public final Iterable<DeclaredTemplate> getDeclaredTemplates() {
-    return FluentIterable
-            .from(getTemplates())
-            .transform(new Function<BuildTemplateFile, DeclaredTemplate>() {
-              @Override
-              public DeclaredTemplate apply(BuildTemplateFile buildTemplateFile) {
-                final String fileId = buildTemplateFile.getFileId();
-                if (fileId == null) return null;
-                return new DeclaredTemplate(fileId, buildTemplateFile);
-              }
-            }).filter(Predicates.notNull());
   }
 
   @NotNull
@@ -210,6 +205,14 @@ public abstract class ProjectFile extends TeamCityFile {
     @Override
     public Iterable<MetaRunnerFile> apply(ProjectFile projectFile) {
       return projectFile.getOwnMetaRunners();
+    }
+  };
+
+  private static final Function<ProjectFile, Iterable<BuildTemplateFile>> FILE_TO_BUILD_TEMPLATES
+          = new Function<ProjectFile, Iterable<BuildTemplateFile>>() {
+    @Override
+    public Iterable<BuildTemplateFile> apply(ProjectFile projectFile) {
+      return projectFile.getOwnBuildTemplates();
     }
   };
 

@@ -19,7 +19,7 @@ class TCNode extends DiagramNodeBase<TCElement> {
   @Nullable
   @Override
   public String getTooltip() {
-    return null;
+    return myElement.getFile().getFilePresentableNameText();
   }
 
   @Override

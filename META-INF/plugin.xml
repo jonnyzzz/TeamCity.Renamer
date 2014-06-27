@@ -39,6 +39,7 @@
     <codeInsight.lineMarkerProvider language="XML" implementationClass="com.jonnyzzz.teamcity.renamer.inspection.ParameterLineMarkerProvider"/>
 
     <psi.referenceContributor language="XML" implementation="com.jonnyzzz.teamcity.renamer.resolve.property.PropertyFromTextContributor"/>
+    <annotator language="XML" implementationClass="com.jonnyzzz.teamcity.renamer.resolve.property.MissingPropertyFromTextAnnotator"/>
 
     <definitionsScopedSearch implementation="com.jonnyzzz.teamcity.renamer.model.ParametersScopedSearch"/>
     <renamePsiElementProcessor implementation="com.jonnyzzz.teamcity.renamer.model.ParameterRenameProcessor"/>

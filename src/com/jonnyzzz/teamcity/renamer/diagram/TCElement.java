@@ -1,16 +1,16 @@
 package com.jonnyzzz.teamcity.renamer.diagram;
 
 import com.intellij.pom.Navigatable;
-import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
+import com.jonnyzzz.teamcity.renamer.model.TeamCitySettingsBasedFile;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
 public class TCElement implements Navigatable {
-  private final BuildTypeFile myFile;
+  private final TeamCitySettingsBasedFile myFile;
 
-  public TCElement(@NotNull final BuildTypeFile file) {
+  public TCElement(@NotNull final TeamCitySettingsBasedFile file) {
     myFile = file;
   }
 
@@ -25,7 +25,7 @@ public class TCElement implements Navigatable {
   }
 
   @NotNull
-  public BuildTypeFile getBuildType() {
+  public TeamCitySettingsBasedFile getFile() {
     return myFile;
   }
 

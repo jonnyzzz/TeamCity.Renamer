@@ -1,34 +1,14 @@
 package com.jonnyzzz.teamcity.renamer.resolve.vcsRoot;
 
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiReference;
-import com.intellij.psi.xml.XmlAttributeValue;
-import com.intellij.util.xml.*;
-import org.jetbrains.annotations.NonNls;
+import com.intellij.util.xml.GenericDomValue;
+import com.jonnyzzz.teamcity.renamer.resolve.TeamCityFileReferenceConverter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-public class VcsRootReferenceConverter extends Converter<String> implements CustomReferenceConverter<String> {
+public class VcsRootReferenceConverter extends TeamCityFileReferenceConverter<VcsRootReference> {
 
-  @NotNull
   @Override
-  public PsiReference[] createReferences(GenericDomValue<String> value, PsiElement element, ConvertContext context) {
-    GenericAttributeValue<String> val = (GenericAttributeValue<String>) value;
-    XmlAttributeValue xmlValue = val.getXmlAttributeValue();
-    if(xmlValue == null) return PsiReference.EMPTY_ARRAY;
-
-    return new PsiReference[]{new VcsRootReference(val, element)};
-  }
-
-  @Nullable
-  @Override
-  public String fromString(@Nullable @NonNls String s, ConvertContext context) {
-    return s;
-  }
-
-  @Nullable
-  @Override
-  public String toString(@Nullable String s, ConvertContext context) {
-    return s;
+  protected VcsRootReference createReference(@NotNull GenericDomValue<String> attr, @NotNull PsiElement element) {
+    return new VcsRootReference(attr, element);
   }
 }
