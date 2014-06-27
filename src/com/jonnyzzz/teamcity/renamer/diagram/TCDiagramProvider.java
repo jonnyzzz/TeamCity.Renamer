@@ -49,11 +49,11 @@ public class TCDiagramProvider extends BaseDiagramProvider<TCElement> {
     final List<DiagramNode<TCElement>> nodes = new ArrayList<>();
     final List<DiagramEdge<TCElement>> edges = new ArrayList<>();
     if (tcdElement != null) {
-      TCNode source = new TCNode(this, tcdElement);
-      nodes.add(source);
+      TCNode target = new TCNode(this, tcdElement);
+      nodes.add(target);
       for (BuildTypeFile f : deps) {
         nodes.add(new TCNode(this, new TCElement(f)));
-        edges.add(new TCEdge(source, new TCNode(this, new TCElement(f))));
+        edges.add(new TCEdge(new TCNode(this, new TCElement(f)), target));
       }
     }
 
