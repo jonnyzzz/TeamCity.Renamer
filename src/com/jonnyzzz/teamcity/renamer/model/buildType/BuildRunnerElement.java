@@ -13,16 +13,17 @@ import java.util.Map;
 public abstract class BuildRunnerElement extends TeamCityElement implements AutoFoldableElement {
 
   @Attribute("id")
-  public abstract GenericAttributeValue<String> getId();
+  public abstract GenericAttributeValue<String> getBuildRunnerId();
 
   @Required
   @Attribute("type")
   @Convert(value = MetaRunnerReferenceConverter.class, soft = false)
-  public abstract GenericAttributeValue<String> getType();
+  public abstract GenericAttributeValue<String> getBuildRunnerType();
 
   @Attribute("name")
-  public abstract GenericAttributeValue<String> getName();
+  public abstract GenericAttributeValue<String> getBuildRunnerName();
 
+  @Stubbed
   @SubTag("parameters")
   public abstract ParametersBlockElement getParametersBlock();
 
@@ -30,11 +31,16 @@ public abstract class BuildRunnerElement extends TeamCityElement implements Auto
   @Nullable
   @Override
   public final String getFoldedText() {
-    final String type = getType().getStringValue();
+    final GenericAttributeValue<String> typeValue = getBuildRunnerType();
+    if (typeValue == null) return null;
+    final String type = typeValue.getStringValue();
     if (type == null) return null;
 
     final String extras = PredefinedRunners.extras(type, getParametersBlock());
-    return PredefinedRunners.describeType(type) + " " + getName() + (extras != null ? " (" + extras + ")" : "");
+    final GenericAttributeValue<String> name = getBuildRunnerName();
+    final String nameValue = name == null ? null : name.getStringValue();
+
+    return PredefinedRunners.describeType(type) + " " + (nameValue == null ? "" : nameValue) + (extras != null ? " (" + extras + ")" : "");
   }
 
   private static enum PredefinedRunners {

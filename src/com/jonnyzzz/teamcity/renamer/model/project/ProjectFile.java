@@ -10,6 +10,7 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.xml.Attribute;
 import com.intellij.util.xml.GenericAttributeValue;
+import com.intellij.util.xml.Stubbed;
 import com.intellij.util.xml.SubTag;
 import com.jonnyzzz.teamcity.renamer.model.ParametersBlockElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
@@ -34,6 +35,7 @@ public abstract class ProjectFile extends TeamCityFile {
   @Attribute("parent-id")
   public abstract GenericAttributeValue<String> getParentProjectIdElement();
 
+  @Stubbed
   @SubTag("parameters")
   public abstract ParametersBlockElement getParametersBlock();
 

@@ -2,6 +2,7 @@ package com.jonnyzzz.teamcity.renamer.model;
 
 import com.intellij.util.xml.Attribute;
 import com.intellij.util.xml.GenericAttributeValue;
+import com.intellij.util.xml.Stubbed;
 import com.intellij.util.xml.SubTag;
 import com.jonnyzzz.teamcity.renamer.folding.AutoFoldableElement;
 import org.jetbrains.annotations.Nullable;
@@ -17,6 +18,7 @@ public abstract class BuildExtension extends TeamCityElement implements AutoFold
   @Attribute("type")
   public abstract GenericAttributeValue<String> getExtensionType();
 
+  @Stubbed
   @SubTag("parameters")
   public abstract ParametersBlockElement getParameters();
 
