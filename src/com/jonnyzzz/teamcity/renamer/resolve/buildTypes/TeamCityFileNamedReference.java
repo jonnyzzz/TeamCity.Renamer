@@ -1,6 +1,7 @@
 package com.jonnyzzz.teamcity.renamer.resolve.buildTypes;
 
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiTarget;
 import com.intellij.psi.impl.RenameableFakePsiElement;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.IncorrectOperationException;
@@ -15,7 +16,7 @@ import javax.swing.*;
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
-public class TeamCityFileNamedReference extends RenameableFakePsiElement {
+public class TeamCityFileNamedReference extends RenameableFakePsiElement implements PsiTarget {
   private final TeamCityFile myFile;
 
   public TeamCityFileNamedReference(@NotNull TeamCityFile file) {
@@ -56,6 +57,6 @@ public class TeamCityFileNamedReference extends RenameableFakePsiElement {
   @Override
   public PsiElement setName(@NonNls @NotNull String name) throws IncorrectOperationException {
     myFile.getFileName().setStringValue(name);
-    return this;
+    return null;
   }
 }

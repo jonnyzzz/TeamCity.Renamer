@@ -7,10 +7,14 @@ import com.intellij.diagram.extras.DiagramExtras;
 import com.intellij.diagram.extras.providers.DiagramDnDProvider;
 import com.intellij.diagram.util.DiagramUtils;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.xml.XmlElement;
+import com.intellij.util.IncorrectOperationException;
 import com.jonnyzzz.teamcity.renamer.model.SnapshotDependencyElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCitySettingsBasedFile;
 import com.jonnyzzz.teamcity.renamer.resolve.buildTypes.TeamCityFileNamedReference;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,11 +40,26 @@ public class TCDiagramExtras extends DiagramExtras<TCElement> {
 
   @Nullable
   @Override
-  public Object getData(String dataId, List<DiagramNode<TCElement>> diagramNodes, DiagramBuilder builder) {
+  public Object getData(String dataId, List<DiagramNode<TCElement>> diagramNodes, final DiagramBuilder builder) {
     if (CommonDataKeys.PSI_ELEMENT.is(dataId)) {
       if ((diagramNodes.size() == 1)) {
         final TeamCitySettingsBasedFile tcFile = diagramNodes.get(0).getIdentifyingElement().getFile();
-        return new TeamCityFileNamedReference(tcFile);
+        return new TeamCityFileNamedReference(tcFile) {
+          @Override
+          public PsiElement setName(@NonNls @NotNull String name) throws IncorrectOperationException {
+            PsiElement result = super.setName(name);
+
+            ApplicationManager.getApplication().invokeLater(new Runnable() {
+              @Override
+              public void run() {
+                builder.update(true, false);
+                builder.getPresentationModel().update();
+                builder.updateDataModel();
+              }
+            });
+            return result;
+          }
+        };
       }
 
       final List<DiagramEdge> edges = DiagramUtils.getSelectedEdges(builder);
