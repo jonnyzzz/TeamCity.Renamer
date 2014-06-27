@@ -11,7 +11,6 @@ import com.intellij.psi.xml.XmlToken;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomManager;
 import com.intellij.xml.util.XmlTagUtil;
-import com.jonnyzzz.teamcity.renamer.model.buildType.BuildRunnerElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,8 +36,8 @@ public class RunnersFoldingBuilder extends XmlCodeFoldingBuilder {
   @Nullable
   @Override
   public String getPlaceholderText(@NotNull ASTNode node) {
-    final BuildRunnerElement element = findBuildRunnerElement(node);
-    if (element != null) return "Runner[" + element.getType().getStringValue() + "] " + element.getName() ;
+    final AutoFoldableElement element = findBuildRunnerElement(node);
+    if (element != null) return " " + element.getFoldedText();
     return null;
   }
 
@@ -48,14 +47,14 @@ public class RunnersFoldingBuilder extends XmlCodeFoldingBuilder {
   }
 
   @Nullable
-  private BuildRunnerElement findBuildRunnerElement(@NotNull final ASTNode node) {
+  private AutoFoldableElement findBuildRunnerElement(@NotNull final ASTNode node) {
     final PsiElement psi = node.getPsi();
     if (psi == null) return null;
     if (!(psi instanceof XmlTag))return null;
 
     final DomElement dom = DomManager.getDomManager(psi.getProject()).getDomElement((XmlTag) psi);
-    if (dom instanceof BuildRunnerElement) {
-      return (BuildRunnerElement) dom;
+    if (dom instanceof AutoFoldableElement) {
+      return (AutoFoldableElement) dom;
     }
     return null;
   }

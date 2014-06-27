@@ -6,6 +6,7 @@ import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.util.xml.GenericAttributeValue;
 import com.jonnyzzz.teamcity.renamer.model.ParameterElement;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
@@ -34,6 +35,12 @@ public class DeclaredProperty {
     return myResolvedValue;
   }
 
+  @Nullable
+  public String getRawValue() {
+    final GenericAttributeValue<String> parameterValue = myParameterElement.getParameterValue();
+    if (parameterValue == null) return null;
+    return parameterValue.getStringValue();
+  }
 
 
   public static Function<ParameterElement, DeclaredProperty> FROM_PARAMETER_ELEMENT = new Function<ParameterElement, DeclaredProperty>() {
