@@ -9,8 +9,7 @@ import com.jonnyzzz.teamcity.renamer.model.SettingsElement;
 import com.jonnyzzz.teamcity.renamer.model.SnapshotDependencyElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCitySettingsBasedFile;
 import com.jonnyzzz.teamcity.renamer.model.template.BuildTemplateFile;
-import com.jonnyzzz.teamcity.renamer.resolve.settings.DeclaredTemplate;
-import com.jonnyzzz.teamcity.renamer.resolve.settings.DeclaredTemplates;
+import com.jonnyzzz.teamcity.renamer.resolve.settings.BuildTemplates;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -74,9 +73,9 @@ public abstract class BuildTypeFile extends TeamCitySettingsBasedFile {
     final GenericAttributeValue<String> baseTemplateElement = getSettings().getBaseTemplate();
     final String templateId = baseTemplateElement.getStringValue();
 
-    final DeclaredTemplate resolved = DeclaredTemplates.resolve(this, templateId);
+    final BuildTemplateFile resolved = BuildTemplates.resolve(this, templateId);
     if (resolved == null) return null;
 
-    return resolved.getFile();
+    return resolved;
   }
 }

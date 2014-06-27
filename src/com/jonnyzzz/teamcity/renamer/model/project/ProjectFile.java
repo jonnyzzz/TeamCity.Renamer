@@ -20,7 +20,6 @@ import com.jonnyzzz.teamcity.renamer.model.template.BuildTemplateFile;
 import com.jonnyzzz.teamcity.renamer.model.vcsRoot.VcsRootFile;
 import com.jonnyzzz.teamcity.renamer.resolve.Visitors;
 import com.jonnyzzz.teamcity.renamer.resolve.property.DeclaredProperty;
-import com.jonnyzzz.teamcity.renamer.resolve.settings.DeclaredTemplate;
 import org.apache.commons.lang.text.StrTokenizer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -163,20 +162,6 @@ public abstract class ProjectFile extends TeamCityFile {
                 return thisProjectId.equals(projectFile.getParentProjectId());
               }
             });
-  }
-
-  @NotNull
-  public final Iterable<DeclaredTemplate> getDeclaredTemplates() {
-    return FluentIterable
-            .from(getTemplates())
-            .transform(new Function<BuildTemplateFile, DeclaredTemplate>() {
-              @Override
-              public DeclaredTemplate apply(BuildTemplateFile buildTemplateFile) {
-                final String fileId = buildTemplateFile.getFileId();
-                if (fileId == null) return null;
-                return new DeclaredTemplate(fileId, buildTemplateFile);
-              }
-            }).filter(Predicates.notNull());
   }
 
   @NotNull

@@ -24,7 +24,7 @@ public class VcsRootReference extends TeamCityFileReference<VcsRootFile> {
     if (value == null)
       return null;
 
-    VcsRootFile f = VcsRoots.resolveVcsRoot(myAttr, value);
+    VcsRootFile f = VcsRoots.resolve(myAttr, value);
     if (f == null) return null;
     final XmlElement xmlElement = f.getXmlElement();
     if (xmlElement == null)
