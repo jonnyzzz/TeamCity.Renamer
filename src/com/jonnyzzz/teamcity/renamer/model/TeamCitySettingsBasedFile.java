@@ -3,10 +3,14 @@ package com.jonnyzzz.teamcity.renamer.model;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
+import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
 import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
 import com.jonnyzzz.teamcity.renamer.resolve.property.DeclaredProperty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
@@ -47,4 +51,33 @@ public abstract class TeamCitySettingsBasedFile extends TeamCityFile {
     return getSettingsElement().getParametersBlock().getDeclarations();
   }
 
+  @NotNull
+  public final List<BuildTypeFile> getSnapshotDependencies() {
+    List<BuildTypeFile> result = new ArrayList<>();
+    for (SnapshotDependencyElement dep : getSettingsElement().getSnapshotDependencies().getDependencies()) {
+      String btId = dep.getSourceBuildTypeId().getValue();
+      if (btId == null)
+        continue;
+      BuildTypeFile bt = findBuildTypeById(btId);
+      if (bt == null)
+        continue;
+      result.add(bt);
+    }
+    return result;
+  }
+
+  @NotNull
+  public final List<BuildTypeFile> getArtifactDependencies() {
+    List<BuildTypeFile> result = new ArrayList<>();
+    for (ArtifactDependencyElement dep : getSettingsElement().getArtifactDependencies().getDependencies()) {
+      String btId = dep.getSourceBuildTypeId().getValue();
+      if (btId == null)
+        continue;
+      BuildTypeFile bt = findBuildTypeById(btId);
+      if (bt == null)
+        continue;
+      result.add(bt);
+    }
+    return result;
+  }
 }

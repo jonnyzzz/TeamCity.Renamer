@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import com.intellij.diagram.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.jonnyzzz.teamcity.renamer.model.TeamCitySettingsBasedFile;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
 import org.intellij.lang.annotations.Pattern;
 import org.jetbrains.annotations.NotNull;
@@ -48,21 +49,21 @@ public class TCDiagramProvider extends BaseDiagramProvider<TCElement> {
 
   @Override
   public DiagramDataModel<TCElement> createDataModel(@NotNull Project project,
-                                                      @Nullable TCElement tcdElement,
-                                                      @Nullable VirtualFile virtualFile,
-                                                      DiagramPresentationModel diagramPresentationModel) {
-    Map<String, BuildTypeFile> bts = new HashMap<>();
-    for (BuildTypeFile bt : getTransitiveDeps(tcdElement, SNAPS)) {
+                                                     @Nullable TCElement tcdElement,
+                                                     @Nullable VirtualFile virtualFile,
+                                                     DiagramPresentationModel diagramPresentationModel) {
+    Map<String, TeamCitySettingsBasedFile> bts = new HashMap<>();
+    for (TeamCitySettingsBasedFile bt : getTransitiveDeps(tcdElement, SNAPS)) {
       if (!bts.containsKey(bt.getFileId()))
         bts.put(bt.getFileId(), bt);
     }
-    for (BuildTypeFile bt : getTransitiveDeps(tcdElement, ARTS)) {
+    for (TeamCitySettingsBasedFile bt : getTransitiveDeps(tcdElement, ARTS)) {
       if (!bts.containsKey(bt.getFileId()))
         bts.put(bt.getFileId(), bt);
     }
 
     List<TCNode> nodes = new ArrayList<>();
-    for (BuildTypeFile bt : bts.values()) {
+    for (TeamCitySettingsBasedFile bt : bts.values()) {
       nodes.add(new TCNode(this, new TCElement(bt)));
     }
 
@@ -70,7 +71,7 @@ public class TCDiagramProvider extends BaseDiagramProvider<TCElement> {
       @Override
       public Iterable<TCEdge> getEdges(@NotNull TCDataModel model, @NotNull TCNode node) {
         List<TCEdge> result = new ArrayList<>();
-        BuildTypeFile buildType = node.getIdentifyingElement().getBuildType();
+        TeamCitySettingsBasedFile buildType = node.getIdentifyingElement().getFile();
         Map<String, BuildTypeFile> snap = idMap(buildType.getSnapshotDependencies());
         Map<String, BuildTypeFile> art = idMap(buildType.getArtifactDependencies());
         for (Map.Entry<String, BuildTypeFile> e : snap.entrySet()) {
@@ -102,17 +103,17 @@ public class TCDiagramProvider extends BaseDiagramProvider<TCElement> {
   }
 
   @NotNull
-  private Iterable<BuildTypeFile> getTransitiveDeps(@Nullable TCElement tcdElement, @NotNull Function<BuildTypeFile, Iterable<BuildTypeFile>> depsFn) {
+  private Iterable<TeamCitySettingsBasedFile> getTransitiveDeps(@Nullable TCElement tcdElement, @NotNull Function<TeamCitySettingsBasedFile, Iterable<BuildTypeFile>> depsFn) {
     if (tcdElement == null)
       return Collections.emptyList();
 
-    Map<String, BuildTypeFile> visited = new HashMap<>();
-    Map<String, BuildTypeFile> front = new HashMap<>();
-    BuildTypeFile buildType = tcdElement.getBuildType();
+    Map<String, TeamCitySettingsBasedFile> visited = new HashMap<>();
+    Map<String, TeamCitySettingsBasedFile> front = new HashMap<>();
+    TeamCitySettingsBasedFile buildType = tcdElement.getFile();
     front.put(buildType.getFileId(), buildType);
     do {
-      Map<String, BuildTypeFile> newFront = new HashMap<>();
-      for (Map.Entry<String, BuildTypeFile> e : front.entrySet()) {
+      Map<String, TeamCitySettingsBasedFile> newFront = new HashMap<>();
+      for (Map.Entry<String, TeamCitySettingsBasedFile> e : front.entrySet()) {
         if (visited.containsKey(e.getKey()))
           continue;
         visited.put(e.getKey(), e.getValue());
@@ -137,16 +138,16 @@ public class TCDiagramProvider extends BaseDiagramProvider<TCElement> {
     return result;
   }
 
-  private static final Function<BuildTypeFile, Iterable<BuildTypeFile>> SNAPS = new Function<BuildTypeFile, Iterable<BuildTypeFile>>() {
+  private static final Function<TeamCitySettingsBasedFile, Iterable<BuildTypeFile>> SNAPS = new Function<TeamCitySettingsBasedFile, Iterable<BuildTypeFile>>() {
     @Override
-    public Iterable<BuildTypeFile> apply(BuildTypeFile buildType) {
+    public Iterable<BuildTypeFile> apply(TeamCitySettingsBasedFile buildType) {
       return buildType.getSnapshotDependencies();
     }
   };
 
-  private static final Function<BuildTypeFile, Iterable<BuildTypeFile>> ARTS = new Function<BuildTypeFile, Iterable<BuildTypeFile>>() {
+  private static final Function<TeamCitySettingsBasedFile, Iterable<BuildTypeFile>> ARTS = new Function<TeamCitySettingsBasedFile, Iterable<BuildTypeFile>>() {
     @Override
-    public Iterable<BuildTypeFile> apply(BuildTypeFile buildType) {
+    public Iterable<BuildTypeFile> apply(TeamCitySettingsBasedFile buildType) {
       return buildType.getArtifactDependencies();
     }
   };

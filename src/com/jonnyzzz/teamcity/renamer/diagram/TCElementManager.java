@@ -10,7 +10,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.ui.SimpleColoredText;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
-import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
+import com.jonnyzzz.teamcity.renamer.model.TeamCitySettingsBasedFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,7 +25,7 @@ class TCElementManager extends AbstractDiagramElementManager<TCElement> {
     if (!(psiFile instanceof XmlFile)) return null;
 
 
-    final BuildTypeFile file = TeamCityFile.toTeamCityFile(BuildTypeFile.class, psiFile);
+    final TeamCitySettingsBasedFile file = TeamCityFile.toTeamCityFile(TeamCitySettingsBasedFile.class, psiFile);
     if (file == null) return null;
 
     return new TCElement(file);
