@@ -7,10 +7,10 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
-public class TCDElement implements Navigatable {
+public class TCElement implements Navigatable {
   private final BuildTypeFile myFile;
 
-  public TCDElement(@NotNull final BuildTypeFile file) {
+  public TCElement(@NotNull final BuildTypeFile file) {
     myFile = file;
   }
 

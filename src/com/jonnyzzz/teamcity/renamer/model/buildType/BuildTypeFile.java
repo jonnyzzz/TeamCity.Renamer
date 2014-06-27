@@ -3,6 +3,7 @@ package com.jonnyzzz.teamcity.renamer.model.buildType;
 import com.intellij.util.xml.GenericAttributeValue;
 import com.intellij.util.xml.Required;
 import com.intellij.util.xml.SubTag;
+import com.jonnyzzz.teamcity.renamer.model.ArtifactDependencyElement;
 import com.jonnyzzz.teamcity.renamer.model.SettingsElement;
 import com.jonnyzzz.teamcity.renamer.model.SnapshotDependencyElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCitySettingsBasedFile;
@@ -40,6 +41,21 @@ public abstract class BuildTypeFile extends TeamCitySettingsBasedFile {
   public final List<BuildTypeFile> getSnapshotDependencies() {
     List<BuildTypeFile> result = new ArrayList<>();
     for (SnapshotDependencyElement dep : getSettings().getSnapshotDependencies().getDependencies()) {
+      String btId = dep.getSourceBuildTypeId().getValue();
+      if (btId == null)
+        continue;
+      BuildTypeFile bt = findBuildTypeById(btId);
+      if (bt == null)
+        continue;
+      result.add(bt);
+    }
+    return result;
+  }
+
+  @NotNull
+  public final List<BuildTypeFile> getArtifactDependencies() {
+    List<BuildTypeFile> result = new ArrayList<>();
+    for (ArtifactDependencyElement dep : getSettings().getArtifactDependencies().getDependencies()) {
       String btId = dep.getSourceBuildTypeId().getValue();
       if (btId == null)
         continue;
