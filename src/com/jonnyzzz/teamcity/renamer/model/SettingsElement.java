@@ -18,4 +18,13 @@ public abstract class SettingsElement extends TeamCityElement {
 
   @SubTag("artifact-dependencies")
   public abstract ArtifactDependenciesElement getArtifactDependencies();
+
+  @SubTag("cleanup")
+  public abstract CleanupElement getCleanupElement();
+
+  @SubTag("build-extensions")
+  public abstract BuildExtensions getExtensions();
+
+  @SubTag("build-triggers")
+  public abstract BuildTriggers getTriggers();
 }
