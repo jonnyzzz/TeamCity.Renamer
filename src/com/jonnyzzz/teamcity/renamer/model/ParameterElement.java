@@ -7,6 +7,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.xml.*;
+import com.jonnyzzz.teamcity.renamer.folding.AutoFoldableElement;
 import com.jonnyzzz.teamcity.renamer.resolve.property.DeclaredProperty;
 import com.jonnyzzz.teamcity.renamer.resolve.property.ParameterReferenceConverter;
 import com.jonnyzzz.teamcity.renamer.resolve.property.RenameableParameterElement;
@@ -17,7 +18,7 @@ import org.jetbrains.generate.tostring.util.StringUtil;
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
-public abstract class ParameterElement extends TeamCityElement {
+public abstract class ParameterElement extends TeamCityElement implements AutoFoldableElement {
 
   @Required
   @NameValue
@@ -81,5 +82,18 @@ public abstract class ParameterElement extends TeamCityElement {
 
   public void setParameterName(@NotNull String newName) {
     getParameterName().setStringValue(newName);
+  }
+
+  @Nullable
+  @Override
+  public String getFoldedText() {
+    final XmlTag xmlTag = getXmlTag();
+    if (xmlTag == null) return null;
+    if (xmlTag.isEmpty()) return null;
+
+    final String name = getParameterNameString();
+    if (name == null) return null;
+
+    return "name=" + name + " value=...";
   }
 }
