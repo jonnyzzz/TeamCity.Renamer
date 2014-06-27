@@ -1,4 +1,4 @@
-package com.jonnyzzz.teamcity.renamer.resolve.buildTypes;
+package com.jonnyzzz.teamcity.renamer.resolve;
 
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
@@ -10,20 +10,20 @@ import com.intellij.psi.xml.XmlElement;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.xml.GenericDomValue;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
-import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
 import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
-import com.jonnyzzz.teamcity.renamer.resolve.RenameableTeamCityFileElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BuildTypeReference extends PsiReferenceBase<PsiElement> {
-
+/**
+ * @author Ivan Chirkov
+ */
+public abstract class TeamCityFileReference<T extends TeamCityFile> extends PsiReferenceBase<PsiElement> {
   private final GenericDomValue<String> myAttr;
 
-  public BuildTypeReference(@NotNull GenericDomValue<String> attr, @NotNull PsiElement element) {
+  protected TeamCityFileReference(@NotNull GenericDomValue<String> attr, @NotNull PsiElement element) {
     super(element);
     myAttr = attr;
   }
@@ -31,22 +31,29 @@ public class BuildTypeReference extends PsiReferenceBase<PsiElement> {
   @Nullable
   @Override
   public PsiElement resolve() {
-    String value = myAttr.getValue();
-    if (value == null)
-      return null;
-
     TeamCityFile file = myAttr.getParentOfType(TeamCityFile.class, false);
     if (file == null)
       return null;
 
-    BuildTypeFile buildType = file.findBuildTypeById(value);
-    if (buildType == null)
+    ProjectFile projectFile = file.getParentProjectFile();
+    if (projectFile == null)
       return null;
-    XmlElement xmlElement = buildType.getXmlElement();
-    if (xmlElement == null)
+
+    String value = myAttr.getValue();
+    if (value == null)
       return null;
-    final PsiFile containingFile = xmlElement.getContainingFile();
-    return new RenameableTeamCityFileElement(containingFile);
+
+    for (final T f : getAll(projectFile)) {
+      if (value.equals(f.getFileId())) {
+        final XmlElement xmlElement = f.getXmlElement();
+        if (xmlElement == null)
+          continue;
+
+        final PsiFile containingFile = xmlElement.getContainingFile();
+        return new RenameableTeamCityFileElement(containingFile);
+      }
+    }
+    return null;
   }
 
   @NotNull
@@ -65,7 +72,7 @@ public class BuildTypeReference extends PsiReferenceBase<PsiElement> {
       return ArrayUtil.EMPTY_OBJECT_ARRAY;
 
     List<LookupElement> result = new ArrayList<>();
-    for (BuildTypeFile f : projectFile.getAllBuildTypes()) {
+    for (T f : getAll(projectFile)) {
       XmlElement xmlElement = f.getXmlElement();
       if (xmlElement == null)
         continue;
@@ -76,4 +83,6 @@ public class BuildTypeReference extends PsiReferenceBase<PsiElement> {
     }
     return result.toArray();
   }
+
+  protected abstract Iterable<T> getAll(@NotNull ProjectFile projectFile);
 }

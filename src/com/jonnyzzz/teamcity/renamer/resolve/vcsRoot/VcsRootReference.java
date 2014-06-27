@@ -13,6 +13,7 @@ import com.intellij.util.xml.GenericDomValue;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
 import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
 import com.jonnyzzz.teamcity.renamer.model.vcsRoot.VcsRootFile;
+import com.jonnyzzz.teamcity.renamer.resolve.RenameableTeamCityFileElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -60,6 +61,10 @@ public class VcsRootReference extends PsiReferenceBase<PsiElement> {
   @NotNull
   @Override
   public Object[] getVariants() {
+    String value = myAttr.getValue();
+    if (value == null)
+      return ArrayUtil.EMPTY_OBJECT_ARRAY;
+
     TeamCityFile file = myAttr.getParentOfType(TeamCityFile.class, false);
     if (file == null)
       return ArrayUtil.EMPTY_OBJECT_ARRAY;
@@ -68,12 +73,8 @@ public class VcsRootReference extends PsiReferenceBase<PsiElement> {
     if (projectFile == null)
       return ArrayUtil.EMPTY_OBJECT_ARRAY;
 
-    String value = myAttr.getValue();
-    if (value == null)
-      return ArrayUtil.EMPTY_OBJECT_ARRAY;
-
     List<LookupElement> result = new ArrayList<>();
-    for (final VcsRootFile f : projectFile.getAllVcsRoots()) {
+    for (VcsRootFile f : projectFile.getAllVcsRoots()) {
       XmlElement xmlElement = f.getXmlElement();
       if (xmlElement == null)
         continue;
@@ -84,5 +85,4 @@ public class VcsRootReference extends PsiReferenceBase<PsiElement> {
     }
     return result.toArray();
   }
-
 }
