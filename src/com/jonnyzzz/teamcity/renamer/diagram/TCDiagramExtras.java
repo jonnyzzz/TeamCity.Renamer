@@ -3,11 +3,21 @@ package com.jonnyzzz.teamcity.renamer.diagram;
 import com.intellij.diagram.DiagramBuilder;
 import com.intellij.diagram.DiagramEdge;
 import com.intellij.diagram.DiagramNode;
+import com.intellij.diagram.Utils;
+import com.intellij.diagram.actions.DiagramAddElementAction;
 import com.intellij.diagram.extras.DiagramExtras;
 import com.intellij.diagram.extras.providers.DiagramDnDProvider;
+import com.intellij.diagram.settings.DiagramLayout;
 import com.intellij.diagram.util.DiagramUtils;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.graph.GraphManager;
+import com.intellij.openapi.graph.layout.LayoutOrientation;
+import com.intellij.openapi.graph.layout.Layouter;
+import com.intellij.openapi.graph.layout.hierarchic.HierarchicGroupLayouter;
+import com.intellij.openapi.graph.layout.hierarchic.HierarchicLayouter;
+import com.intellij.openapi.graph.view.Graph2D;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.xml.XmlElement;
 import com.intellij.util.IncorrectOperationException;
@@ -36,6 +46,19 @@ public class TCDiagramExtras extends DiagramExtras<TCElement> {
   @Override
   public JComponent createNodeComponent(DiagramNode<TCElement> node, DiagramBuilder builder, Point basePoint) {
     return super.createNodeComponent(node, builder, basePoint);
+  }
+
+  @Override
+  public Layouter getCustomLayouter(Graph2D graph, Project project) {
+    final Layouter layouter = Utils.getLayouter(graph, project, DiagramLayout.HIERARCHIC_GROUP);
+    if (layouter instanceof HierarchicGroupLayouter) {
+      HierarchicGroupLayouter groupLayouter = (HierarchicGroupLayouter)layouter;
+      groupLayouter.setOrientationLayouter(GraphManager.getGraphManager().createOrientationLayouter(LayoutOrientation.TOP_TO_BOTTOM));
+      groupLayouter.setMinimalNodeDistance(20);
+      groupLayouter.setMinimalLayerDistance(50);
+      groupLayouter.setRoutingStyle(HierarchicLayouter.ROUTE_ORTHOGONAL);
+    }
+    return layouter;
   }
 
   @Nullable
@@ -86,5 +109,11 @@ public class TCDiagramExtras extends DiagramExtras<TCElement> {
     }
 
     return super.getData(dataId, diagramNodes, builder);
+  }
+
+  @Nullable
+  @Override
+  public DiagramAddElementAction getAddElementHandler() {
+    return new AddChildrenAction();
   }
 }
