@@ -3,8 +3,14 @@ package com.jonnyzzz.teamcity.renamer.diagram;
 import com.intellij.diagram.DiagramDataModel;
 import com.intellij.diagram.DiagramEdge;
 import com.intellij.diagram.DiagramNode;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ModificationTracker;
+import com.intellij.psi.PsiDocumentManager;
+import com.jonnyzzz.teamcity.renamer.model.ArtifactDependencyElement;
+import com.jonnyzzz.teamcity.renamer.model.SnapshotDependencyElement;
+import com.jonnyzzz.teamcity.renamer.model.TeamCitySettingsBasedFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -90,8 +96,37 @@ class TCDataModel extends DiagramDataModel<TCElement> {
   }
 
   @Override
-  public void removeEdge(DiagramEdge<TCElement> edge) {
+  public void removeEdge(final DiagramEdge<TCElement> edge) {
     myEdges.remove(edge);
+    final String sourceBuildTypeId = edge.getSource().getIdentifyingElement().getId();
+    final TeamCitySettingsBasedFile file = edge.getTarget().getIdentifyingElement().getFile();
+    ApplicationManager.getApplication().runWriteAction(new Runnable() {
+      public void run() {
+        PsiDocumentManager.getInstance(getProject()).commitAllDocuments();
+        FileDocumentManager.getInstance().saveAllDocuments();
+        if (edge.getRelationship() == TCRelationships.SNAPSHOT || edge.getRelationship() == TCRelationships.SNAPSHOT_ART) {
+          for (final SnapshotDependencyElement dep : file.getSettingsElement().getSnapshotDependencies().getDependencies()) {
+            String id = dep.getSourceBuildTypeId().getValue();
+            if (id == null)
+              continue;
+            if (id.equals(sourceBuildTypeId))
+              dep.getXmlElement().delete();
+          }
+        }
+        if (edge.getRelationship() == TCRelationships.ARTIFACT || edge.getRelationship() == TCRelationships.SNAPSHOT_ART) {
+          for (final ArtifactDependencyElement dep : file.getSettingsElement().getArtifactDependencies().getDependencies()) {
+            String id = dep.getSourceBuildTypeId().getValue();
+            if (id == null)
+              continue;
+            if (id.equals(sourceBuildTypeId))
+              dep.getXmlElement().delete();
+          }
+        }
+        FileDocumentManager.getInstance().saveAllDocuments();
+        PsiDocumentManager.getInstance(getProject()).commitAllDocuments();
+        getBuilder().updateDataModel();
+      }
+    });
   }
 
   @NotNull
