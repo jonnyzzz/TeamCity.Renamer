@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.jonnyzzz.teamcity.renamer.model.TeamCitySettingsBasedFile;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
+import com.jonnyzzz.teamcity.renamer.resolve.deps.Dependencies;
 import org.intellij.lang.annotations.Pattern;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -149,14 +150,14 @@ public class TCDiagramProvider extends BaseDiagramProvider<TCElement> {
   private static final Function<TeamCitySettingsBasedFile, Iterable<BuildTypeFile>> SNAPS = new Function<TeamCitySettingsBasedFile, Iterable<BuildTypeFile>>() {
     @Override
     public Iterable<BuildTypeFile> apply(TeamCitySettingsBasedFile buildType) {
-      return buildType.getSnapshotDependencies();
+      return Dependencies.getAllSnapshotDependencies(buildType);
     }
   };
 
   private static final Function<TeamCitySettingsBasedFile, Iterable<BuildTypeFile>> ARTS = new Function<TeamCitySettingsBasedFile, Iterable<BuildTypeFile>>() {
     @Override
     public Iterable<BuildTypeFile> apply(TeamCitySettingsBasedFile buildType) {
-      return buildType.getArtifactDependencies();
+      return Dependencies.getAllArtifactDependencies(buildType);
     }
   };
 }
