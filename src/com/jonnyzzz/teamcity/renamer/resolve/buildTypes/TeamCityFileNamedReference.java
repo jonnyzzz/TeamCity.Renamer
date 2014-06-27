@@ -1,5 +1,8 @@
 package com.jonnyzzz.teamcity.renamer.resolve.buildTypes;
 
+import com.intellij.pom.PomTarget;
+import com.intellij.pom.PomTargetPsiElement;
+import com.intellij.psi.ManipulatableTarget;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiTarget;
 import com.intellij.psi.impl.RenameableFakePsiElement;
@@ -16,7 +19,7 @@ import javax.swing.*;
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
-public class TeamCityFileNamedReference extends RenameableFakePsiElement implements PsiTarget {
+public class TeamCityFileNamedReference extends RenameableFakePsiElement implements PsiTarget, PomTargetPsiElement {
   private final TeamCityFile myFile;
 
   public TeamCityFileNamedReference(@NotNull TeamCityFile file) {
@@ -52,6 +55,12 @@ public class TeamCityFileNamedReference extends RenameableFakePsiElement impleme
   @Override
   public Icon getIcon() {
     return null;
+  }
+
+  @NotNull
+  @Override
+  public PomTarget getTarget() {
+    return new ManipulatableTarget(this);
   }
 
   @Override
