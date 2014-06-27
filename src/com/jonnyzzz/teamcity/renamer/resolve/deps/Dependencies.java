@@ -1,6 +1,7 @@
 package com.jonnyzzz.teamcity.renamer.resolve.deps;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
@@ -8,14 +9,69 @@ import com.google.common.collect.Iterables;
 import com.intellij.util.xml.DomElement;
 import com.jonnyzzz.teamcity.renamer.model.*;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
+import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
 import com.jonnyzzz.teamcity.renamer.model.template.BuildTemplateFile;
+import com.jonnyzzz.teamcity.renamer.resolve.Visitors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
 public class Dependencies {
+
+  @NotNull
+  public static Iterable<BuildTypeFile> getDependencies(@NotNull final TeamCitySettingsBasedFile file) {
+    final List<BuildTypeFile> items = new ArrayList<>();
+    final Set<String> used = new HashSet<>();
+
+    final BuildTemplateFile baseTemplate = (file instanceof BuildTypeFile) ? ((BuildTypeFile) file).getBaseTemplate() : null;
+
+    for (BuildTypeFile snapshotDependency : Iterables.concat(file.getSnapshotDependencies(), baseTemplate != null ? baseTemplate.getSnapshotDependencies() : ImmutableList.<BuildTypeFile>of())) {
+      if (!used.add(snapshotDependency.getFileId())) continue;
+      items.add((snapshotDependency));
+    }
+
+    for (BuildTypeFile artifactDependency : Iterables.concat(file.getArtifactDependencies(), baseTemplate != null ? baseTemplate.getArtifactDependencies() : ImmutableList.<BuildTypeFile>of())) {
+      if (!used.add(artifactDependency.getFileId())) continue;
+      items.add((artifactDependency));
+    }
+
+    return items;
+  }
+
+
+  @NotNull
+  public static Iterable<TeamCitySettingsBasedFile> getDependingOnMe(@Nullable final TeamCitySettingsBasedFile file) {
+    if (file == null) return ImmutableList.of();
+
+    final String theId = file.getFileId();
+    if (theId == null) return ImmutableList.of();
+
+    final ImmutableList<TeamCitySettingsBasedFile> allFiles = FluentIterable
+            .from(Visitors.getAllProjects(file))
+            .transformAndConcat(new Function<ProjectFile, Iterable<? extends TeamCitySettingsBasedFile>>() {
+              @Override
+              public Iterable<? extends TeamCitySettingsBasedFile> apply(ProjectFile proj) {
+                return Iterables.concat(proj.getOwnBuildTemplates(), proj.getOwnBuildTypes());
+              }
+            }).filter(Predicates.notNull()).toList();
+
+
+    return Iterables.filter(allFiles, new Predicate<TeamCitySettingsBasedFile>() {
+              @Override
+              public boolean apply(TeamCitySettingsBasedFile teamCitySettingsBasedFile) {
+                return Iterables.contains(getDependencyIds(teamCitySettingsBasedFile), theId);
+              }
+            });
+  }
+
+
   @NotNull
   public static Iterable<String> getDependencyIds(@Nullable final DomElement element) {
     if (element == null) return ImmutableList.of();

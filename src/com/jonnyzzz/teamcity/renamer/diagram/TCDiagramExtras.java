@@ -47,7 +47,7 @@ public class TCDiagramExtras extends DiagramExtras<TCElement> {
 
   @Override
   public DiagramElementsProvider<TCElement>[] getElementsProviders() {
-    return new DiagramElementsProvider[]{ new TCDiagramElementsProvider() };
+    return new DiagramElementsProvider[]{ new TCDiagramDependenciesProvider(), new TCDiagramDependingOnMeProvider() };
   }
 
   @Override
