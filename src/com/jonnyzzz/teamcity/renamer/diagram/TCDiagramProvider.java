@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -45,18 +46,37 @@ public class TCDiagramProvider extends BaseDiagramProvider<TCElement> {
                                                       @Nullable TCElement tcdElement,
                                                       @Nullable VirtualFile virtualFile,
                                                       DiagramPresentationModel diagramPresentationModel) {
-    List<BuildTypeFile> deps = tcdElement == null ? new ArrayList<BuildTypeFile>() : tcdElement.getBuildType().getSnapshotDependencies();
+    List<BuildTypeFile> snapshotDependencies = getSnapshotDependencies(tcdElement);
+    List<BuildTypeFile> artifactDependencies = getArtifactDependencies(tcdElement);
     final List<DiagramNode<TCElement>> nodes = new ArrayList<>();
     final List<DiagramEdge<TCElement>> edges = new ArrayList<>();
     if (tcdElement != null) {
       TCNode target = new TCNode(this, tcdElement);
       nodes.add(target);
-      for (BuildTypeFile f : deps) {
+      for (BuildTypeFile f : snapshotDependencies) {
         nodes.add(new TCNode(this, new TCElement(f)));
-        edges.add(new TCEdge(new TCNode(this, new TCElement(f)), target));
+        edges.add(new TCEdge(new TCNode(this, new TCElement(f)), target, TCRelationships.SNAPSHOT));
+      }
+      for (BuildTypeFile f : artifactDependencies) {
+        edges.add(new TCEdge(new TCNode(this, new TCElement(f)), target, TCRelationships.ARTIFACT));
       }
     }
 
     return new TCDataModel(this, project, nodes, edges);
+  }
+
+  @NotNull
+  private List<BuildTypeFile> getSnapshotDependencies(@Nullable TCElement tcdElement) {
+    if (tcdElement == null)
+      return Collections.emptyList();
+    return tcdElement.getBuildType().getSnapshotDependencies();
+  }
+
+
+  @NotNull
+  private List<BuildTypeFile> getArtifactDependencies(@Nullable TCElement tcdElement) {
+    if (tcdElement == null)
+      return Collections.emptyList();
+    return tcdElement.getBuildType().getArtifactDependencies();
   }
 }
