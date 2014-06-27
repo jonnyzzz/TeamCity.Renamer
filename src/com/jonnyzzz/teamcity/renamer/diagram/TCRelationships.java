@@ -10,7 +10,7 @@ public class TCRelationships {
   static DiagramRelationshipInfo SNAPSHOT = new DiagramRelationshipInfoAdapter("SNAPSHOT") {
     @Override
     public Shape getStartArrow() {
-      return STANDARD;
+      return NONE;
     }
     @Override
     public DiagramLineType getLineType() {
