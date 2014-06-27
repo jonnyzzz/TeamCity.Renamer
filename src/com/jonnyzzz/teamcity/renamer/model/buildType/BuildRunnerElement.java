@@ -1,12 +1,10 @@
 package com.jonnyzzz.teamcity.renamer.model.buildType;
 
-import com.intellij.util.xml.Attribute;
-import com.intellij.util.xml.GenericAttributeValue;
-import com.intellij.util.xml.Required;
-import com.intellij.util.xml.SubTag;
+import com.intellij.util.xml.*;
 import com.jonnyzzz.teamcity.renamer.folding.AutoFoldableElement;
 import com.jonnyzzz.teamcity.renamer.model.ParametersBlockElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityElement;
+import com.jonnyzzz.teamcity.renamer.resolve.metaRunner.MetaRunnerReferenceConverter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,6 +17,7 @@ public abstract class BuildRunnerElement extends TeamCityElement implements Auto
 
   @Required
   @Attribute("type")
+  @Convert(value = MetaRunnerReferenceConverter.class, soft = false)
   public abstract GenericAttributeValue<String> getType();
 
   @Attribute("name")

@@ -14,11 +14,13 @@ import com.intellij.util.xml.SubTag;
 import com.jonnyzzz.teamcity.renamer.model.ParametersBlockElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
+import com.jonnyzzz.teamcity.renamer.model.metaRunner.MetaRunnerFile;
 import com.jonnyzzz.teamcity.renamer.model.template.BuildTemplateFile;
 import com.jonnyzzz.teamcity.renamer.model.vcsRoot.VcsRootFile;
 import com.jonnyzzz.teamcity.renamer.resolve.Visitors;
 import com.jonnyzzz.teamcity.renamer.resolve.property.DeclaredProperty;
 import com.jonnyzzz.teamcity.renamer.resolve.settings.DeclaredTemplate;
+import org.apache.commons.lang.text.StrTokenizer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -128,6 +130,16 @@ public abstract class ProjectFile extends TeamCityFile {
             .transformAndConcat(FILE_TO_ROOTS));
   }
 
+  public final Iterable<MetaRunnerFile> getOwnMetaRunners() {
+    return getProjectEntities("pluginData/metaRunners", MetaRunnerFile.class);
+  }
+
+  public final Iterable<MetaRunnerFile> getAllMetaRunners() {
+    return Iterables.concat(FluentIterable
+            .from(Visitors.getProjectFiles(this))
+            .transformAndConcat(FILE_TO_META_RUNNERS));
+  }
+
   @NotNull
   public final Iterable<ProjectFile> getSubProjects() {
     final String thisProjectId = getFileId();
@@ -166,11 +178,15 @@ public abstract class ProjectFile extends TeamCityFile {
     final PsiDirectory dir = getContainingDirectory();
     if (dir == null) return ImmutableList.of();
 
-    final PsiDirectory subdir = dir.findSubdirectory(subdirName);
-    if (subdir == null) return ImmutableList.of();
+    StrTokenizer subDirTokenizer = new StrTokenizer(subdirName, '/');
+    PsiDirectory targetDir = dir;
+    while(subDirTokenizer.hasNext() && targetDir != null) {
+      targetDir = targetDir.findSubdirectory(subDirTokenizer.nextToken());
+    }
+    if (targetDir == null) return ImmutableList.of();
 
     return FluentIterable
-            .from(ImmutableList.copyOf(subdir.getFiles()))
+            .from(ImmutableList.copyOf(targetDir.getFiles()))
             .transform(new Function<PsiFile, T>() {
               @Override
               public T apply(PsiFile xmlFile) {
@@ -184,6 +200,14 @@ public abstract class ProjectFile extends TeamCityFile {
     @Override
     public Iterable<VcsRootFile> apply(ProjectFile projectFile) {
       return projectFile.getOwnVcsRoots();
+    }
+  };
+
+  private static final Function<ProjectFile, Iterable<MetaRunnerFile>> FILE_TO_META_RUNNERS
+          = new Function<ProjectFile, Iterable<MetaRunnerFile>>() {
+    @Override
+    public Iterable<MetaRunnerFile> apply(ProjectFile projectFile) {
+      return projectFile.getOwnMetaRunners();
     }
   };
 

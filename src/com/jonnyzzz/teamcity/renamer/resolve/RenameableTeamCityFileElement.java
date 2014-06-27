@@ -1,4 +1,4 @@
-package com.jonnyzzz.teamcity.renamer.resolve.vcsRoot;
+package com.jonnyzzz.teamcity.renamer.resolve;
 
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.psi.PsiElement;
