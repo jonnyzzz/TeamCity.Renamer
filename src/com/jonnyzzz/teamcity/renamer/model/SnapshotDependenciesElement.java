@@ -7,4 +7,7 @@ import java.util.List;
 public abstract class SnapshotDependenciesElement extends TeamCityElement {
   @SubTagList("depend-on")
   public abstract List<SnapshotDependencyElement> getDependencies();
+
+  @SubTagList("depend-on")
+  public abstract SnapshotDependencyElement addSnapshotDependencyElement();
 }
