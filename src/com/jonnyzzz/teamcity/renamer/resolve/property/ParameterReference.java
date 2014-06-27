@@ -160,48 +160,52 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> implements 
   @Override
   public LocalQuickFix[] getQuickFixes() {
     if (resolve() == null) {
-      final ParameterElement parameter = myAttr.getParentOfType(ParameterElement.class, false);
-      if (parameter == null) {
-        return LocalQuickFix.EMPTY_ARRAY;
-      }
-      final List<LocalQuickFix> fixes = new ArrayList<>();
+      return getLocalQuickFixesForParameter(myAttr.getParentOfType(ParameterElement.class, false), myReferredVariableName);
+    }
+    return null;
+  }
 
-      final BuildRunnerElement buildRunner = parameter.getParentOfType(BuildRunnerElement.class, false);
-      final BuildTypeFile buildTypeFile = parameter.getParentOfType(BuildTypeFile.class, false);
-      final BuildTemplateFile buildTemplateFile = parameter.getParentOfType(BuildTemplateFile.class, false);
-      final ProjectFile projectFile = parameter.getParentOfType(ProjectFile.class, false);
+  @Nullable
+  public static LocalQuickFix[] getLocalQuickFixesForParameter(@Nullable final ParameterElement parameter, @NotNull final String name) {
+    if (parameter == null) {
+      return null;
+    }
+    final List<LocalQuickFix> fixes = new ArrayList<>();
 
-      if (buildRunner != null) {
-        fixes.add(new DefineBuildRunnerParameter(myReferredVariableName, buildRunner));
-        if (buildTypeFile != null) {
-          fixes.add(new DefineBuildTypeParameter(myReferredVariableName, buildTypeFile));
-          final BuildTemplateFile template = buildTypeFile.getBaseTemplate();
-          if (template != null) {
-            fixes.add(new DefineBuildTemplateParameter(myReferredVariableName, template));
-          }
-          fixes.add(new DefineProjectParameter(myReferredVariableName, buildTypeFile.getParentProjectFile()));
-        } else if (buildTemplateFile != null) {
-          fixes.add(new DefineBuildTemplateParameter(myReferredVariableName, buildTemplateFile));
-          fixes.add(new DefineProjectParameter(myReferredVariableName, buildTemplateFile.getParentProjectFile()));
-        }
-      } else if (buildTypeFile != null) {
-        fixes.add(new DefineBuildTypeParameter(myReferredVariableName, buildTypeFile));
+    final BuildRunnerElement buildRunner = parameter.getParentOfType(BuildRunnerElement.class, false);
+    final BuildTypeFile buildTypeFile = parameter.getParentOfType(BuildTypeFile.class, false);
+    final BuildTemplateFile buildTemplateFile = parameter.getParentOfType(BuildTemplateFile.class, false);
+    final ProjectFile projectFile = parameter.getParentOfType(ProjectFile.class, false);
+
+    if (buildRunner != null) {
+      fixes.add(new DefineBuildRunnerParameter(name, buildRunner));
+      if (buildTypeFile != null) {
+        fixes.add(new DefineBuildTypeParameter(name, buildTypeFile));
         final BuildTemplateFile template = buildTypeFile.getBaseTemplate();
         if (template != null) {
-          fixes.add(new DefineBuildTemplateParameter(myReferredVariableName, template));
+          fixes.add(new DefineBuildTemplateParameter(name, template));
         }
-        fixes.add(new DefineProjectParameter(myReferredVariableName, buildTypeFile.getParentProjectFile()));
+        fixes.add(new DefineProjectParameter(name, buildTypeFile.getParentProjectFile()));
       } else if (buildTemplateFile != null) {
-        fixes.add(new DefineBuildTemplateParameter(myReferredVariableName, buildTemplateFile));
-        fixes.add(new DefineProjectParameter(myReferredVariableName, buildTemplateFile.getParentProjectFile()));
-      } else if (projectFile != null) {
-        return new LocalQuickFix[]{new DefineProjectParameter(myReferredVariableName, projectFile)};
-      } else {
-        return LocalQuickFix.EMPTY_ARRAY;
+        fixes.add(new DefineBuildTemplateParameter(name, buildTemplateFile));
+        fixes.add(new DefineProjectParameter(name, buildTemplateFile.getParentProjectFile()));
       }
-      return fixes.toArray(new LocalQuickFix[fixes.size()]);
+    } else if (buildTypeFile != null) {
+      fixes.add(new DefineBuildTypeParameter(name, buildTypeFile));
+      final BuildTemplateFile template = buildTypeFile.getBaseTemplate();
+      if (template != null) {
+        fixes.add(new DefineBuildTemplateParameter(name, template));
+      }
+      fixes.add(new DefineProjectParameter(name, buildTypeFile.getParentProjectFile()));
+    } else if (buildTemplateFile != null) {
+      fixes.add(new DefineBuildTemplateParameter(name, buildTemplateFile));
+      fixes.add(new DefineProjectParameter(name, buildTemplateFile.getParentProjectFile()));
+    } else if (projectFile != null) {
+      fixes.add(new DefineProjectParameter(name, projectFile));
+    } else {
+      return null;
     }
-    return LocalQuickFix.EMPTY_ARRAY;
+    return fixes.toArray(new LocalQuickFix[fixes.size()]);
   }
 
   private static class TeamCityPredefinedParameter extends FakePsiElement {
