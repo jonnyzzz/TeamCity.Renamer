@@ -9,8 +9,10 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ModificationTracker;
 import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.xml.XmlTag;
 import com.jonnyzzz.teamcity.renamer.model.ArtifactDependencyElement;
 import com.jonnyzzz.teamcity.renamer.model.SnapshotDependencyElement;
+import com.jonnyzzz.teamcity.renamer.model.TeamCityElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCitySettingsBasedFile;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
 import com.jonnyzzz.teamcity.renamer.model.template.BuildTemplateFile;
@@ -111,6 +113,17 @@ class TCDataModel extends DiagramDataModel<TCElement> {
         PsiDocumentManager.getInstance(getProject()).commitAllDocuments();
 
         CommandProcessor.getInstance().executeCommand(getProject(), new Runnable() {
+          private void deleteDependency(@NotNull final TeamCityElement el) {
+            final XmlTag tag = el.getXmlTag();
+            final XmlTag parent = tag.getParentTag();
+
+            tag.delete();
+
+            if (parent != null &&parent.getSubTags().length == 0) {
+              parent.delete();
+            }
+          }
+
           @Override
           public void run() {
             final BuildTemplateFile baseTemplate = (file instanceof BuildTypeFile) ? ((BuildTypeFile) file).getBaseTemplate() : null;
@@ -122,7 +135,7 @@ class TCDataModel extends DiagramDataModel<TCElement> {
                   continue;
 
                 if (id.equals(sourceBuildTypeId))
-                  dep.getXmlElement().delete();
+                  deleteDependency(dep);
               }
 
               if (baseTemplate != null) {
@@ -131,7 +144,8 @@ class TCDataModel extends DiagramDataModel<TCElement> {
                   if (id == null)
                     continue;
                   if (id.equals(sourceBuildTypeId))
-                    dep.getXmlElement().delete();
+                    deleteDependency(dep);
+
                 }
               }
             }
@@ -141,7 +155,7 @@ class TCDataModel extends DiagramDataModel<TCElement> {
                 if (id == null)
                   continue;
                 if (id.equals(sourceBuildTypeId))
-                  dep.getXmlElement().delete();
+                  deleteDependency(dep);
               }
 
               if (baseTemplate != null) {
@@ -150,7 +164,7 @@ class TCDataModel extends DiagramDataModel<TCElement> {
                   if (id == null)
                     continue;
                   if (id.equals(sourceBuildTypeId))
-                    dep.getXmlElement().delete();
+                    deleteDependency(dep);
                 }
               }
             }
