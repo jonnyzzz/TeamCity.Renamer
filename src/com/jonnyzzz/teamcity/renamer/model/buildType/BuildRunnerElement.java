@@ -28,10 +28,12 @@ public abstract class BuildRunnerElement extends TeamCityElement implements Auto
   public abstract ParametersBlockElement getParametersBlock();
 
 
-  @NotNull
+  @Nullable
   @Override
   public final String getFoldedText() {
     final String type = getType().getStringValue();
+    if (type == null) return null;
+
     final String extras = PredefinedRunners.extras(type, getParametersBlock());
     return PredefinedRunners.describeType(type) + " " + getName() + (extras != null ? " (" + extras + ")" : "");
   }

@@ -36,8 +36,8 @@ public class RunnersFoldingBuilder extends XmlCodeFoldingBuilder {
   @Nullable
   @Override
   public String getPlaceholderText(@NotNull ASTNode node) {
-    final AutoFoldableElement element = findBuildRunnerElement(node);
-    if (element != null) return " " + element.getFoldedText();
+    final String element = findBuildRunnerElement(node);
+    if (element != null) return " " + element;
     return null;
   }
 
@@ -47,14 +47,14 @@ public class RunnersFoldingBuilder extends XmlCodeFoldingBuilder {
   }
 
   @Nullable
-  private AutoFoldableElement findBuildRunnerElement(@NotNull final ASTNode node) {
+  private String findBuildRunnerElement(@NotNull final ASTNode node) {
     final PsiElement psi = node.getPsi();
     if (psi == null) return null;
     if (!(psi instanceof XmlTag))return null;
 
     final DomElement dom = DomManager.getDomManager(psi.getProject()).getDomElement((XmlTag) psi);
     if (dom instanceof AutoFoldableElement) {
-      return (AutoFoldableElement) dom;
+      return ((AutoFoldableElement) dom).getFoldedText();
     }
     return null;
   }
