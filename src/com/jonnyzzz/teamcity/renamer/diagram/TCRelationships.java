@@ -12,16 +12,21 @@ public class TCRelationships {
     public Shape getStartArrow() {
       return STANDARD;
     }
+    @Override
+    public DiagramLineType getLineType() {
+      return DiagramLineType.DASHED;
+    }
   };
   static DiagramRelationshipInfo ARTIFACT = new DiagramRelationshipInfoAdapter("ARTIFACT") {
     @Override
     public Shape getStartArrow() {
       return STANDARD;
     }
-
+  };
+  static DiagramRelationshipInfo SNAPSHOT_ART = new DiagramRelationshipInfoAdapter("SNAPSHOT+ARTIFACT") {
     @Override
-    public DiagramLineType getLineType() {
-      return DiagramLineType.DASHED;
+    public Shape getStartArrow() {
+      return STANDARD;
     }
   };
 }
