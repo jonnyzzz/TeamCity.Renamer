@@ -5,7 +5,9 @@ import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.LocalQuickFixProvider;
+import com.intellij.codeInspection.ProblemDescriptor;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
@@ -13,10 +15,7 @@ import com.intellij.psi.PsiReferenceBase;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.xml.DomElement;
-import com.jonnyzzz.teamcity.renamer.model.ParameterElement;
-import com.jonnyzzz.teamcity.renamer.model.ParametersBlockElement;
-import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
-import com.jonnyzzz.teamcity.renamer.model.TeamCitySettingsBasedFile;
+import com.jonnyzzz.teamcity.renamer.model.*;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildRunnerElement;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
 import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
@@ -36,6 +35,7 @@ import java.util.regex.Pattern;
  */
 public class ParameterReference extends PsiReferenceBase<PsiElement> implements LocalQuickFixProvider {
   private static final Pattern BUILT_IN_PARAMETER_PATTERN = Pattern.compile("vcsroot\\..*|env\\..*|teamcity\\.tool\\..*|system\\.agent\\..*");
+  public static final String DEPENDENCY_PREFIX = "dep.";
 
   @NotNull
   private final DomElement myAttr;
@@ -92,14 +92,14 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> implements 
 
   @Nullable
   private PsiElement resolveDepParameter() {
-    if (!myReferredVariableName.startsWith("dep.")) return null;
+    if (!isDependencyParameter(myReferredVariableName)) return null;
 
     final TeamCitySettingsBasedFile file = myAttr.getParentOfType(TeamCitySettingsBasedFile.class, false);
     if (file == null) return null;
 
     if (!Dependencies.getDependencyIds(myAttr).iterator().hasNext()) return null;
 
-    final int dot2 = myReferredVariableName.indexOf('.', "dep.".length());
+    final int dot2 = myReferredVariableName.indexOf('.', DEPENDENCY_PREFIX.length());
     if (dot2 <= 0 || dot2 + 1 >= myReferredVariableName.length()) return null;
 
     final String buildTypeId = myReferredVariableName.substring("dep.".length(), dot2);
@@ -109,6 +109,22 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> implements 
     if (!Iterables.contains(Dependencies.getDependencyIds(myAttr), buildTypeId)) return null;
     return resolvePropertyFromContext(buildType, myReferredVariableName.substring(dot2+1));
   }
+
+  private static boolean isDependencyParameter(@NotNull final String name) {
+    return name.startsWith(DEPENDENCY_PREFIX);
+  }
+
+  @Nullable
+  private static String getDependencyId(@NotNull final String name) {
+    if (isDependencyParameter(name)) {
+      final int dot2 = name.indexOf('.', DEPENDENCY_PREFIX.length());
+      if (dot2 > 0 && dot2 + 1 < name.length()) {
+        return name.substring(DEPENDENCY_PREFIX.length(), dot2);
+      }
+    }
+    return null;
+  }
+
 
   private boolean checkIfBuiltInParameter() {
     return BUILT_IN_PARAMETER_PATTERN.matcher(myReferredVariableName).matches();
@@ -125,7 +141,7 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> implements 
   @NotNull
   @Override
   public Object[] getVariants() {
-    final List<LookupElement> result = new ArrayList<LookupElement>(0);
+    final List<LookupElement> result = new ArrayList<>(0);
     final Set<String> names = new HashSet<>(findSelfNames());
     for (DeclaredProperty variant : DeclaredProperties.fromContext(myAttr)) {
       final String name = variant.getName();
@@ -145,12 +161,12 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> implements 
 
   @Override
   public PsiElement handleElementRename(String newElementName) throws IncorrectOperationException {
-    if (myReferredVariableName.startsWith("dep.")) {
-      final int dot2 = myReferredVariableName.indexOf('.', "dep.".length());
+    if (isDependencyParameter(myReferredVariableName)) {
+      final int dot2 = myReferredVariableName.indexOf('.', DEPENDENCY_PREFIX.length());
       if (dot2 > 0 && dot2 + 1 < myReferredVariableName.length()) {
-        final String buildTypeId = myReferredVariableName.substring("dep.".length(), dot2);
+        final String buildTypeId = myReferredVariableName.substring(DEPENDENCY_PREFIX.length(), dot2);
 
-        return super.handleElementRename("dep." + buildTypeId + "." + newElementName);
+        return super.handleElementRename(DEPENDENCY_PREFIX + buildTypeId + "." + newElementName);
       }
     }
     return super.handleElementRename(newElementName);
@@ -187,7 +203,28 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> implements 
     final BuildTemplateFile buildTemplateFile = parameter.getParentOfType(BuildTemplateFile.class, false);
     final ProjectFile projectFile = parameter.getParentOfType(ProjectFile.class, false);
 
-    if (buildRunner != null) {
+    if (isDependencyParameter(name)) {
+      if ((buildTypeFile != null || buildTemplateFile != null)) {
+        final String depId = getDependencyId(name);
+        final BuildTypeFile bt = Visitors.findBuildType(parameter, depId);
+        if (bt != null) {
+          if (!Iterables.contains(Dependencies.getDependencyIds(parameter), depId)) {
+            fixes.add(new AddDependencyQuickFix(depId));
+          } else {
+            // Dependency already exists. Should create parameter in dependency.
+            String inDependencyName = name.substring(DEPENDENCY_PREFIX.length() + depId.length() + 1 );
+
+            fixes.add(new DefineBuildTypeParameter(inDependencyName, bt));
+            // TODO: Not sure about that:
+//            final BuildTemplateFile template = bt.getBaseTemplate();
+//            if (template != null) {
+//              fixes.add(new DefineBuildTemplateParameter(inDependencyName, template));
+//            }
+//            fixes.add(new DefineProjectParameter(inDependencyName, bt.getParentProjectFile()));
+          }
+        }
+      }
+    } else if (buildRunner != null) {
       fixes.add(new DefineBuildRunnerParameter(name, buildRunner));
       if (buildTypeFile != null) {
         fixes.add(new DefineBuildTypeParameter(name, buildTypeFile));
@@ -230,5 +267,43 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> implements 
         return parametersXmlTag.addSubTag(child, false);
       }
     });
+  }
+
+  private static class AddDependencyQuickFix implements LocalQuickFix {
+    private final String myDepId;
+
+    public AddDependencyQuickFix(String depId) {
+      myDepId = depId;
+    }
+
+    @NotNull
+    @Override
+    public String getName() {
+      return "Add dependency";
+    }
+
+    @NotNull
+    @Override
+    public String getFamilyName() {
+      return "TeamCity Renamer";
+    }
+
+    @Override
+    public void applyFix(@NotNull Project project, @NotNull ProblemDescriptor problemDescriptor) {
+      final PsiElement psiElement = problemDescriptor.getPsiElement();
+      final DomElement element = TeamCityFile.findContainingDomElement(psiElement);
+      if (element == null) {
+        throw new IllegalStateException("PsiElement '" + psiElement + "' should have DomElement");
+      }
+      final BuildTypeFile type = element.getParentOfType(BuildTypeFile.class, false);
+      final BuildTemplateFile template = element.getParentOfType(BuildTemplateFile.class, false);
+      if (type != null) {
+        final SnapshotDependencyElement dependency = type.getSettings().getSnapshotDependencies().addSnapshotDependencyElement();
+        dependency.getSourceBuildTypeId().setStringValue(myDepId);
+      } else if (template != null) {
+        final SnapshotDependencyElement dependency = template.getSettings().getSnapshotDependencies().addSnapshotDependencyElement();
+        dependency.getSourceBuildTypeId().setStringValue(myDepId);
+      }
+    }
   }
 }

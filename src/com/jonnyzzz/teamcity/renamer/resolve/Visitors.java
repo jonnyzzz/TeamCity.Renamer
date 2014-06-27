@@ -13,6 +13,7 @@ import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
 import com.jonnyzzz.teamcity.renamer.model.TeamCitySettingsBasedFile;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
 import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,6 +48,7 @@ public class Visitors {
   }
 
   @Nullable
+  @Contract("null, _ -> null; _, null -> null")
   public static BuildTypeFile findBuildType(@Nullable final DomElement context,
                                             @Nullable final String buildTypeId) {
     if (context == null) return null;
@@ -65,6 +67,7 @@ public class Visitors {
   }
 
   @Nullable
+  @Contract("null -> null")
   private static PsiDirectory getRootDirectory(@Nullable final TeamCityElement element) {
     if (element == null) return null;
 
