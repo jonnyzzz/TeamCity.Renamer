@@ -1,4 +1,4 @@
-package com.jonnyzzz.teamcity.renamer;
+package com.jonnyzzz.teamcity.renamer.folding;
 
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.XmlCodeFoldingBuilder;
