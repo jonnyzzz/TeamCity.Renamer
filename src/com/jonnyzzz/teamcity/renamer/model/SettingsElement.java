@@ -9,6 +9,7 @@ import com.jonnyzzz.teamcity.renamer.model.buildType.BuildRunnersElement;
  */
 public abstract class SettingsElement extends TeamCityElement {
 
+  @Stubbed
   @SubTag("vcs-settings")
   public abstract VcsSettingsElement getVcsSettings();
 
