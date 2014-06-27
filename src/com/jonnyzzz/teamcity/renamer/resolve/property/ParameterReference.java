@@ -16,7 +16,6 @@ import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.xml.DomElement;
 import com.jonnyzzz.teamcity.renamer.model.*;
-import com.jonnyzzz.teamcity.renamer.model.buildType.BuildRunnerElement;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
 import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
 import com.jonnyzzz.teamcity.renamer.model.template.BuildTemplateFile;
@@ -198,10 +197,8 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> implements 
     }
     final List<LocalQuickFix> fixes = new ArrayList<>();
 
-    final BuildRunnerElement buildRunner = parameter.getParentOfType(BuildRunnerElement.class, false);
     final BuildTypeFile buildTypeFile = parameter.getParentOfType(BuildTypeFile.class, false);
     final BuildTemplateFile buildTemplateFile = parameter.getParentOfType(BuildTemplateFile.class, false);
-    final ProjectFile projectFile = parameter.getParentOfType(ProjectFile.class, false);
 
     if (isDependencyParameter(name)) {
       if ((buildTypeFile != null || buildTemplateFile != null)) {
@@ -214,7 +211,7 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> implements 
             // Dependency already exists. Should create parameter in dependency.
             String inDependencyName = name.substring(DEPENDENCY_PREFIX.length() + depId.length() + 1 );
 
-            fixes.add(new DefineBuildTypeParameter(inDependencyName, bt));
+            fixes.add(new DefineSettingsParameter(inDependencyName, bt.getSettingsElement(), "Create dependency parameter"));
             // TODO: Not sure about that:
 //            final BuildTemplateFile template = bt.getBaseTemplate();
 //            if (template != null) {
@@ -224,33 +221,28 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> implements 
           }
         }
       }
-    } else if (buildRunner != null) {
-      fixes.add(new DefineBuildRunnerParameter(name, buildRunner));
-      if (buildTypeFile != null) {
-        fixes.add(new DefineBuildTypeParameter(name, buildTypeFile));
-        final BuildTemplateFile template = buildTypeFile.getBaseTemplate();
-        if (template != null) {
-          fixes.add(new DefineBuildTemplateParameter(name, template));
+    } else  {
+      TeamCityFile teamCityFile = parameter.getParentOfType(TeamCityFile.class, false);
+      if (teamCityFile != null) {
+        SettingsElement settingsElement = parameter.getParentOfType(SettingsElement.class, false);
+        ProjectFile parentProjectFile = teamCityFile.getParentProjectFile();
+
+        if (settingsElement != null) {
+          fixes.add(new DefineSettingsParameter(name, settingsElement, String.format("Create %s parameter", teamCityFile.getFileKind())));
         }
-        fixes.add(new DefineProjectParameter(name, buildTypeFile.getParentProjectFile()));
-      } else if (buildTemplateFile != null) {
-        fixes.add(new DefineBuildTemplateParameter(name, buildTemplateFile));
-        fixes.add(new DefineProjectParameter(name, buildTemplateFile.getParentProjectFile()));
+        if (buildTypeFile != null) {
+          BuildTemplateFile baseTemplate = buildTypeFile.getBaseTemplate();
+          if (baseTemplate != null) {
+            fixes.add(new DefineSettingsParameter(name, baseTemplate.getSettings(), "Create base template parameter"));
+          }
+        }
+        if (teamCityFile instanceof ProjectFile) {
+          fixes.add(new DefineProjectParameter(name, parentProjectFile, "Create project parameter"));
+        }
+        if (parentProjectFile != null) {
+          fixes.add(new DefineProjectParameter(name, parentProjectFile, "Create parent project parameter"));
+        }
       }
-    } else if (buildTypeFile != null) {
-      fixes.add(new DefineBuildTypeParameter(name, buildTypeFile));
-      final BuildTemplateFile template = buildTypeFile.getBaseTemplate();
-      if (template != null) {
-        fixes.add(new DefineBuildTemplateParameter(name, template));
-      }
-      fixes.add(new DefineProjectParameter(name, buildTypeFile.getParentProjectFile()));
-    } else if (buildTemplateFile != null) {
-      fixes.add(new DefineBuildTemplateParameter(name, buildTemplateFile));
-      fixes.add(new DefineProjectParameter(name, buildTemplateFile.getParentProjectFile()));
-    } else if (projectFile != null) {
-      fixes.add(new DefineProjectParameter(name, projectFile));
-    } else {
-      return null;
     }
     return fixes.toArray(new LocalQuickFix[fixes.size()]);
   }
