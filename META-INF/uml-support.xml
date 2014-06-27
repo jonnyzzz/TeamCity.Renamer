@@ -9,5 +9,10 @@
       <reference id="ShowUmlDiagramPopup"/>
       <add-to-group group-id="ToolsMenu" anchor="last"/>
     </group>
+    <group id="TeamCity.CurDependencyGraphMenu">
+      <reference id="Uml.CollapseNodes"/>
+      <reference id="Uml.ExpandNodes"/>
+      <add-to-group group-id="UML.DefaultGraphPopup" anchor="last"/>
+    </group>
   </actions>
 </idea-plugin>

@@ -17,6 +17,7 @@ import com.jonnyzzz.teamcity.renamer.model.TeamCityElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCitySettingsBasedFile;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
 import com.jonnyzzz.teamcity.renamer.model.template.BuildTemplateFile;
+import com.jonnyzzz.teamcity.renamer.resolve.deps.Dependencies;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -195,6 +196,49 @@ class TCDataModel extends DiagramDataModel<TCElement> {
   public ModificationTracker getModificationTracker() {
     return ModificationTracker.EVER_CHANGED;
   }
+
+  @Override
+  public void collapseNode(DiagramNode<TCElement> node) {
+    Map<String, BuildTypeFile> reachable = idMap(Dependencies.getDependencies(node.getIdentifyingElement().getFile()));
+    for (TCNode n : myNodes) {
+      if (reachable.containsKey(n.getIdentifyingElement().getId()) || node == n)
+        continue;
+      for (String id : idMap(Dependencies.getDependencies(n.getIdentifyingElement().getFile())).keySet()) {
+        if (reachable.remove(id) != null) {
+          int i = 0;
+        }
+
+      }
+      if (reachable.isEmpty())
+        break;
+    }
+
+    for (String id : reachable.keySet()) {
+      TCNode n = getNodeById(id);
+      removeNode(n);
+    }
+    getBuilder().setSelected(node, true);
+    refreshDataModel();
+  }
+
+  @Override
+  public void expandNode(DiagramNode<TCElement> node) {
+    for (BuildTypeFile bt : Dependencies.getDependencies(node.getIdentifyingElement().getFile())) {
+      addElement(new TCElement(bt));
+    }
+    getBuilder().setSelected(node, true);
+    refreshDataModel();
+  }
+
+  @NotNull
+  private Map<String, BuildTypeFile> idMap(@NotNull Iterable<BuildTypeFile> buildTypes) {
+    Map<String, BuildTypeFile> result = new TreeMap<>();
+    for (BuildTypeFile f : buildTypes) {
+      result.put(f.getFileId(), f);
+    }
+    return result;
+  }
+
 
   @Override
   public void dispose() {
