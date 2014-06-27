@@ -2,7 +2,6 @@ package com.jonnyzzz.teamcity.renamer.diagram;
 
 import com.intellij.diagram.DiagramElementsProvider;
 import com.intellij.openapi.project.Project;
-import com.intellij.uml.utils.UmlBundle;
 
 import java.util.Comparator;
 
@@ -32,7 +31,7 @@ public abstract class TCDiagramDependenciesProviderBase implements DiagramElemen
 
   @Override
   public String getProgressMessage() {
-    return UmlBundle.message("looking.for.dependencies");
+    return "Looking for dependencies";
   }
 
   @Override
