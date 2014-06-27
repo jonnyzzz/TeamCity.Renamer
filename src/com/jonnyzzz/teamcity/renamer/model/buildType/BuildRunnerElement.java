@@ -4,7 +4,9 @@ import com.intellij.util.xml.*;
 import com.jonnyzzz.teamcity.renamer.folding.AutoFoldableElement;
 import com.jonnyzzz.teamcity.renamer.model.ParametersBlockElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityElement;
+import com.jonnyzzz.teamcity.renamer.model.metaRunner.MetaRunnerFile;
 import com.jonnyzzz.teamcity.renamer.resolve.metaRunner.MetaRunnerReferenceConverter;
+import com.jonnyzzz.teamcity.renamer.resolve.metaRunner.MetaRunners;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,7 +42,15 @@ public abstract class BuildRunnerElement extends TeamCityElement implements Auto
     final GenericAttributeValue<String> name = getBuildRunnerName();
     final String nameValue = name == null ? null : name.getStringValue();
 
-    return PredefinedRunners.describeType(type) + " " + (nameValue == null ? "" : nameValue) + (extras != null ? " (" + extras + ")" : "");
+    return getDescription(type) + " " + (nameValue == null ? "" : nameValue) + (extras != null ? " (" + extras + ")" : "");
+  }
+
+  private String getDescription(String type) {
+    MetaRunnerFile metaRunnerFile = MetaRunners.resolve(this, type);
+    if (metaRunnerFile != null) {
+      return metaRunnerFile.getRunnerName().getValue();
+    }
+    return PredefinedRunners.describeType(type);
   }
 
   private static enum PredefinedRunners {
