@@ -3,6 +3,8 @@ package com.jonnyzzz.teamcity.renamer.folding;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.XmlCodeFoldingBuilder;
 import com.intellij.lang.XmlCodeFoldingSettings;
+import com.intellij.lang.folding.FoldingDescriptor;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.UnfairTextRange;
 import com.intellij.psi.PsiElement;
@@ -13,6 +15,8 @@ import com.intellij.util.xml.DomManager;
 import com.intellij.xml.util.XmlTagUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
@@ -33,6 +37,12 @@ public class RunnersFoldingBuilder extends XmlCodeFoldingBuilder {
     };
   }
 
+  @Override
+  protected boolean addToFold(List<FoldingDescriptor> foldings, PsiElement elementToFold, Document document) {
+    if (findFoldText(elementToFold) == null) return false;
+    return super.addToFold(foldings, elementToFold, document);
+  }
+
   @Nullable
   @Override
   public String getPlaceholderText(@NotNull ASTNode node) {
@@ -49,12 +59,17 @@ public class RunnersFoldingBuilder extends XmlCodeFoldingBuilder {
   @Nullable
   private String findBuildRunnerElement(@NotNull final ASTNode node) {
     final PsiElement psi = node.getPsi();
+    return findFoldText(psi);
+  }
+
+  @Nullable
+  private String findFoldText(@Nullable final PsiElement psi) {
     if (psi == null) return null;
     if (!(psi instanceof XmlTag))return null;
 
     final DomElement dom = DomManager.getDomManager(psi.getProject()).getDomElement((XmlTag) psi);
     if (dom == null) return null;
-    
+
     if (!(dom instanceof AutoFoldableElement)) return null;
     final AutoFoldableElement fold = (AutoFoldableElement) dom;
 
