@@ -6,6 +6,7 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.xml.GenericAttributeValue;
+import com.intellij.util.xml.Stubbed;
 import com.intellij.util.xml.SubTag;
 import com.intellij.util.xml.SubTagList;
 import com.jonnyzzz.teamcity.renamer.model.ParameterElement;
@@ -25,6 +26,7 @@ public abstract class VcsRootFile extends TeamCityFile {
     return "vcsRoot";
   }
 
+  @Stubbed
   @SubTagList("param")
   public abstract List<ParameterElement> getParameters();
 
