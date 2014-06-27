@@ -141,8 +141,14 @@ public abstract class ProjectFile extends TeamCityFile {
             .transformAndConcat(FILE_TO_META_RUNNERS));
   }
 
+  @NotNull
   public final Iterable<BuildTemplateFile> getOwnBuildTemplates() {
     return getProjectEntities("buildTypes", BuildTemplateFile.class);
+  }
+
+  @NotNull
+  public final Iterable<BuildTypeFile> getOwnBuildTypes() {
+    return getProjectEntities("buildTypes", BuildTypeFile.class);
   }
 
   public final Iterable<BuildTemplateFile> getAllBuildTemplates() {
