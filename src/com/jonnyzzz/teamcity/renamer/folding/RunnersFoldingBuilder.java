@@ -54,9 +54,9 @@ public class RunnersFoldingBuilder extends XmlCodeFoldingBuilder {
 
     final DomElement dom = DomManager.getDomManager(psi.getProject()).getDomElement((XmlTag) psi);
     if (dom == null) return null;
-
-    final AutoFoldableElement fold = dom.getParentOfType(AutoFoldableElement.class, false);
-    if (fold == null) return null;
+    
+    if (!(dom instanceof AutoFoldableElement)) return null;
+    final AutoFoldableElement fold = (AutoFoldableElement) dom;
 
     return fold.getFoldedText();
   }
