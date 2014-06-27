@@ -43,7 +43,6 @@ public class TeamCityPredefined extends FakePsiElement {
 
   @Override
   public boolean canNavigate() {
-    System.out.println("canNavigate");
     return false;
   }
 }
