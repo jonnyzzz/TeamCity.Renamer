@@ -43,6 +43,8 @@
     <definitionsScopedSearch implementation="com.jonnyzzz.teamcity.renamer.model.ParametersScopedSearch"/>
     <renamePsiElementProcessor implementation="com.jonnyzzz.teamcity.renamer.model.ParameterRenameProcessor"/>
 
+    <lang.foldingBuilder language="XML" implementationClass="com.jonnyzzz.teamcity.renamer.RunnersFoldingBuilder"/>
+
     <!--
     <localInspection language="XML"
                      level="ERROR"
