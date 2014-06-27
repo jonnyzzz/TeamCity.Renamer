@@ -1,15 +1,16 @@
 package com.jonnyzzz.teamcity.renamer.diagram;
 
+import com.intellij.diagram.DiagramBuilder;
 import com.intellij.diagram.DiagramDataModel;
 import com.intellij.diagram.DiagramEdge;
 import com.intellij.diagram.DiagramNode;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ModificationTracker;
 import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.xml.XmlTag;
 import com.jonnyzzz.teamcity.renamer.model.ArtifactDependencyElement;
 import com.jonnyzzz.teamcity.renamer.model.SnapshotDependencyElement;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityElement;
@@ -114,14 +115,7 @@ class TCDataModel extends DiagramDataModel<TCElement> {
 
         CommandProcessor.getInstance().executeCommand(getProject(), new Runnable() {
           private void deleteDependency(@NotNull final TeamCityElement el) {
-            final XmlTag tag = el.getXmlTag();
-            final XmlTag parent = tag.getParentTag();
-
-            tag.delete();
-
-            if (parent != null &&parent.getSubTags().length == 0) {
-              parent.delete();
-            }
+            el.undefine();
           }
 
           @Override
@@ -171,9 +165,20 @@ class TCDataModel extends DiagramDataModel<TCElement> {
           }
         }, "Remove dependencies", "TeamCity");
 
-        FileDocumentManager.getInstance().saveAllDocuments();
         PsiDocumentManager.getInstance(getProject()).commitAllDocuments();
-        getBuilder().updateDataModel();
+        FileDocumentManager.getInstance().saveAllDocuments();
+
+        final DiagramBuilder builder = getBuilder();
+        ApplicationManager.getApplication().invokeLater(
+                new Runnable() {
+                  @Override
+                  public void run() {
+                    builder.updateDataModel();
+                    builder.update(true, false);
+                  }
+                }
+        );
+
       }
     });
 
