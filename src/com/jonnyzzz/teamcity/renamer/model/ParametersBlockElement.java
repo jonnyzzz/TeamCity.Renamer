@@ -3,6 +3,7 @@ package com.jonnyzzz.teamcity.renamer.model;
 import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import com.intellij.util.xml.SubTagList;
+import com.intellij.util.xml.SubTagsList;
 import com.jonnyzzz.teamcity.renamer.resolve.property.DeclaredProperty;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,6 +18,9 @@ public abstract class ParametersBlockElement extends TeamCityElement {
 
   @SubTagList("param")
   public abstract List<ParameterElement> getParameters();
+
+  @SubTagsList(value="param", tagName = "param")
+  public abstract ParameterElement addParameter();
 
   @NotNull
   public Iterable<DeclaredProperty> getDeclarations() {
