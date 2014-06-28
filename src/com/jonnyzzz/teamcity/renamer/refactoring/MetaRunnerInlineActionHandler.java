@@ -86,7 +86,7 @@ public class MetaRunnerInlineActionHandler extends InlineActionHandler {
               resolveParameters(newRunner);
 
               if (newRunner.getBuildRunnerId().getValue() == null) {
-                newRunner.getBuildRunnerId().setValue("RUNNER_" + uniqueRunnerID());
+                newRunner.getBuildRunnerId().setValue(uniqueRunnerID(buildRunnersElement));
               }
             }
 
@@ -122,8 +122,17 @@ public class MetaRunnerInlineActionHandler extends InlineActionHandler {
             }
           }
 
-          private int uniqueRunnerID() {
-            return 1000 + RANDOM.nextInt() % 1000;
+          private String uniqueRunnerID(BuildRunnersElement buildRunnersElement) {
+            while (true) {
+              String result = "RUNNER_" + (1000 + RANDOM.nextInt(1000));
+              for (BuildRunnerElement runnerElement : buildRunnersElement.getRunners()) {
+                if (result.equals(runnerElement.getBuildRunnerId().getValue())) {
+                  continue;
+                }
+              }
+
+              return result;
+            }
           }
         }, "Inline meta runner", "TeamCity");
 
