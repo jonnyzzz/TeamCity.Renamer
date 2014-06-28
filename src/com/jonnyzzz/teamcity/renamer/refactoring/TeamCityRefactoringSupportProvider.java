@@ -145,21 +145,16 @@ public class TeamCityRefactoringSupportProvider extends RefactoringSupportProvid
             MetaRunnerFile metaFile = TeamCityFile.toTeamCityElement(MetaRunnerFile.class, newFile);
             if (metaFile == null) return;
 
-            int i = 0;
-            Integer first = null;
             final List<BuildRunnerElement> toRemove = new ArrayList<>();
             for (BuildRunnerElement startRunner : holder.getRunners()) {
               if (startRunner.getXmlTag().getTextRange().intersectsStrict(start, end)) {
-                if (first == null) first = i;
                 final BuildRunnerElement runner = metaFile.getSettings().getBuildRunners().addRunner();
                 runner.copyFrom(startRunner);
                 toRemove.add(startRunner);
               }
-              i++;
-
             }
 
-            BuildRunnerElement meta = holder.addRunner(first);
+            BuildRunnerElement meta = holder.addRunner(holder.getRunners().indexOf(toRemove.get(0)));
             meta.getBuildRunnerType().setStringValue(metaFile.getFileId());
             meta.getBuildRunnerId().setValue(Util.uniqueRunnerID(holder));
 
