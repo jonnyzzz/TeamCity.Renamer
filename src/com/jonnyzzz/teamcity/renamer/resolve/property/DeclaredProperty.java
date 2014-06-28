@@ -37,11 +37,7 @@ public class DeclaredProperty {
 
   @Nullable
   public String getRawValue() {
-    final GenericAttributeValue<String> parameterValue = myParameterElement.getParameterValue();
-    if (parameterValue == null) return null;
-    final String stringValue = parameterValue.getStringValue();
-    if (stringValue == null) return myParameterElement.getTagValue();
-    return stringValue;
+    return myParameterElement.getStringValue();
   }
 
 

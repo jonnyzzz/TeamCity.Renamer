@@ -9,6 +9,7 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
@@ -19,12 +20,17 @@ import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildRunnerElement;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildRunnersElement;
 import com.jonnyzzz.teamcity.renamer.model.metaRunner.MetaRunnerFile;
+import com.jonnyzzz.teamcity.renamer.resolve.Util;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class MetaRunnerInlineActionHandler extends InlineActionHandler {
+  private static final Random RANDOM = new Random(System.currentTimeMillis());
+
   @Override
   public boolean isEnabledForLanguage(Language l) {
     return XMLLanguage.INSTANCE == l;
@@ -48,7 +54,7 @@ public class MetaRunnerInlineActionHandler extends InlineActionHandler {
       return;
     }
 
-    Map<String, String> params = new HashMap<>();
+    final Map<String, String> params = new HashMap<>();
     for (ParameterElement parameterElement : buildRunnerElement.getParametersBlock().getParameters()) {
       String name = parameterElement.getParameterNameString();
       String value = parameterElement.getParameterValue().getStringValue();
@@ -77,15 +83,47 @@ public class MetaRunnerInlineActionHandler extends InlineActionHandler {
             for (BuildRunnerElement runnerElement : metaRunnerFile.getSettings().getBuildRunners().getRunners()) {
               BuildRunnerElement newRunner = buildRunnersElement.addRunner(i++);
               newRunner.copyFrom(runnerElement);
-              for (ParameterElement parameterElement : newRunner.getParametersBlock().getParameters()) {
-                String oldValue = parameterElement.getParameterValue().getStringValue();
-                String newValue = oldValue;
-                parameterElement.getParameterValue().setStringValue(newValue);
-              }
+              resolveParameters(newRunner);
 
-              buildRunnerElement.undefine();
+              if (newRunner.getBuildRunnerId().getValue() == null) {
+                newRunner.getBuildRunnerId().setValue("RUNNER_" + uniqueRunnerID());
+              }
             }
 
+            buildRunnerElement.undefine();
+
+          }
+
+          private void resolveParameters(BuildRunnerElement newRunner) {
+            for (ParameterElement parameterElement : newRunner.getParametersBlock().getParameters()) {
+              boolean setValue = true;
+              String paramValue = parameterElement.getParameterValue().getStringValue();
+              if (paramValue == null) {
+                paramValue = parameterElement.getTagValue();
+                setValue = false;
+              }
+              if (paramValue != null) {
+                List<TextRange> refRanges = Util.getRefRanges(paramValue);
+                for (TextRange refRange : refRanges) {
+                  int start = refRange.getStartOffset();
+                  int end = refRange.getEndOffset();
+                  String resolvedParam = params.get(paramValue.substring(start, end));
+                  if (resolvedParam != null) {
+                    paramValue = paramValue.substring(0, start-1) + resolvedParam + paramValue.substring(end+1);
+                  }
+                }
+
+                if (setValue) {
+                  parameterElement.getParameterValue().setStringValue(paramValue);
+                } else {
+                  parameterElement.setTagValue(paramValue);
+                }
+              }
+            }
+          }
+
+          private int uniqueRunnerID() {
+            return 1000 + RANDOM.nextInt() % 1000;
           }
         }, "Inline meta runner", "TeamCity");
 

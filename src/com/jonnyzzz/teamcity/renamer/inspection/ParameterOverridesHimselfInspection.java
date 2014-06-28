@@ -33,10 +33,7 @@ public class ParameterOverridesHimselfInspection extends DomElementsInspection<T
       return;
     }
     final ParameterElement pe = (ParameterElement) element;
-    String value = pe.getParameterValue().getValue();
-    if (value == null) {
-      value = pe.getTagValue();
-    }
+    String value = pe.getStringValue();
     final Iterable<DeclaredProperty> withSameName = Iterables.filter(DeclaredProperties.fromContext(pe), new Predicate<DeclaredProperty>() {
       @Override
       public boolean apply(DeclaredProperty declaredProperty) {
