@@ -11,6 +11,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ModificationTracker;
 import com.intellij.psi.PsiDocumentManager;
+import com.intellij.util.xml.DomManager;
 import com.jonnyzzz.teamcity.renamer.model.*;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
 import com.jonnyzzz.teamcity.renamer.model.template.BuildTemplateFile;
@@ -191,7 +192,7 @@ class TCDataModel extends DiagramDataModel<TCElement> {
   @NotNull
   @Override
   public ModificationTracker getModificationTracker() {
-    return ModificationTracker.EVER_CHANGED;
+    return DomManager.getDomManager(getProject());
   }
 
   @Override
@@ -257,7 +258,7 @@ class TCDataModel extends DiagramDataModel<TCElement> {
             SnapshotDependencyElement sd = to.getIdentifyingElement().getFile().getSettingsElement().getSnapshotDependencies().addSnapshotDependencyElement();
             sd.getSourceBuildTypeId().setStringValue(from.getIdentifyingElement().getId());
 
-            OptionsElement opts = sd.addOptions();
+            OptionsElement opts = sd.getOptions();
             OptionElement opel1 = opts.addOption();
             opel1.setOptionName("run-build-if-dependency-failed");
             opel1.setOptionValue("true");
