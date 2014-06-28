@@ -7,5 +7,5 @@ public abstract class SnapshotDependencyElement extends DependencyElement {
   public abstract OptionsElement getOptions();
 
   @SubTag(value="options")
-  public abstract OptionsElement addOptions();
+  public abstract OptionsElement addOptionsElement();
 }

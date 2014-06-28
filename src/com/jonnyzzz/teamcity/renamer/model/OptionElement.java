@@ -4,7 +4,7 @@ import com.intellij.util.xml.Attribute;
 import com.intellij.util.xml.GenericAttributeValue;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class OptionElement {
+public abstract class OptionElement extends TeamCityElement {
   @Attribute("name")
   public abstract GenericAttributeValue<String> getOptionName();
 
