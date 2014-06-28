@@ -64,11 +64,7 @@ public class MetaRunnerInlineActionHandler extends InlineActionHandler {
         CommandProcessor.getInstance().executeCommand(project, new Runnable() {
           @Override
           public void run() {
-            DomElement buildRunnerDomElement = DomUtil.getDomElement(buildRunnerElement.getXmlElement());
-            if (buildRunnerDomElement == null) {
-              return;
-            }
-            BuildRunnersElement buildRunnersElement = buildRunnerDomElement.getParentOfType(BuildRunnersElement.class, false);
+            BuildRunnersElement buildRunnersElement = buildRunnerElement.getParentOfType(BuildRunnersElement.class, false);
             if (buildRunnersElement == null) {
               return;
             }
@@ -77,7 +73,6 @@ public class MetaRunnerInlineActionHandler extends InlineActionHandler {
             if (i == -1) {
               return;
             }
-            buildRunnerDomElement.undefine();
 
             for (BuildRunnerElement runnerElement : metaRunnerFile.getSettings().getBuildRunners().getRunners()) {
               BuildRunnerElement newRunner = buildRunnersElement.addRunner(i++);
@@ -88,6 +83,7 @@ public class MetaRunnerInlineActionHandler extends InlineActionHandler {
                 parameterElement.getParameterValue().setStringValue(newValue);
               }
 
+              buildRunnerElement.undefine();
             }
 
           }
