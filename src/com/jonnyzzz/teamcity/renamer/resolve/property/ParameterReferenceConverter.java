@@ -8,6 +8,7 @@ import com.intellij.util.xml.ConvertContext;
 import com.intellij.util.xml.CustomReferenceConverter;
 import com.intellij.util.xml.GenericAttributeValue;
 import com.intellij.util.xml.GenericDomValue;
+import com.jonnyzzz.teamcity.renamer.resolve.Util;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -31,28 +32,19 @@ public class ParameterReferenceConverter implements CustomReferenceConverter<Str
     final List<ParameterReference> references = new ArrayList<ParameterReference>(0);
 
     if (text == null) return PsiReference.EMPTY_ARRAY;
-    for(int idx = 0; idx < text.length(); idx++) {
 
-      if (text.charAt(idx) == '%') {
-        idx++;
-        final int refStart = idx + startOffset;
+    List<TextRange> refRanges = Util.getRefRanges(text);
 
-        while (idx < text.length() && text.charAt(idx) != '%') idx++;
-        if (idx >= text.length()) break;
-
-        final int refEnd = idx + startOffset;
-
-        if (refStart < refEnd) {
-          references.add(new ParameterReference(
-                  value,
-                  xmlValue,
-                  new TextRange(refStart, refEnd),
-                  text.substring(refStart - startOffset, refEnd - startOffset)));
-        }
-      }
+    for (TextRange refRange : refRanges) {
+      int refStart = refRange.getStartOffset();
+      int refEnd = refRange.getEndOffset();
+      references.add(new ParameterReference(
+              value,
+              xmlValue,
+              new TextRange(refStart + startOffset, refEnd + startOffset),
+              text.substring(refStart, refEnd)));
     }
 
     return references.toArray(new PsiReference[references.size()]);
   }
-
 }

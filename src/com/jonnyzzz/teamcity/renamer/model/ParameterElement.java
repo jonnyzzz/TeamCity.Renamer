@@ -33,6 +33,18 @@ public abstract class ParameterElement extends TeamCityElement implements AutoFo
   @TagValue
   public abstract String getTagValue();
 
+  @TagValue
+  public abstract void setTagValue(String s);
+
+  @Nullable
+  public String getStringValue() {
+    String value = getParameterValue().getValue();
+    if (value == null) {
+      value = getTagValue();
+    }
+    return value;
+  }
+
   @Nullable
   public String getParameterNameString() {
     final String name = getParameterName().getStringValue();

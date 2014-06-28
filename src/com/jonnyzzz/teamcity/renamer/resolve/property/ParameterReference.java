@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
 public class ParameterReference extends PsiReferenceBase<PsiElement> implements LocalQuickFixProvider {
-  private static final Pattern BUILT_IN_PARAMETER_PATTERN = Pattern.compile("vcsroot\\..*|env\\..*|teamcity\\.tool\\..*|system\\.agent\\..*");
+  private static final Pattern BUILT_IN_PARAMETER_PATTERN = Pattern.compile("vcsroot\\..*|env\\..*|teamcity\\.tool\\..*|system\\.agent\\..*|system\\.teamcity\\..*");
   public static final String DEPENDENCY_PREFIX = "dep.";
 
   @NotNull
