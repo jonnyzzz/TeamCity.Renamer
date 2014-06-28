@@ -48,6 +48,8 @@
 
     <findUsagesHandlerFactory implementation="com.jonnyzzz.teamcity.renamer.model.ParametersFindUsagesFactory"/>
 
+    <psi.referenceContributor language="XML" implementation="com.jonnyzzz.teamcity.renamer.model.ParameterInMetaRunnerReferenceConvertor"/>
+
     <localInspection language="XML"
                      enabledByDefault="true"
                      displayName="TeamCity Parameter redundant"

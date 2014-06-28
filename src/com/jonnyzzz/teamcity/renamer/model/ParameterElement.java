@@ -8,6 +8,7 @@ import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.xml.*;
 import com.jonnyzzz.teamcity.renamer.folding.AutoFoldableElement;
+import com.jonnyzzz.teamcity.renamer.resolve.TeamCityPredefined;
 import com.jonnyzzz.teamcity.renamer.resolve.property.DeclaredProperty;
 import com.jonnyzzz.teamcity.renamer.resolve.property.ParameterReferenceConverter;
 import com.jonnyzzz.teamcity.renamer.resolve.property.RenameableParameterElement;
@@ -51,6 +52,7 @@ public abstract class ParameterElement extends TeamCityElement implements AutoFo
   @Nullable
   public static ParameterElement fromPsiElement(@Nullable final PsiElement element) {
     if (element == null) return null;
+    if (element instanceof TeamCityPredefined) return null;
 
     if (element instanceof PomTargetPsiElement) {
       final PomTarget target = ((PomTargetPsiElement) element).getTarget();

@@ -20,6 +20,11 @@ public class RenameableTeamCityFileElement extends RenameableFakePsiElement {
     myContainingFile = containingFile;
   }
 
+  @NotNull
+  public PsiFile getContainingFile() {
+    return myContainingFile;
+  }
+
   @Override
   public String getName() {
     return FileUtil.getNameWithoutExtension(myContainingFile.getName());
