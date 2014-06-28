@@ -12,7 +12,7 @@ import com.intellij.util.xml.Attribute;
 import com.intellij.util.xml.GenericAttributeValue;
 import com.intellij.util.xml.Stubbed;
 import com.intellij.util.xml.SubTag;
-import com.jonnyzzz.teamcity.renamer.model.ParametersBlockElement;
+import com.jonnyzzz.teamcity.renamer.model.ParametersSettingsBlock;
 import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
 import com.jonnyzzz.teamcity.renamer.model.metaRunner.MetaRunnerFile;
@@ -36,7 +36,7 @@ public abstract class ProjectFile extends TeamCityFile {
 
   @Stubbed
   @SubTag("parameters")
-  public abstract ParametersBlockElement getParametersBlock();
+  public abstract ParametersSettingsBlock getParametersBlock();
 
 
   @NotNull

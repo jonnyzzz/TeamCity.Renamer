@@ -1,5 +1,6 @@
 package com.jonnyzzz.teamcity.renamer.refactoring;
 
+import com.google.common.collect.Iterables;
 import com.intellij.lang.refactoring.RefactoringSupportProvider;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.command.WriteCommandAction;
@@ -10,10 +11,13 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.refactoring.RefactoringActionHandler;
+import com.intellij.refactoring.util.CommonRefactoringUtil;
 import com.intellij.util.PsiNavigateUtil;
 import com.jonnyzzz.teamcity.renamer.model.ParameterElement;
 import com.jonnyzzz.teamcity.renamer.model.ParametersBlockElement;
+import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
 import com.jonnyzzz.teamcity.renamer.model.TeamCitySettingsBasedFile;
+import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,6 +25,49 @@ import org.jetbrains.annotations.Nullable;
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
 public class TeamCityRefactoringSupportProvider extends RefactoringSupportProvider {
+
+  @Nullable
+  @Override
+  public RefactoringActionHandler getPullUpHandler() {
+    return new RefactoringActionHandler() {
+      @Override
+      public void invoke(@NotNull Project project, Editor editor, PsiFile file, DataContext dataContext) {
+        final PsiElement startElement = file.findElementAt(editor.getCaretModel().getOffset());
+        final ParameterElement parameterElement = ParameterElement.fromPsiElement(startElement);
+        if (parameterElement == null) return;
+        if (!parameterElement.isFromSettings()) return;
+
+        if (startElement == null) return;
+        final TeamCityFile theFile = TeamCityFile.toTeamCityFile(TeamCityFile.class, file);
+        if (theFile == null) return;
+
+        final ProjectFile parent = theFile.getParentProjectFile();
+        if (parent == null) return;
+
+        if (Iterables.contains(parent.getDeclaredParameters(), parameterElement.getParameterNameString())) {
+          CommonRefactoringUtil.showErrorHint(file.getProject(), editor, "Parameter already defined in the parent project",
+                  "Pull parameter up", null);
+          return;
+        }
+
+        WriteCommandAction.runWriteCommandAction(project, new Runnable() {
+          @Override
+          public void run() {
+            final ParameterElement parameterCopy = parent.getParametersBlock().addParameter();
+            parameterCopy.copyFrom(parameterElement);
+            parameterElement.undefine();
+
+            PsiNavigateUtil.navigate(parameterCopy.getParameterName().getXmlAttributeValue());
+          }
+        });
+      }
+
+      @Override
+      public void invoke(@NotNull Project project, @NotNull PsiElement[] elements, DataContext dataContext) {
+
+      }
+    };
+  }
 
   @Nullable
   @Override

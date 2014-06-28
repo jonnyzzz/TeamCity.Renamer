@@ -100,4 +100,9 @@ public abstract class ParameterElement extends TeamCityElement implements AutoFo
 
     return "name=\"" + name + "\" value=...";
   }
+
+
+  public boolean isFromSettings() {
+    return getParentOfType(ParametersSettingsBlock.class, false) != null;
+  }
 }
