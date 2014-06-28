@@ -12,7 +12,7 @@ public abstract class OptionsElement extends TeamCityElement {
   @SubTagsList(value="option", tagName = "option")
   public abstract OptionElement addOption();
 
-  @SubTagsList(value="runner", tagName = "runner")
+  @SubTagsList(value="option", tagName = "option")
   public abstract OptionElement addOption(int index);
 
 }
