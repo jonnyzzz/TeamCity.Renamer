@@ -4,7 +4,10 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.xml.XmlAttributeValue;
-import com.intellij.util.xml.*;
+import com.intellij.util.xml.ConvertContext;
+import com.intellij.util.xml.CustomReferenceConverter;
+import com.intellij.util.xml.GenericAttributeValue;
+import com.intellij.util.xml.GenericDomValue;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -46,9 +49,6 @@ public class ParameterReferenceConverter implements CustomReferenceConverter<Str
                   new TextRange(refStart, refEnd),
                   text.substring(refStart - startOffset, refEnd - startOffset)));
         }
-
-        //skip last % char
-        idx++;
       }
     }
 
