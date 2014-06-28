@@ -25,6 +25,9 @@ import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Eugene Petrenko (eugene.petrenko@gmail.com)
  */
@@ -89,17 +92,17 @@ public class TeamCityRefactoringSupportProvider extends RefactoringSupportProvid
         final PsiElement startElement = file.findElementAt(start);
         final PsiElement endElement = file.findElementAt(start);
         introduceParameter(project, editor, selection, start, end, startElement, endElement);
-        introduceMetaRunner(project, editor, selection, start, end, startElement, endElement);
+        introduceMetaRunner(project, start, end, file);
       }
 
-      private void introduceMetaRunner(final Project project, final Editor editor, final SelectionModel selection, final int start, final int end, PsiElement startElement, PsiElement endElement) {
-        final BuildRunnersElement holder = TeamCityFile.toTeamCityElement(BuildRunnersElement.class, startElement);
+      private void introduceMetaRunner(final Project project, final int start, final int end, PsiFile psiFile) {
+        final TeamCityFile tcFile = TeamCityFile.toTeamCityFile(TeamCityFile.class, psiFile);
+        if (tcFile == null) return;
+        final BuildRunnersElement holder = getTeamCityFileBuildRunners(tcFile);
         if (holder == null) return;
-        if (!holder.getXmlTag().getTextRange().containsRange(start, end)) return;
+        if (!holder.getXmlTag().getTextRange().intersects(start, end)) return;
 
-        TeamCityFile file = holder.getParentOfType(TeamCityFile.class, false);
-        if (file == null) return;
-        final ProjectFile projectFile = file.getParentProjectFile();
+        final ProjectFile projectFile = tcFile.getParentProjectFile();
         if (projectFile == null) return;
 
         boolean found = false;
@@ -142,21 +145,39 @@ public class TeamCityRefactoringSupportProvider extends RefactoringSupportProvid
             if (metaFile == null) return;
 
             int i = 0;
+            Integer first = null;
+            final List<BuildRunnerElement> toRemove = new ArrayList<>();
             for (BuildRunnerElement startRunner : holder.getRunners()) {
               if (startRunner.getXmlTag().getTextRange().intersectsStrict(start, end)) {
+                if (first == null) first = i;
                 final BuildRunnerElement runner = metaFile.getSettings().getBuildRunners().addRunner();
                 runner.copyFrom(startRunner);
-                startRunner.undefine();
-              } else {
-                i++;
+                toRemove.add(startRunner);
               }
+              i++;
+
             }
 
-            BuildRunnerElement meta = holder.addRunner(i);
+            BuildRunnerElement meta = holder.addRunner(first);
             meta.getBuildRunnerType().setStringValue(metaFile.getFileId());
+
+            for (BuildRunnerElement runnerElement : toRemove) {
+              runnerElement.undefine();
+            }
           }
         });
 
+      }
+
+      @Nullable
+      private BuildRunnersElement getTeamCityFileBuildRunners(@Nullable final TeamCityFile projectFile) {
+        if (projectFile instanceof TeamCitySettingsBasedFile) {
+          return ((TeamCitySettingsBasedFile) projectFile).getSettingsElement().getBuildRunners();
+        }
+        if (projectFile instanceof MetaRunnerFile) {
+          return ((MetaRunnerFile) projectFile).getSettings().getBuildRunners();
+        }
+        return null;
       }
 
       private void introduceParameter(Project project, final Editor editor, final SelectionModel selection, final int start, final int end, PsiElement startElement, PsiElement endElement) {
