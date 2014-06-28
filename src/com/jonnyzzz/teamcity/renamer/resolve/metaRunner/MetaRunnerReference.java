@@ -1,11 +1,17 @@
 package com.jonnyzzz.teamcity.renamer.resolve.metaRunner;
 
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.xml.XmlElement;
 import com.intellij.util.xml.GenericDomValue;
+import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
+import com.jonnyzzz.teamcity.renamer.model.buildType.BuildRunnerElement;
 import com.jonnyzzz.teamcity.renamer.model.metaRunner.MetaRunnerFile;
 import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
+import com.jonnyzzz.teamcity.renamer.resolve.RenameableTeamCityFileElement;
 import com.jonnyzzz.teamcity.renamer.resolve.TeamCityFileReference;
+import com.jonnyzzz.teamcity.renamer.resolve.TeamCityPredefined;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -57,6 +63,22 @@ public class MetaRunnerReference extends TeamCityFileReference<MetaRunnerFile> {
   @Override
   protected Iterable<MetaRunnerFile> getAll(@NotNull ProjectFile projectFile) {
     return projectFile.getAllMetaRunners();
+  }
+
+  @Nullable
+  public static MetaRunnerFile resolveReference(@Nullable final BuildRunnerElement runner) {
+    if (runner == null) return null;
+
+    final XmlElement xmlElement = runner.getXmlElement();
+    if (xmlElement == null) return null;
+
+    PsiElement resolve = new MetaRunnerReference(runner.getBuildRunnerType(), xmlElement).resolve();
+    if (resolve == null) return null;
+    if (resolve instanceof TeamCityPredefined) return null;
+
+    if (!(resolve instanceof RenameableTeamCityFileElement)) return null;
+
+    return TeamCityFile.toTeamCityFile(MetaRunnerFile.class, resolve.getContainingFile());
   }
 
   @Override
