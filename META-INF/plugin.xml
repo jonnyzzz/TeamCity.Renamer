@@ -55,6 +55,8 @@
                      displayName="TeamCity Parameter redundant"
                      implementationClass="com.jonnyzzz.teamcity.renamer.inspection.ParameterOverridesHimselfInspection" groupName="TeamCity Renamer"/>
     <inlineActionHandler implementation="com.jonnyzzz.teamcity.renamer.refactoring.MetaRunnerInlineActionHandler"/>
+
+    <lang.refactoringSupport language="XML" implementationClass="com.jonnyzzz.teamcity.renamer.refactoring.TeamCityRefactoringSupportProvider"/>
   </extensions>
 
   <application-components>
