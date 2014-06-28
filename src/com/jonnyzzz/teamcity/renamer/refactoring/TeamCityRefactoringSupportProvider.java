@@ -22,6 +22,7 @@ import com.jonnyzzz.teamcity.renamer.model.buildType.BuildRunnerElement;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildRunnersElement;
 import com.jonnyzzz.teamcity.renamer.model.metaRunner.MetaRunnerFile;
 import com.jonnyzzz.teamcity.renamer.model.project.ProjectFile;
+import com.jonnyzzz.teamcity.renamer.resolve.Util;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -160,6 +161,7 @@ public class TeamCityRefactoringSupportProvider extends RefactoringSupportProvid
 
             BuildRunnerElement meta = holder.addRunner(first);
             meta.getBuildRunnerType().setStringValue(metaFile.getFileId());
+            meta.getBuildRunnerId().setValue(Util.uniqueRunnerID(holder));
 
             for (BuildRunnerElement runnerElement : toRemove) {
               runnerElement.undefine();

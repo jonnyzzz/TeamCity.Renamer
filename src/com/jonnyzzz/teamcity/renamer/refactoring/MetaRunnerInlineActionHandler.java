@@ -26,11 +26,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 public class MetaRunnerInlineActionHandler extends InlineActionHandler {
-  private static final Random RANDOM = new Random(System.currentTimeMillis());
-
   @Override
   public boolean isEnabledForLanguage(Language l) {
     return XMLLanguage.INSTANCE == l;
@@ -86,7 +83,7 @@ public class MetaRunnerInlineActionHandler extends InlineActionHandler {
               resolveParameters(newRunner);
 
               if (newRunner.getBuildRunnerId().getValue() == null) {
-                newRunner.getBuildRunnerId().setValue(uniqueRunnerID(buildRunnersElement));
+                newRunner.getBuildRunnerId().setValue(Util.uniqueRunnerID(buildRunnersElement));
               }
             }
 
@@ -122,18 +119,6 @@ public class MetaRunnerInlineActionHandler extends InlineActionHandler {
             }
           }
 
-          private String uniqueRunnerID(BuildRunnersElement buildRunnersElement) {
-            while (true) {
-              String result = "RUNNER_" + (1000 + RANDOM.nextInt(1000));
-              for (BuildRunnerElement runnerElement : buildRunnersElement.getRunners()) {
-                if (result.equals(runnerElement.getBuildRunnerId().getValue())) {
-                  continue;
-                }
-              }
-
-              return result;
-            }
-          }
         }, "Inline meta runner", "TeamCity");
 
         PsiDocumentManager.getInstance(project).commitAllDocuments();
