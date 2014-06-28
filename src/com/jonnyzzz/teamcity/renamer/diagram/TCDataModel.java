@@ -11,10 +11,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ModificationTracker;
 import com.intellij.psi.PsiDocumentManager;
-import com.jonnyzzz.teamcity.renamer.model.ArtifactDependencyElement;
-import com.jonnyzzz.teamcity.renamer.model.SnapshotDependencyElement;
-import com.jonnyzzz.teamcity.renamer.model.TeamCityElement;
-import com.jonnyzzz.teamcity.renamer.model.TeamCitySettingsBasedFile;
+import com.jonnyzzz.teamcity.renamer.model.*;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildTypeFile;
 import com.jonnyzzz.teamcity.renamer.model.template.BuildTemplateFile;
 import com.jonnyzzz.teamcity.renamer.resolve.deps.Dependencies;
@@ -243,5 +240,43 @@ class TCDataModel extends DiagramDataModel<TCElement> {
   @Override
   public void dispose() {
 
+  }
+
+  @Nullable
+  @Override
+  public DiagramEdge<TCElement> createEdge(@NotNull final DiagramNode<TCElement> from, @NotNull final DiagramNode<TCElement> to) {
+    ApplicationManager.getApplication().invokeLater(new Runnable() {
+      @Override
+      public void run() {
+        WriteCommandAction.runWriteCommandAction(getProject(), new Runnable() {
+          @Override
+          public void run() {
+            FileDocumentManager.getInstance().saveAllDocuments();
+            PsiDocumentManager.getInstance(getProject()).commitAllDocuments();
+
+            SnapshotDependencyElement sd = to.getIdentifyingElement().getFile().getSettingsElement().getSnapshotDependencies().addSnapshotDependencyElement();
+            sd.getSourceBuildTypeId().setStringValue(from.getIdentifyingElement().getId());
+
+            OptionsElement opts = sd.addOptions();
+            OptionElement opel1 = opts.addOption();
+            opel1.setOptionName("run-build-if-dependency-failed");
+            opel1.setOptionValue("true");
+            OptionElement opel2 = opts.addOption();
+            opel2.setOptionName("take-started-build-with-same-revisions");
+            opel2.setOptionValue("true");
+
+            ArtifactDependencyElement ad = to.getIdentifyingElement().getFile().getSettingsElement().getArtifactDependencies().addArtifactDependencyElement();
+            ad.getSourceBuildTypeId().setStringValue(from.getIdentifyingElement().getId());
+
+            FileDocumentManager.getInstance().saveAllDocuments();
+            PsiDocumentManager.getInstance(getProject()).commitAllDocuments();
+          }
+        });
+      }
+    });
+
+
+
+    return super.createEdge(from, to);
   }
 }

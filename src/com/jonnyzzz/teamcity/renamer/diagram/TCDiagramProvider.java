@@ -45,6 +45,22 @@ public class TCDiagramProvider extends BaseDiagramProvider<TCElement> {
     return myColorManager;
   }
 
+  @Nullable
+  @Override
+  public DiagramEdgeCreationPolicy<TCElement> getEdgeCreationPolicy() {
+    return new DiagramEdgeCreationPolicy<TCElement>() {
+      @Override
+      public boolean acceptSource(@NotNull DiagramNode<TCElement> source) {
+        return true;
+      }
+
+      @Override
+      public boolean acceptTarget(@NotNull DiagramNode<TCElement> target) {
+        return true;
+      }
+    };
+  }
+
   @NotNull
   @Override
   public DiagramExtras<TCElement> getExtras() {
