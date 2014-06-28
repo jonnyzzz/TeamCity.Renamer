@@ -131,6 +131,20 @@ public abstract class ProjectFile extends TeamCityFile {
             .transformAndConcat(FILE_TO_ROOTS));
   }
 
+  @Nullable
+  public PsiDirectory getOrCreateMetaRunnersDirectory() {
+    PsiDirectory dir = getContainingDirectory();
+    if (dir == null) return null;
+
+    PsiDirectory pd = dir.findSubdirectory("pluginData");
+    if (pd == null) pd = dir.createSubdirectory("pluginData");
+
+    PsiDirectory mr = pd.findSubdirectory("metaRunners");
+    if (mr == null) mr = pd.createSubdirectory("metaRunners");
+
+    return mr;
+  }
+
   public final Iterable<MetaRunnerFile> getOwnMetaRunners() {
     return getProjectEntities("pluginData/metaRunners", MetaRunnerFile.class);
   }
