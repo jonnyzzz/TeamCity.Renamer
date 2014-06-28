@@ -1,5 +1,3 @@
-package com.jonnyzzz.teamcity.renamer.resolve;
-
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -11,6 +9,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+
+§package com.jonnyzzz.teamcity.renamer.resolve;
 
 public class RenameableTeamCityFileElement extends RenameableFakePsiElement {
   private final PsiFile myContainingFile;
