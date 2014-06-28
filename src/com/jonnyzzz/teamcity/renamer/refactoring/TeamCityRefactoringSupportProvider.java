@@ -17,10 +17,7 @@ import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.refactoring.RefactoringActionHandler;
 import com.intellij.refactoring.util.CommonRefactoringUtil;
 import com.intellij.util.PsiNavigateUtil;
-import com.jonnyzzz.teamcity.renamer.model.ParameterElement;
-import com.jonnyzzz.teamcity.renamer.model.ParametersBlockElement;
-import com.jonnyzzz.teamcity.renamer.model.TeamCityFile;
-import com.jonnyzzz.teamcity.renamer.model.TeamCitySettingsBasedFile;
+import com.jonnyzzz.teamcity.renamer.model.*;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildRunnerElement;
 import com.jonnyzzz.teamcity.renamer.model.buildType.BuildRunnersElement;
 import com.jonnyzzz.teamcity.renamer.model.metaRunner.MetaRunnerFile;
@@ -171,10 +168,7 @@ public class TeamCityRefactoringSupportProvider extends RefactoringSupportProvid
 
         if (!parameterValue.getTextRange().containsRange(start, end)) return;
 
-        final TeamCitySettingsBasedFile base = parameter.getParentOfType(TeamCitySettingsBasedFile.class, false);
-        if (base == null) return;
-
-        final ParametersBlockElement block = base.getSettingsElement().getParametersBlock();
+        final ParametersBlockElement block = inferExtractParameterBlock(parameter);
         if (block == null) return;
 
         WriteCommandAction.runWriteCommandAction(project, new Runnable() {
@@ -189,6 +183,22 @@ public class TeamCityRefactoringSupportProvider extends RefactoringSupportProvid
             PsiNavigateUtil.navigate(param.getParameterName().getXmlAttributeValue());
           }
         });
+      }
+
+      @Nullable
+      private ParametersBlockElement inferExtractParameterBlock(@NotNull final ParameterElement parameter) {
+
+        final TeamCitySettingsBasedFile base = parameter.getParentOfType(TeamCitySettingsBasedFile.class, false);
+        if (base != null) {
+          ParametersSettingsBlock block = base.getSettingsElement().getParametersBlock();
+          if (block != null) return block;
+        }
+
+        ProjectFile projectFile = parameter.getParentOfType(ProjectFile.class, false);
+        if (projectFile != null) {
+          return projectFile.getParametersBlock();
+        }
+        return null;
       }
 
       @Override
