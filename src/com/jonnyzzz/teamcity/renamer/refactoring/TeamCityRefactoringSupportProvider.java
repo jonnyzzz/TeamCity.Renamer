@@ -177,7 +177,7 @@ public class TeamCityRefactoringSupportProvider extends RefactoringSupportProvid
         return null;
       }
 
-      private void introduceParameter(Project project, final Editor editor, final SelectionModel selection, final int start, final int end, PsiElement startElement, PsiElement endElement) {
+      private void introduceParameter(final Project project, final Editor editor, final SelectionModel selection, final int start, final int end, PsiElement startElement, PsiElement endElement) {
         final ParameterElement parameter = ParameterElement.fromPsiElement(startElement);
         if (parameter == null) return;
 
@@ -192,12 +192,15 @@ public class TeamCityRefactoringSupportProvider extends RefactoringSupportProvid
         WriteCommandAction.runWriteCommandAction(project, new Runnable() {
           @Override
           public void run() {
+            String name = "new_parameter_" + System.currentTimeMillis() % 100000;
             ParameterElement param = block.addParameter();
-            param.getParameterName().setStringValue("new_parameter");
+            param.getParameterName().setStringValue(name);
             param.getParameterValue().setStringValue(selection.getSelectedText());
 
-            editor.getDocument().replaceString(start, end, "%new_parameter%");
+            PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument());
+            editor.getDocument().replaceString(start, end, "%" + name + "%");
 
+            PsiDocumentManager.getInstance(project).commitAllDocuments();
             PsiNavigateUtil.navigate(param.getParameterName().getXmlAttributeValue());
           }
         });
