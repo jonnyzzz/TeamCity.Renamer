@@ -78,11 +78,11 @@ public class TCDiagramProvider extends BaseDiagramProvider<TCElement> {
                                                      @Nullable VirtualFile virtualFile,
                                                      DiagramPresentationModel diagramPresentationModel) {
     Map<String, TeamCitySettingsBasedFile> bts = new HashMap<>();
-    for (TeamCitySettingsBasedFile bt : getTransitiveDeps(tcdElement, SNAPS)) {
+    for (TeamCitySettingsBasedFile bt : SNAPS.apply(tcdElement.getFile())) {
       if (!bts.containsKey(bt.getFileId()))
         bts.put(bt.getFileId(), bt);
     }
-    for (TeamCitySettingsBasedFile bt : getTransitiveDeps(tcdElement, ARTS)) {
+    for (TeamCitySettingsBasedFile bt : ARTS.apply(tcdElement.getFile())) {
       if (!bts.containsKey(bt.getFileId()))
         bts.put(bt.getFileId(), bt);
     }
