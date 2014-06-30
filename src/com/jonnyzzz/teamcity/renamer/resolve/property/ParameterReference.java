@@ -70,7 +70,7 @@ public class ParameterReference extends PsiReferenceBase<PsiElement> implements 
     if (depResolve != null) return depResolve;
 
     if (checkIfBuiltInParameter()) {
-      return new TeamCityPredefined(myReferredVariableName);
+      return new TeamCityPredefined(myElement.getProject(), myReferredVariableName);
     }
 
     return null;

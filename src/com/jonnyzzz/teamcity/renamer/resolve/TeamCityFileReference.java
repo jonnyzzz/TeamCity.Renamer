@@ -56,7 +56,7 @@ public abstract class TeamCityFileReference<T extends TeamCityFile> extends PsiR
     }
 
     if (isBuiltIn()) {
-      return new TeamCityPredefined(value);
+      return new TeamCityPredefined(myElement.getProject(), value);
     }
 
     return null;

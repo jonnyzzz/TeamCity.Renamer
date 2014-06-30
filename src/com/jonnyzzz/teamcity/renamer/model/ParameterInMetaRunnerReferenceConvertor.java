@@ -76,14 +76,14 @@ public class ParameterInMetaRunnerReferenceConvertor extends PsiReferenceContrib
     public PsiElement resolve() {
       final String myParameterName = myParameter.getParameterNameString();
       if (myParameterName == null) return null;
-      if (myParameterName.equals("teamcity.step.mode")) return new TeamCityPredefined(myParameterName);
+      if (myParameterName.equals("teamcity.step.mode")) return new TeamCityPredefined(myElement.getProject(), myParameterName);
 
 
       final BuildRunnerElement runnerUsage = myParameter.getParentOfType(BuildRunnerElement.class, false);
       if (runnerUsage == null) return null;
 
       final MetaRunnerFile file = MetaRunnerReference.resolveReference(runnerUsage);
-      if (file == null) return new TeamCityPredefined(myParameterName);
+      if (file == null) return new TeamCityPredefined(myElement.getProject(), myParameterName);
 
       for (DeclaredProperty property : file.getDeclaredParameters()) {
         final ParameterElement element = property.getParameterElement();
